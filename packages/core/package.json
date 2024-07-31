@@ -1,0 +1,29 @@
+{
+  "name": "@shop/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*"
+  },
+  "scripts": {
+    "dev": "pnpm build --watch --emptyOutDir=false",
+    "build": "vite build",
+    "test": "vitest",
+    "test:watch": "pnpm test --watch",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@shop/tsconfig": "workspace:*",
+    "@shop/vite": "workspace:^0.0.0",
+    "eslint": "^8.52.0",
+    "eslint-config-custom": "workspace:*",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0",
+    "vitest": "^0.34.6"
+  }
+}

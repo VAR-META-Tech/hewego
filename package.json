@@ -1,0 +1,38 @@
+{
+  "name": "shop",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "test": "turbo run test",
+    "test:affected": "turbo run test --filter=${BASE_COMMIT:-...[origin/main]}",
+    "lint": "turbo run lint",
+    "lint:affected": "turbo run lint --filter=${BASE_COMMIT:-...[origin/main]}",
+    "lint:fix": "turbo run lint -- --fix",
+    "build": "turbo run build",
+    "build:affected": "turbo run build --filter=${BASE_COMMIT:-...[origin/main]}",
+    "dev": "turbo run dev --parallel",
+    "dev:api": "turbo run dev --filter=@shop/api... --parallel",
+    "dev:website": "turbo run dev --filter=@shop/website... --parallel",
+    "deploy": "turbo run deploy",
+    "deploy:affected": "turbo run deploy --filter=${BASE_COMMIT:-...[origin/main]}",
+    "deps:check": "npx npm-check-updates --deep",
+    "deps:update": "pnpm deps:check -u && pnpm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amirilovic/surviving-monorepos.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amirilovic/surviving-monorepos/issues"
+  },
+  "homepage": "https://github.com/amirilovic/surviving-monorepos#readme",
+  "devDependencies": {
+    "turbo": "^1.10.16"
+  }
+}
