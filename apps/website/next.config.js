@@ -33,3 +33,7 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+
+const withTM = require('next-transpile-modules')(['@bladelabs/blade-web3.js', 'hashconnect']);
+
+module.exports = withTM();

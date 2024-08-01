@@ -1,6 +1,6 @@
 import { Head, Html, Main, NextScript } from 'next/document';
 
-import { siteConfig } from '../config/site';
+import { siteConfig } from '@/config/site';
 
 export default function Document() {
   return (
@@ -27,6 +27,7 @@ export default function Document() {
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="next-size-adjust" />
       </Head>
+
       <body>
         <Main />
         <NextScript />

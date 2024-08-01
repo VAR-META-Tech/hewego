@@ -1,12 +1,16 @@
 import Head from 'next/head';
 
+import '@shop/design-system/style.css';
 import '../styles/globals.css';
 
 import type { AppProps } from 'next/app';
+import { fontSans, fontSerif } from '@/assets/fonts';
+import HederaWalletProvider from '@/context/HederaContext';
 
-import { fontSans, fontSerif } from '../assets/fonts';
-import Provider from '../components/Provider';
-import { siteConfig } from '../config/site';
+import { siteConfig } from '@/config/site';
+import MainLayout from '@/components/layouts/MainLayout';
+import { NextThemeProvider } from '@/components/NextThemeProvider';
+import Provider from '@/components/Provider';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -39,9 +43,15 @@ export default function App({ Component, pageProps }: AppProps) {
       `}</style>
 
       <div>
-        <Provider>
-          <Component {...pageProps} />
-        </Provider>
+        <NextThemeProvider themeProps={{ attribute: 'class', forcedTheme: 'light', children: <></> }}>
+          <HederaWalletProvider>
+            <Provider>
+              <MainLayout>
+                <Component {...pageProps} />
+              </MainLayout>
+            </Provider>
+          </HederaWalletProvider>
+        </NextThemeProvider>
       </div>
     </>
   );

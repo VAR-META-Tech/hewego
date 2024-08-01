@@ -1,4 +1,4 @@
-import { $, cd } from "zx";
+import { $, cd } from 'zx';
 
 async function deploy({
   image,
@@ -34,8 +34,8 @@ async function deploy({
 }
 
 deploy({
-  image: "ghcr.io/amirilovic/surviving-monorepos-website:latest",
-  packageName: "@shop/website",
+  image: 'ghcr.io/amirilovic/surviving-monorepos-website:latest',
+  packageName: '@shop/website',
   packagePath: `./apps/website`,
-  outDir: "./out/website",
+  outDir: './out/website',
 });

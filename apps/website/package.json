@@ -12,8 +12,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
     "check-types": "tsc --noEmit --pretty",
     "deploy": "tsx scripts/deploy.ts",
-    "clean": "rimraf .next out",
-    "prepare": "husky install"
+    "clean": "rimraf .next out"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",
@@ -57,24 +56,39 @@
     "zx": "^7.2.3"
   },
   "dependencies": {
+    "@bladelabs/blade-web3.js": "^0.10.1",
+    "@hashgraph/sdk": "^2.25.0",
     "@mantine/hooks": "^7.11.2",
+    "@nextui-org/button": "^2.0.37",
+    "@nextui-org/react": "^2.4.6",
+    "@nextui-org/system": "^2.2.5",
     "@nextui-org/theme": "^2.2.9",
     "@shop/design-system": "workspace:*",
     "@shop/logger": "workspace:*",
+    "@tailwindcss/typography": "^0.5.13",
     "@tanstack/react-query": "^5.51.15",
     "@tanstack/react-query-devtools": "^5.51.15",
+    "auto-zustand-selectors-hook": "^2.0.5",
     "autoprefixer": "^10.4.19",
+    "axios": "^1.7.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
     "framer-motion": "^11.3.19",
+    "hashconnect": "^0.2.4",
     "lucide-react": "^0.417.0",
     "next": "13.5.6",
     "next-themes": "^0.3.0",
+    "next-transpile-modules": "^10.0.1",
+    "nookies": "^2.5.2",
     "postcss": "^8.4.40",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.52.1",
+    "react-query": "^3.39.3",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.4.0",
     "tailwind-variants": "^0.2.1",
-    "tailwindcss": "^3.4.7"
+    "tailwindcss": "^3.4.7",
+    "zustand": "^4.5.4"
   }
 }
