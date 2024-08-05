@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { useConnectWallet } from '@/store/useConnectWallet';
-import { HashConnect } from 'hashconnect';
+import { HashConnect, HashConnectTypes, MessageTypes } from 'hashconnect';
+import { toast } from 'sonner';
 
 import { HashConnectState } from './useHashPack';
 
 export default function useHashConnectEvents(
-  hashConnect: HashConnect,
+  hashConnect: HashConnect | null,
   setHashConnectState: React.Dispatch<React.SetStateAction<Partial<HashConnectState>>>
 ) {
   const [isIframeParent, setIsIFrameParent] = React.useState(false);
@@ -22,12 +23,13 @@ export default function useHashConnectEvents(
         },
       }));
       onOpenChange();
+      toast.success('HashPack has been connected!');
     },
     [onOpenChange, setHashConnectState]
   );
 
   const foundExtensionEventHandler = React.useCallback(
-    (data: any) => {
+    (data: HashConnectTypes.WalletMetadata) => {
       setHashConnectState((prev) => ({
         ...prev,
         availableExtension: data,
@@ -37,14 +39,14 @@ export default function useHashConnectEvents(
   );
 
   const pairingEventHandler = React.useCallback(
-    (data: any) => {
+    (data: MessageTypes.ApprovePairing) => {
       updatePairingData(data);
     },
     [updatePairingData]
   );
 
   const foundIframeEventHandler = React.useCallback(
-    (data: any) => {
+    (data: HashConnectTypes.WalletMetadata) => {
       updatePairingData(data);
 
       setIsIFrameParent(true);

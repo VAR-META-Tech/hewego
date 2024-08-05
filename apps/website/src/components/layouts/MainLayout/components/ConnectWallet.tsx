@@ -1,46 +1,32 @@
-import React, { useContext } from 'react';
+import React from 'react';
+import { Icons } from '@/assets/icons';
 import { HederaWalletsContext } from '@/context/HederaContext';
 import { useConnectWallet } from '@/store/useConnectWallet';
 import { Button } from '@nextui-org/button';
-import { toast } from 'sonner';
 
 import { HStack } from '@/components/Utilities';
 
 import WalletModal from './WalletModal';
+import WalletPoppover from './WalletPoppover';
 
 const ConnectWallet = () => {
   const isOpen = useConnectWallet.use.isOpen();
   const onOpen = useConnectWallet.use.onOpen();
   const onOpenChange = useConnectWallet.use.onOpenChange();
 
-  const { isConnected, address, disconnectFromHashPack, clearConnectedBladeWalletData } =
-    useContext(HederaWalletsContext);
-
-  const handleDisconnect = React.useCallback(() => {
-    disconnectFromHashPack();
-    clearConnectedBladeWalletData();
-    toast.success('Disconnected!');
-  }, [clearConnectedBladeWalletData, disconnectFromHashPack]);
+  const { isConnected } = React.useContext(HederaWalletsContext);
 
   const renderWallet = React.useMemo(() => {
     if (!isConnected) {
       return (
-        <Button onPress={onOpen} color="secondary" className="text-lg font-medium">
+        <Button onPress={onOpen} startContent={<Icons.wallet />} className="bg-primary-900 text-white text-base">
           Connect Wallet
         </Button>
       );
     }
 
-    return (
-      <HStack spacing={20} className="border border-border bg-black/50 rounded-lg p-2">
-        <span className="text-white">{address}</span>
-
-        <Button color="secondary" onPress={handleDisconnect}>
-          Disconnect
-        </Button>
-      </HStack>
-    );
-  }, [address, handleDisconnect, isConnected, onOpen]);
+    return <WalletPoppover />;
+  }, [isConnected, onOpen]);
 
   return (
     <HStack>

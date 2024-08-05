@@ -1,4 +1,4 @@
-export const production = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'production';
 
 export const HEDERA_CONFIG = {
   name: `hedera`,
@@ -6,10 +6,13 @@ export const HEDERA_CONFIG = {
   icon: '/favicon.ico',
 };
 
-export const NETWORK_TYPE = 'testnet';
-
-export const SIGNATURE_TEXT = process.env.NEXT_PUBLIC_SIGNATURE_TEXT;
-
-export const HEDERA_URL = 'https://testnet.mirrornode.hedera.com';
+export const env = {
+  isProduction,
+  APP_URL: process.env.NEXT_PUBLIC_APP_URL || '',
+  API_URL: process.env.NEXT_PUBLIC_API_URL || '',
+  NETWORK_TYPE: (process.env.NEXT_PUBLIC_NETWORK_TYPE || 'testnet') as 'testnet' | 'mainnet' | 'previewnet',
+  SIGNATURE_TEXT: process.env.NEXT_PUBLIC_SIGNATURE_TEXT || '',
+  HEDERA_URL: process.env.NEXT_PUBLIC_HEDERA_URL || '',
+};
 
 export const HASHCONNECT_DEBUG_MODE = false;

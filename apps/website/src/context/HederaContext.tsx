@@ -1,23 +1,25 @@
-import React, { createContext } from 'react';
+import React from 'react';
 import { FCC } from '@/types';
-import { BladeSigner } from '@bladelabs/blade-web3.js';
 import { HashConnect } from 'hashconnect';
+import { toast } from 'sonner';
 
-import useBladeWallet, { BladeAccountId } from '@/hooks/useBladeWallet';
 import useHashPack, { HashConnectState } from '@/hooks/useHashPack';
 
 interface HederaWalletsContextType {
-  hashConnect?: HashConnect;
+  hashConnect?: HashConnect | null;
   hashConnectState: Partial<HashConnectState>;
   connectToHashPack: () => void;
   disconnectFromHashPack: () => void;
   isIframeParent: boolean;
-  bladeSigner?: BladeSigner;
-  bladeAccountId: BladeAccountId;
-  connectBladeWallet: () => void;
-  clearConnectedBladeWalletData: () => void;
+  // bladeSigner?: BladeSigner;
+  // bladeAccountId: BladeAccountId;
+  // connectBladeWallet: () => void;
+  // clearConnectedBladeWalletData: () => void;
   isConnected: boolean;
-  address: string;
+  accountId: string;
+  handleDisconnect: () => void;
+  onConnectHaskPack: () => void;
+  onConnectBladeWallet: () => void;
 }
 
 const HEDERA_CONTEXT: HederaWalletsContextType = {
@@ -26,55 +28,89 @@ const HEDERA_CONTEXT: HederaWalletsContextType = {
   disconnectFromHashPack: () => undefined,
   connectToHashPack: () => undefined,
   isIframeParent: false,
-  bladeSigner: undefined,
-  bladeAccountId: '',
-  connectBladeWallet: () => undefined,
-  clearConnectedBladeWalletData: () => undefined,
+  // bladeSigner: undefined,
+  // bladeAccountId: '',
+  // connectBladeWallet: () => undefined,
+  // clearConnectedBladeWalletData: () => undefined,
   isConnected: false,
-  address: '',
+  accountId: '',
+  handleDisconnect: () => undefined,
+  onConnectHaskPack: () => undefined,
+  onConnectBladeWallet: () => undefined,
 };
 
-export const HederaWalletsContext = createContext(HEDERA_CONTEXT);
+export const HederaWalletsContext = React.createContext(HEDERA_CONTEXT);
 
 export const HederaWalletProvider: FCC = ({ children }) => {
-  const { bladeSigner, bladeAccountId, connectBladeWallet, clearConnectedBladeWalletData } = useBladeWallet();
+  // const { bladeSigner, bladeAccountId, connectBladeWallet, clearConnectedBladeWalletData } = useBladeWallet();
 
   const { hashConnect, hashConnectState, connectToHashPack, disconnectFromHashPack, isIframeParent } = useHashPack();
 
-  const address = React.useMemo(() => {
+  const accountId = React.useMemo(() => {
     if (hashConnectState?.pairingData?.accountIds?.length) {
       return hashConnectState?.pairingData?.accountIds[0];
     }
 
-    if (bladeAccountId) {
-      return bladeAccountId;
-    }
+    // if (bladeAccountId) {
+    //   return bladeAccountId;
+    // }
 
     return '';
-  }, [bladeAccountId, hashConnectState?.pairingData?.accountIds]);
+  }, [hashConnectState?.pairingData?.accountIds]);
 
   const isConnected = React.useMemo(() => {
-    if (address) {
+    if (accountId) {
       return true;
     }
 
     return false;
-  }, [address]);
+  }, [accountId]);
+
+  // Disconnect
+  const handleDisconnect = React.useCallback(
+    (isShowToast = true) => {
+      disconnectFromHashPack();
+
+      // clearConnectedBladeWalletData();
+
+      if (isShowToast) {
+        toast.success('Disconnected!');
+      }
+    },
+    [disconnectFromHashPack]
+  );
+
+  // Connect to HashPack
+  const onConnectHaskPack = React.useCallback(() => {
+    handleDisconnect(false);
+
+    connectToHashPack();
+  }, [connectToHashPack, handleDisconnect]);
+
+  // Connect to BladeWallet
+  const onConnectBladeWallet = React.useCallback(() => {
+    handleDisconnect(false);
+
+    // connectBladeWallet();
+  }, [handleDisconnect]);
 
   return (
     <HederaWalletsContext.Provider
       value={{
-        bladeSigner,
-        bladeAccountId,
-        connectBladeWallet,
-        clearConnectedBladeWalletData,
+        // bladeSigner,
+        // bladeAccountId,
+        // connectBladeWallet,
+        // clearConnectedBladeWalletData,
         hashConnect,
         hashConnectState,
         disconnectFromHashPack,
         connectToHashPack,
         isIframeParent,
         isConnected,
-        address,
+        accountId,
+        handleDisconnect,
+        onConnectHaskPack,
+        onConnectBladeWallet,
       }}
     >
       {children}

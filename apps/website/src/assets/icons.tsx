@@ -18,7 +18,6 @@ import facebookCircle from '@/assets/svg/facebook_circle.svg';
 import facebook from '@/assets/svg/facebook.svg';
 import google from '@/assets/svg/google.svg';
 import insecurity from '@/assets/svg/insecurity.svg';
-import link from '@/assets/svg/link.svg';
 import location from '@/assets/svg/location.svg';
 import menu from '@/assets/svg/menu.svg';
 import message from '@/assets/svg/message.svg';
@@ -28,7 +27,6 @@ import playSolid from '@/assets/svg/play-solid.svg';
 import plusCircle from '@/assets/svg/plus-circle.svg';
 import plus from '@/assets/svg/plus.svg';
 import reload from '@/assets/svg/reload.svg';
-import search from '@/assets/svg/search.svg';
 import security from '@/assets/svg/security.svg';
 import star from '@/assets/svg/star.svg';
 import trash from '@/assets/svg/trash.svg';
@@ -37,7 +35,6 @@ import twitter from '@/assets/svg/twitter.svg';
 import unlink from '@/assets/svg/unlink.svg';
 import upload from '@/assets/svg/upload.svg';
 import warning from '@/assets/svg/warning.svg';
-import X from '@/assets/svg/X.svg';
 import youtube from '@/assets/svg/youtube.svg';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -48,9 +45,13 @@ import {
   ChevronUp,
   Copy,
   HelpCircle,
+  Link,
   Loader2,
   LogOut,
+  Search,
   User,
+  Wallet,
+  X,
 } from 'lucide-react';
 
 export type Icon = LucideIcon;
@@ -66,14 +67,12 @@ const IconList = {
   insecurity,
   arrowLeft,
   unlink,
-  X,
   facebookCircle,
   twitter,
   eye,
   camera: Camera,
-  link,
   bookmark,
-  search,
+  search: Search,
   closeCircle,
   reload,
   checkCircle,
@@ -107,6 +106,9 @@ const IconList = {
   checkCircleXs,
   chevronDown: ChevronDown,
   chevronUp: ChevronUp,
+  wallet: Wallet,
+  link: Link,
+  x: X,
 };
 
 export const Icons = IconList as Record<keyof typeof IconList, Icon>;

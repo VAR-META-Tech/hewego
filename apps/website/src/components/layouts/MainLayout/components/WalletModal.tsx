@@ -1,9 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { HederaWalletsContext } from '@/context/HederaContext';
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
+import { ROUTE } from '@/types';
+import { cn } from '@/utils/common';
+import { Button, Checkbox, Modal, ModalBody, ModalContent, ModalHeader } from '@nextui-org/react';
 
-import { HStack } from '@/components/Utilities';
+import { HStack, VStack } from '@/components/Utilities';
 
 interface Props {
   isOpen: boolean;
@@ -11,63 +14,90 @@ interface Props {
 }
 
 const WalletModal: React.FC<Props> = ({ isOpen, onOpenChange }) => {
-  const { connectToHashPack, connectBladeWallet, clearConnectedBladeWalletData, disconnectFromHashPack } =
-    useContext(HederaWalletsContext);
-
-  const onHaskPack = () => {
-    clearConnectedBladeWalletData();
-    connectToHashPack();
-  };
-
-  const onBladeWallet = () => {
-    disconnectFromHashPack();
-    clearConnectedBladeWalletData();
-    connectBladeWallet();
-  };
+  const { onConnectHaskPack } = React.useContext(HederaWalletsContext);
+  const [isChecked, setIsChecked] = React.useState(false);
 
   return (
-    <Modal closeButton={<></>} backdrop={'blur'} isOpen={isOpen} placement={'auto'} onOpenChange={onOpenChange}>
+    <Modal size="xl" backdrop={'blur'} isOpen={isOpen} placement={'auto'} onOpenChange={onOpenChange}>
       <ModalContent>
-        {(onClose) => (
+        {() => (
           <>
             <ModalHeader className="flex flex-col gap-1">Connect Wallet</ModalHeader>
-            <ModalBody>
-              {/* HashPack */}
-              <button onClick={onHaskPack}>
-                <HStack spacing={12}>
-                  <Image
-                    src="/images/wallet/hashpack.jpeg"
-                    alt="hashpack"
-                    width={60}
-                    height={60}
-                    quality={100}
-                    unoptimized
+            <ModalBody className="pb-10">
+              <VStack spacing={20}>
+                <HStack spacing={20} noWrap>
+                  <Checkbox
+                    aria-label="By connecting your wallet, I agree with the Terms of Use & Privacy Policy"
+                    isSelected={isChecked}
+                    onValueChange={setIsChecked}
+                    color="default"
+                    classNames={{
+                      base: cn('inline-flex'),
+                      label: 'w-full',
+                    }}
                   />
-                  <span className="text-xl font-medium">HashPack</span>
+                  <span>
+                    By connecting your wallet, I agree with the{' '}
+                    <Link href={ROUTE.HOME} className="text-primary-900 hover:opacity-50">
+                      Terms of Use
+                    </Link>{' '}
+                    &{' '}
+                    <Link href={ROUTE.HOME} className="text-primary-900 hover:opacity-50">
+                      Privacy Policy
+                    </Link>
+                  </span>
                 </HStack>
-              </button>
 
-              {/* BladeWallet */}
-              <button onClick={onBladeWallet}>
-                <HStack spacing={12}>
-                  <Image
-                    src="/images/wallet/bladewallet.png"
-                    alt="blade-wallet"
-                    width={60}
-                    height={60}
-                    quality={100}
-                    unoptimized
-                  />
-                  <span className="text-xl font-medium">BladeWallet</span>
-                </HStack>
-              </button>
+                <VStack>
+                  {/* HashPack */}
+                  <Button
+                    disabled={!isChecked}
+                    className={cn('py-2 bg-primary-900 text-white', {
+                      'bg-[#F3F4F6] text-[#BCC1CA] pointer-events-none': !isChecked,
+                    })}
+                    startContent={
+                      <div
+                        className={cn('rounded-full overflow-hidden', {
+                          'opacity-30': !isChecked,
+                        })}
+                      >
+                        <Image
+                          src="/images/wallet/hashpack.jpeg"
+                          alt="hashpack"
+                          width={32}
+                          height={32}
+                          quality={100}
+                          unoptimized
+                        />
+                      </div>
+                    }
+                    onClick={onConnectHaskPack}
+                  >
+                    <span className="text-lg">HashPack</span>
+                  </Button>
+
+                  {/* BladeWallet */}
+                  {/* <Button
+                    className="py-2 bg-primary-900 text-white"
+                    onClick={onConnectBladeWallet}
+                    startContent={
+                      <div className="rounded-full overflow-hidden">
+                        <Image
+                          src="/images/wallet/bladewallet.png"
+                          alt="blade-wallet"
+                          width={32}
+                          height={32}
+                          quality={100}
+                          unoptimized
+                        />
+                      </div>
+                    }
+                  >
+                    <span className="text-lg">BladeWallet</span>
+                  </Button> */}
+                </VStack>
+              </VStack>
             </ModalBody>
-
-            <ModalFooter>
-              <Button color="primary" onPress={onClose}>
-                Close
-              </Button>
-            </ModalFooter>
           </>
         )}
       </ModalContent>

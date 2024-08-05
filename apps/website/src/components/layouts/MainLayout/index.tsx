@@ -1,17 +1,18 @@
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { FCC } from '@/types';
 
-import Header from './components/Header';
+const Header = dynamic(() => import('./components/Header'));
 
 interface Props {}
 
 const MainLayout: FCC<Props> = ({ children }) => {
   return (
-    <div>
+    <>
       <Header />
 
-      <main className="min-h-screen">{children}</main>
-    </div>
+      <main className="min-h-screen bg-white">{children}</main>
+    </>
   );
 };
 

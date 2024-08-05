@@ -4,5 +4,6 @@ export const loadLocalData = (variable: string) => {
   if (foundData) {
     return JSON.parse(foundData);
   }
+
   return null;
 };

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { useConnectWallet } from '@/store/useConnectWallet';
-import { HEDERA_CONFIG, NETWORK_TYPE } from '@/utils/constants';
+import { env, HEDERA_CONFIG } from '@/utils/constants';
 import { loadLocalData } from '@/utils/json';
 import { BladeSigner, HederaNetwork } from '@bladelabs/blade-web3.js';
 import { toast } from 'sonner';
@@ -10,22 +10,22 @@ export type BladeAccountId = string;
 export const BLADE_WALLET_LOCALSTORAGE_VARIABLE_NAME = HEDERA_CONFIG.name;
 
 const BLADE_SIGNER_PARAMS = {
-  network: NETWORK_TYPE === 'testnet' ? HederaNetwork.Testnet : HederaNetwork.Mainnet,
+  network: env.NETWORK_TYPE === 'testnet' ? HederaNetwork.Testnet : HederaNetwork.Mainnet,
   dAppCode: BLADE_WALLET_LOCALSTORAGE_VARIABLE_NAME,
 };
 
 const bladeSigner = new BladeSigner();
 
 const useBladeWallet = () => {
-  const [bladeAccountId, setBladeAccountId] = useState<BladeAccountId>('');
+  const [bladeAccountId, setBladeAccountId] = React.useState<BladeAccountId>('');
   const onOpenChange = useConnectWallet.use.onOpenChange();
 
-  const clearConnectedBladeWalletData = useCallback(() => {
+  const clearConnectedBladeWalletData = React.useCallback(() => {
     localStorage.removeItem(BLADE_WALLET_LOCALSTORAGE_VARIABLE_NAME);
     setBladeAccountId('');
   }, [setBladeAccountId]);
 
-  const connectBladeWallet = useCallback(async () => {
+  const connectBladeWallet = React.useCallback(async () => {
     let loggedId = '';
     try {
       await bladeSigner.createSession(BLADE_SIGNER_PARAMS);
@@ -47,8 +47,10 @@ const useBladeWallet = () => {
         if (!loadLocalData(BLADE_WALLET_LOCALSTORAGE_VARIABLE_NAME)) {
           toast.success('Blade Wallet has been connected!');
         }
+
         setBladeAccountId(loggedId);
         onOpenChange();
+
         localStorage.setItem(
           BLADE_WALLET_LOCALSTORAGE_VARIABLE_NAME,
           JSON.stringify({
@@ -59,7 +61,7 @@ const useBladeWallet = () => {
     }
   }, [onOpenChange]);
 
-  const initializeBladeWallet = useCallback(async () => {
+  const initializeBladeWallet = React.useCallback(async () => {
     const wasConnected = loadLocalData(BLADE_WALLET_LOCALSTORAGE_VARIABLE_NAME);
 
     if (wasConnected) {
@@ -67,11 +69,11 @@ const useBladeWallet = () => {
     }
   }, [connectBladeWallet]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     initializeBladeWallet();
   }, [initializeBladeWallet]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     bladeSigner.onAccountChanged(() => connectBladeWallet());
   }, [connectBladeWallet]);
 
