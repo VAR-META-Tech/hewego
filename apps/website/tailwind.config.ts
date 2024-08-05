@@ -115,12 +115,12 @@ const config: Config = {
       },
       keyframes: {
         'accordion-down': {
-          from: { 'height': '0' },
+          from: { height: '0' },
           to: { height: 'var(--radix-accordion-content-height)' },
         },
         'accordion-up': {
           from: { height: 'var(--radix-accordion-content-height)' },
-          to: { 'height': '0' },
+          to: { height: '0' },
         },
         scroll: {
           to: {
@@ -142,18 +142,18 @@ const config: Config = {
         light: {
           colors: {
             primary: {
-              '50': '#FAFAFA',
-              '100': '#F4F4F5',
-              '200': '#E4E4E7',
-              '300': '#D4D4D8',
-              '400': '#A1A1AA',
-              '500': '#71717A',
-              '600': '#52525B',
-              '700': '#3F3F46',
-              '800': '#27272A',
-              '900': '#18181B',
-              DEFAULT: '#71717A',
-              foreground: '#FAFAFA',
+              '50': '#e5f8fa',
+              '100': '#ccf1f6',
+              '200': '#b2ebf2',
+              '300': '#99e4ee',
+              '400': '#7fdeea',
+              '500': '#66d7e6',
+              '600': '#4cd0e2',
+              '700': '#32cade',
+              '800': '#19c3da',
+              '900': '#00bdd6',
+              DEFAULT: '#66d7e6',
+              foreground: '#19c3da',
             },
             foreground: {
               '50': '#eef6ff',

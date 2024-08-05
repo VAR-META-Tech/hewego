@@ -3,16 +3,27 @@ import Head from 'next/head';
 import '@shop/design-system/style.css';
 import '../styles/globals.css';
 
+import { Session } from 'inspector';
+import React from 'react';
 import type { AppProps } from 'next/app';
 import { fontSans, fontSerif } from '@/assets/fonts';
 import HederaWalletProvider from '@/context/HederaContext';
+import { NextPageWithLayout } from '@/types';
 
 import { siteConfig } from '@/config/site';
 import MainLayout from '@/components/layouts/MainLayout';
+import ModuleLayout from '@/components/layouts/ModuleLayout';
 import { NextThemeProvider } from '@/components/NextThemeProvider';
 import Provider from '@/components/Provider';
 
-export default function App({ Component, pageProps }: AppProps) {
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+  session: Session;
+};
+
+export default function App({ Component, pageProps }: AppPropsWithLayout) {
+  const getLayout = Component.getLayout ?? ((page: React.ReactNode) => <MainLayout>{page}</MainLayout>);
+
   return (
     <>
       <Head>
@@ -44,13 +55,11 @@ export default function App({ Component, pageProps }: AppProps) {
 
       <div>
         <NextThemeProvider themeProps={{ attribute: 'class', forcedTheme: 'light', children: <></> }}>
-          <HederaWalletProvider>
-            <Provider>
-              <MainLayout>
-                <Component {...pageProps} />
-              </MainLayout>
-            </Provider>
-          </HederaWalletProvider>
+          <ModuleLayout>
+            <HederaWalletProvider>
+              <Provider>{getLayout(<Component {...pageProps} />)}</Provider>
+            </HederaWalletProvider>
+          </ModuleLayout>
         </NextThemeProvider>
       </div>
     </>

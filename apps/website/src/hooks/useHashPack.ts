@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { getAccountByAddressOrAccountId } from '@/utils/common';
-import { HASHCONNECT_DEBUG_MODE, HEDERA_CONFIG, NETWORK_TYPE } from '@/utils/constants';
-import { HashConnect, HashConnectTypes } from 'hashconnect';
+import { env, HASHCONNECT_DEBUG_MODE, HEDERA_CONFIG } from '@/utils/constants';
+import { HashConnect, HashConnectTypes, MessageTypes } from 'hashconnect';
 import { HashConnectConnectionState } from 'hashconnect/dist/types';
 import { toast } from 'sonner';
 
@@ -17,14 +16,14 @@ export interface HashConnectState {
 }
 
 const useHashPack = () => {
-  const [hashConnect, setHashConnect] = React.useState<any>(null);
+  const [hashConnect, setHashConnect] = React.useState<HashConnect | null>(null);
   const [hashConnectState, setHashConnectState] = React.useState<Partial<HashConnectState>>({});
 
   const { isIframeParent } = useHashConnectEvents(hashConnect, setHashConnectState);
 
   const initializeHashConnect = React.useCallback(async () => {
     const temp = new HashConnect(HASHCONNECT_DEBUG_MODE);
-    await temp.init(HEDERA_CONFIG, NETWORK_TYPE);
+    await temp.init(HEDERA_CONFIG, env.NETWORK_TYPE);
     setHashConnect(temp);
   }, []);
 
@@ -34,16 +33,19 @@ const useHashPack = () => {
 
   const disconnectFromHashPack = React.useCallback(async () => {
     if (hashConnectState?.pairingData?.topic) {
-      await hashConnect.disconnect(hashConnectState?.pairingData?.topic);
+      await hashConnect?.disconnect(hashConnectState?.pairingData?.topic);
 
       setHashConnectState((prev) => ({
         ...prev,
         pairingData: undefined,
       }));
-      hashConnect.hcData.pairingData = [];
+
+      if (hashConnect?.hcData) {
+        hashConnect.hcData.pairingData = [];
+      }
 
       if (isIframeParent) {
-        await hashConnect.clearConnectionsAndData();
+        await hashConnect?.clearConnectionsAndData();
       }
     }
   }, [hashConnect, hashConnectState?.pairingData?.topic, isIframeParent]);
@@ -60,7 +62,7 @@ const useHashPack = () => {
 
       hashConnect.connectToLocalWallet();
 
-      hashConnect.pairingEvent.once((data: any) => {
+      hashConnect.pairingEvent.once((data: MessageTypes.ApprovePairing) => {
         (async () => {
           const wallet = await getAccountByAddressOrAccountId(data.accountIds[0]);
           console.log(wallet);

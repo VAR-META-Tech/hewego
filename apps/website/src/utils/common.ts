@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { extendTailwindMerge } from 'tailwind-merge';
 
 import { getMutateError } from '../lib/getMutateError';
-import { HEDERA_URL } from './constants';
+import { env } from './constants';
 
 const twMerge = extendTailwindMerge({});
 
@@ -23,7 +23,7 @@ export const convertHederaAccountIdToEvmAddress = (shard: number, realm: number,
 };
 
 export const getAccountByAddressOrAccountId = async (value: any) => {
-  const { data } = await axios.get(`${HEDERA_URL}/api/v1/accounts/${value}`);
+  const { data } = await axios.get(`${env.HEDERA_URL}/api/v1/accounts/${value}`);
 
   return data;
 };
