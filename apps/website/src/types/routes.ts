@@ -1,7 +1,7 @@
 export const ROUTE = {
   HOME: '/',
   BONDS: '/bonds',
-  CREATE_BOND: '/bonds/create',
+  ISSUE_BOND: '/issue-bond',
   PORTFOLIO: '/portfolio',
 } as const;
 

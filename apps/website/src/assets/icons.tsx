@@ -1,6 +1,5 @@
 import angleDown from '@/assets/svg/angle-down-solid.svg';
 import arrowDown from '@/assets/svg/arrow-down.svg';
-import arrowLeft from '@/assets/svg/arrow-left.svg';
 import bell from '@/assets/svg/bell.svg';
 import bookmark from '@/assets/svg/bookmark.svg';
 import calendar from '@/assets/svg/calendar.svg';
@@ -38,11 +37,13 @@ import warning from '@/assets/svg/warning.svg';
 import youtube from '@/assets/svg/youtube.svg';
 import type { LucideIcon } from 'lucide-react';
 import {
+  ArrowLeft,
   Camera,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  CircleAlert,
   Copy,
   HelpCircle,
   Link,
@@ -65,7 +66,7 @@ const IconList = {
   warning,
   eyeHidden,
   insecurity,
-  arrowLeft,
+  arrowLeft: ArrowLeft,
   unlink,
   facebookCircle,
   twitter,
@@ -109,6 +110,7 @@ const IconList = {
   wallet: Wallet,
   link: Link,
   x: X,
+  circleAlert: CircleAlert,
 };
 
 export const Icons = IconList as Record<keyof typeof IconList, Icon>;
