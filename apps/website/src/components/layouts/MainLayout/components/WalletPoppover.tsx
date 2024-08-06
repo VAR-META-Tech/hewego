@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Icons } from '@/assets/icons';
 import { HederaWalletsContext } from '@/context/HederaContext';
+import { ROUTE } from '@/types';
 import { Button, Popover, PopoverContent, PopoverTrigger } from '@nextui-org/react';
 
 import { useCopy } from '@/hooks/useCopy';
 import { HStack, VStack } from '@/components/Utilities';
 
 const WalletPoppover = () => {
+  const router = useRouter();
   const [copied, copy] = useCopy();
   const { accountId, handleDisconnect } = React.useContext(HederaWalletsContext);
 
@@ -25,14 +28,28 @@ const WalletPoppover = () => {
             <span className="text-lg font-medium text-primary-900">{accountId}</span>
           </HStack>
 
-          <HStack>
-            <Button startContent={<Icons.copy />} className="bg-primary-900 text-white" onClick={() => copy(accountId)}>
-              Copy Address
+          <VStack spacing={8}>
+            <HStack spacing={8}>
+              <Button
+                startContent={<Icons.copy />}
+                className="bg-primary-900 text-white"
+                onClick={() => copy(accountId)}
+              >
+                Copy Address
+              </Button>
+              <Button startContent={<Icons.x />} className="bg-primary-900 text-white" onClick={handleDisconnect}>
+                Disconnect
+              </Button>
+            </HStack>
+
+            <Button
+              startContent={<Icons.user />}
+              className="bg-primary-900 text-white"
+              onClick={() => router.push(ROUTE.MY_PORTFOLIO)}
+            >
+              My Porfolio
             </Button>
-            <Button startContent={<Icons.x />} className="bg-primary-900 text-white" onClick={handleDisconnect}>
-              Disconnect
-            </Button>
-          </HStack>
+          </VStack>
         </VStack>
       </PopoverContent>
     </Popover>

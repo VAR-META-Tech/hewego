@@ -1,5 +1,5 @@
 import React from 'react';
-import { useConnectWallet } from '@/store/useConnectWallet';
+import { useConnectWalletStore } from '@/store/useConnectWalletStore';
 import { env, HEDERA_CONFIG } from '@/utils/constants';
 import { loadLocalData } from '@/utils/json';
 import { BladeSigner, HederaNetwork } from '@bladelabs/blade-web3.js';
@@ -18,7 +18,7 @@ const bladeSigner = new BladeSigner();
 
 const useBladeWallet = () => {
   const [bladeAccountId, setBladeAccountId] = React.useState<BladeAccountId>('');
-  const onOpenChange = useConnectWallet.use.onOpenChange();
+  const onOpenChange = useConnectWalletStore.use.onOpenChange();
 
   const clearConnectedBladeWalletData = React.useCallback(() => {
     localStorage.removeItem(BLADE_WALLET_LOCALSTORAGE_VARIABLE_NAME);

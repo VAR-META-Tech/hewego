@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 import { clsx, type ClassValue } from 'clsx';
+import bigDecimal from 'js-big-decimal';
 import { toast } from 'sonner';
 import { extendTailwindMerge } from 'tailwind-merge';
 
@@ -12,6 +13,15 @@ const twMerge = extendTailwindMerge({});
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const prettyNumber = (number: number | string, digits = 3, separator = ',') =>
+  bigDecimal.getPrettyValue(number, digits, separator);
+
+export const roundNumber = (
+  number: string | number,
+  round = 8,
+  roundMode: RoundingModes = bigDecimal.RoundingModes.DOWN
+) => bigDecimal.round(number, round, roundMode);
 
 export const convertHederaAccountIdToEvmAddress = (shard: number, realm: number, account: number): string => {
   const shardHex = shard.toString(16).padStart(2, '0');
