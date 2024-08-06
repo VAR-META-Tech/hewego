@@ -2,6 +2,7 @@ import React from 'react';
 
 import Tabs from '@/components/ui/tabs';
 import Back from '@/components/Back';
+import AuthLayout from '@/components/layouts/AuthLayout';
 import TransitionLayout from '@/components/TransitionLayout';
 
 import ListBond from './components/ListBond';
@@ -28,15 +29,17 @@ const MyPortfolioPage = () => {
   }, [tab]);
 
   return (
-    <div className="container py-20 space-y-8">
-      <Back title="My Portfolio" />
+    <AuthLayout>
+      <div className="container py-20 space-y-8">
+        <Back title="My Portfolio" />
 
-      <div className="w-full md:w-4/5 mx-auto">
-        <Tabs layoutId="my-portfolio-tabs" data={TAB_DATA} value={tab} onChange={setTab} />
+        <div className="w-full md:w-4/5 mx-auto">
+          <Tabs layoutId="my-portfolio-tabs" data={TAB_DATA} value={tab} onChange={setTab} />
+        </div>
+
+        {renderContent}
       </div>
-
-      {renderContent}
-    </div>
+    </AuthLayout>
   );
 };
 
