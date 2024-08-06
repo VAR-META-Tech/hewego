@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { clsx, type ClassValue } from 'clsx';
 import bigDecimal from 'js-big-decimal';
+import { RoundingModes } from 'js-big-decimal/dist/node/roundingModes';
 import { toast } from 'sonner';
 import { extendTailwindMerge } from 'tailwind-merge';
 
