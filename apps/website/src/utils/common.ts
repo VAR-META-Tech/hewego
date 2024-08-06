@@ -31,3 +31,17 @@ export const getAccountByAddressOrAccountId = async (value: any) => {
 export const onMutateError = (err: any) => {
   toast.error(getMutateError(err));
 };
+
+export const convertMarutiryDateToISO = (value: number, type: 'month' | 'week' = 'month') => {
+  const today = new Date(new Date().setDate(new Date().getDate() + 7));
+
+  const newDate = new Date(today);
+
+  if (type === 'month') {
+    newDate.setMonth(newDate.getMonth() + value);
+  } else {
+    newDate.setDate(newDate.getDate() + value);
+  }
+
+  return newDate.toISOString();
+};

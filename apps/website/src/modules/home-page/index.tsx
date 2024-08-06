@@ -1,9 +1,15 @@
 import React from 'react';
+import dynamic from 'next/dynamic';
+import { NextPageWithLayout } from '@/types';
 
-import { NextPageWithLayout } from '../../types';
+const BannerSection = dynamic(() => import('./components/BannerSection'));
 
 const HomePage: NextPageWithLayout = () => {
-  return <div className="flex flex-col gap-4 flex-1 items-center justify-center min-h-screen"></div>;
+  return (
+    <div className="flex flex-col min-h-screen">
+      <BannerSection />
+    </div>
+  );
 };
 
 export default HomePage;

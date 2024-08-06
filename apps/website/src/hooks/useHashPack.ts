@@ -60,9 +60,9 @@ const useHashPack = () => {
         throw new Error('No pairing key generated! Initialize HashConnect first!');
       }
 
-      hashConnect.connectToLocalWallet();
+      await hashConnect.connectToLocalWallet();
 
-      hashConnect.pairingEvent.once((data: MessageTypes.ApprovePairing) => {
+      await hashConnect.pairingEvent.once((data: MessageTypes.ApprovePairing) => {
         (async () => {
           const wallet = await getAccountByAddressOrAccountId(data.accountIds[0]);
           console.log(wallet);

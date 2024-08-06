@@ -16,3 +16,8 @@ export const env = {
 };
 
 export const HASHCONNECT_DEBUG_MODE = false;
+
+export const DATE_FORMAT = {
+  DD_MM_YYYY: 'dd/MM/yyyy',
+  YYYY_MM_DD: 'YYYY-MM-dd',
+};

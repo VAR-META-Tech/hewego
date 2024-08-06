@@ -58,12 +58,14 @@
   "dependencies": {
     "@bladelabs/blade-web3.js": "^0.10.1",
     "@hashgraph/sdk": "^2.25.0",
+    "@hookform/resolvers": "^3.9.0",
     "@mantine/hooks": "^7.11.2",
     "@nextui-org/button": "^2.0.37",
     "@nextui-org/checkbox": "^2.1.4",
     "@nextui-org/input": "^2.2.4",
     "@nextui-org/popover": "^2.1.27",
     "@nextui-org/react": "^2.4.6",
+    "@nextui-org/select": "^2.2.5",
     "@nextui-org/system": "^2.2.5",
     "@nextui-org/theme": "^2.2.9",
     "@shop/design-system": "workspace:*",
@@ -76,6 +78,7 @@
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
     "framer-motion": "^11.3.19",
     "hashconnect": "^0.2.4",
     "lucide-react": "^0.417.0",
@@ -93,6 +96,7 @@
     "tailwind-merge": "^2.4.0",
     "tailwind-variants": "^0.2.1",
     "tailwindcss": "^3.4.7",
+    "zod": "^3.23.8",
     "zustand": "^4.5.4"
   }
 }

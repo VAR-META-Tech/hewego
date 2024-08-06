@@ -17,7 +17,7 @@ const LIST_NAVBAR = [
   },
   {
     label: 'Create',
-    route: ROUTE.CREATE_BOND,
+    route: ROUTE.ISSUE_BOND,
   },
 ];
 
