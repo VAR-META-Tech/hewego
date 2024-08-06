@@ -14,7 +14,7 @@ const Back = React.forwardRef<HTMLButtonElement, Props>(({ title, className, ...
     <button onClick={() => router.back()} ref={ref} {...props} className={cn('flex gap-2', className)}>
       <Icons.arrowLeft className="text-primary-900" />
 
-      <span className="text-primary-900 text-lg">{title}</span>
+      <span className="text-primary-900 text-xl">{title}</span>
     </button>
   );
 });
