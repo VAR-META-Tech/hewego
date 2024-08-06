@@ -44,15 +44,13 @@ export const issueBondSchema = z.object({
 
       return true;
     }, validationMessages.lt(20)),
-  lenderInterestRate: numberRequired,
+  lenderInterestRate: z.any(),
   minimumCollateralAmount: numberRequired,
   collateralToken: z.any(),
   issuanceDate: z.string({
     required_error: validationMessages.required(),
   }),
-  matuityDate: z.string({
-    required_error: validationMessages.required(),
-  }),
+  matuityDate: z.any(),
 });
 
 export type IssueBondFormType = z.infer<typeof issueBondSchema>;

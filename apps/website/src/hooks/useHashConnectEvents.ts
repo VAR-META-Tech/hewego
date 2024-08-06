@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
-import { useConnectWallet } from '@/store/useConnectWallet';
+import { useConnectWalletStore } from '@/store/useConnectWalletStore';
 import { HashConnect, HashConnectTypes, MessageTypes } from 'hashconnect';
 import { toast } from 'sonner';
 
@@ -11,7 +11,7 @@ export default function useHashConnectEvents(
   setHashConnectState: React.Dispatch<React.SetStateAction<Partial<HashConnectState>>>
 ) {
   const [isIframeParent, setIsIFrameParent] = React.useState(false);
-  const onOpenChange = useConnectWallet.use.onOpenChange();
+  const onOpenChange = useConnectWalletStore.use.onOpenChange();
 
   const updatePairingData = React.useCallback(
     (data: any) => {

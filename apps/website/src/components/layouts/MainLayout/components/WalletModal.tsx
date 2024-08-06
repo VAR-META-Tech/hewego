@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { HederaWalletsContext } from '@/context/HederaContext';
+import { useConnectWalletStore } from '@/store/useConnectWalletStore';
 import { ROUTE } from '@/types';
 import { cn } from '@/utils/common';
 import { Button, Checkbox, Modal, ModalBody, ModalContent, ModalHeader } from '@nextui-org/react';
@@ -14,11 +15,24 @@ interface Props {
 }
 
 const WalletModal: React.FC<Props> = ({ isOpen, onOpenChange }) => {
+  const isAbleClose = useConnectWalletStore.use.isAbleClose();
+
   const { onConnectHaskPack } = React.useContext(HederaWalletsContext);
   const [isChecked, setIsChecked] = React.useState(false);
 
+  React.useEffect(() => {
+    setIsChecked(false);
+  }, [isOpen]);
+
   return (
-    <Modal size="xl" backdrop={'blur'} isOpen={isOpen} placement={'auto'} onOpenChange={onOpenChange}>
+    <Modal
+      closeButton={isAbleClose ? undefined : <></>}
+      size="xl"
+      backdrop={'blur'}
+      isOpen={isOpen}
+      placement={'auto'}
+      onOpenChange={isAbleClose ? onOpenChange : () => {}}
+    >
       <ModalContent>
         {() => (
           <>

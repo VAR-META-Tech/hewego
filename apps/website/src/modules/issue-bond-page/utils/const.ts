@@ -30,3 +30,14 @@ export const BOND_DURATION_DATA = [
     value: '3 months',
   },
 ];
+
+export const STEP_DEPOSIT_COLLATERAL = {
+  DEPOSIT: {
+    label: 'Deposit Collateral',
+    value: 'DEPOSIT',
+  },
+  CONFIRM: {
+    label: 'Confirm Collateral Deposit',
+    value: 'CONFIRM',
+  },
+};

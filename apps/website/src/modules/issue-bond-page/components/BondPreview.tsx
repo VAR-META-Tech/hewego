@@ -4,8 +4,10 @@ import { useFormContext } from 'react-hook-form';
 
 import { HStack, VStack } from '@/components/Utilities';
 
+import { IssueBondFormType } from '../types/schema';
+
 const BondPreview = () => {
-  const { watch } = useFormContext();
+  const { watch } = useFormContext<IssueBondFormType>();
 
   const [name, loanToken, volumeBond, durationBond, borrowInterestRate, collateralToken, matuityDate] = watch([
     'name',

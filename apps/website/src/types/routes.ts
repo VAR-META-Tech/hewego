@@ -2,7 +2,7 @@ export const ROUTE = {
   HOME: '/',
   BONDS: '/bonds',
   ISSUE_BOND: '/issue-bond',
-  PORTFOLIO: '/portfolio',
+  MY_PORTFOLIO: '/my-portfolio',
 } as const;
 
 export type ROUTE_KEY = keyof typeof ROUTE;

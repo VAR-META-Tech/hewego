@@ -1,7 +1,7 @@
 import React from 'react';
 import { Icons } from '@/assets/icons';
 import { HederaWalletsContext } from '@/context/HederaContext';
-import { useConnectWallet } from '@/store/useConnectWallet';
+import { useConnectWalletStore } from '@/store/useConnectWalletStore';
 import { Button } from '@nextui-org/button';
 
 import { HStack } from '@/components/Utilities';
@@ -10,9 +10,9 @@ import WalletModal from './WalletModal';
 import WalletPoppover from './WalletPoppover';
 
 const ConnectWallet = () => {
-  const isOpen = useConnectWallet.use.isOpen();
-  const onOpen = useConnectWallet.use.onOpen();
-  const onOpenChange = useConnectWallet.use.onOpenChange();
+  const isOpen = useConnectWalletStore.use.isOpen();
+  const onOpen = useConnectWalletStore.use.onOpen();
+  const onOpenChange = useConnectWalletStore.use.onOpenChange();
 
   const { isConnected } = React.useContext(HederaWalletsContext);
 
