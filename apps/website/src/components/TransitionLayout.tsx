@@ -1,7 +1,7 @@
 import React from 'react';
-import { motion, type Transition, type Variants } from 'framer-motion';
+import { HTMLMotionProps, motion, type Transition, type Variants } from 'framer-motion';
 
-interface Props {
+interface Props extends HTMLMotionProps<'div'> {
   children: React.ReactNode;
   className?: string;
   transition?: Transition;

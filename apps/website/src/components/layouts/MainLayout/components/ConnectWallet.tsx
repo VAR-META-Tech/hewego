@@ -2,7 +2,7 @@ import React from 'react';
 import { Icons } from '@/assets/icons';
 import { HederaWalletsContext } from '@/context/HederaContext';
 import { useConnectWalletStore } from '@/store/useConnectWalletStore';
-import { Button } from '@nextui-org/button';
+import { Button } from '@nextui-org/react';
 
 import { HStack } from '@/components/Utilities';
 

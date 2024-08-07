@@ -5,39 +5,46 @@ import Back from '@/components/Back';
 import AuthLayout from '@/components/layouts/AuthLayout';
 import TransitionLayout from '@/components/TransitionLayout';
 
-import ListBond from './components/ListBond';
+import BorrowRequestList from './components/BorrowRequestList';
+import MyBondsList from './components/MyBondsList';
 import { TAB_DATA, TAB_VALUE } from './utils/const';
+
+const TabContent = React.memo(({ tab }: { tab: string }) => {
+  return (
+    <>
+      {tab === TAB_VALUE.BORROW_REQUEST && (
+        <TransitionLayout>
+          <BorrowRequestList />
+        </TransitionLayout>
+      )}
+
+      {tab === TAB_VALUE.MY_BONDS && (
+        <TransitionLayout>
+          <MyBondsList />
+        </TransitionLayout>
+      )}
+    </>
+  );
+});
+
+TabContent.displayName = 'TabContent';
 
 const MyPortfolioPage = () => {
   const [tab, setTab] = React.useState(TAB_VALUE.BORROW_REQUEST);
 
-  const renderContent = React.useMemo(() => {
-    switch (tab) {
-      case TAB_VALUE.BORROW_REQUEST:
-        return (
-          <TransitionLayout>
-            <ListBond />
-          </TransitionLayout>
-        );
-      case TAB_VALUE.MY_BONDS:
-        return '';
-      case TAB_VALUE.HISTORY:
-        return '';
-      default:
-        return '';
-    }
-  }, [tab]);
+  const memoizedTabs = React.useMemo(
+    () => <Tabs layoutId="my-portfolio-tabs" data={TAB_DATA} value={tab} onChange={setTab} />,
+    [tab]
+  );
 
   return (
     <AuthLayout>
-      <div className="container py-20 space-y-8">
+      <div className="container py-20 space-y-12">
         <Back title="My Portfolio" />
 
-        <div className="w-full md:w-4/5 mx-auto">
-          <Tabs layoutId="my-portfolio-tabs" data={TAB_DATA} value={tab} onChange={setTab} />
-        </div>
+        <div className="w-full md:w-4/5 mx-auto">{memoizedTabs}</div>
 
-        {renderContent}
+        <TabContent tab={tab} />
       </div>
     </AuthLayout>
   );

@@ -55,6 +55,7 @@ const HStack = React.forwardRef<HTMLDivElement, HStackProps>(
     );
   }
 );
+
 HStack.displayName = 'HStack';
 
 export { HStack, hStackVariants };
