@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import React from 'react';
 import { toast } from 'sonner';
 
 type CopyFn = (text?: string) => void; // Return success
 
 export function useCopy(withToast = true): [boolean, CopyFn] {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = React.useState(false);
 
   const copy = async (textToCopy?: string) => {
     if (!textToCopy) return;

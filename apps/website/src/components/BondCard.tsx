@@ -2,11 +2,12 @@ import React from 'react';
 import Image from 'next/image';
 import { cn } from '@/utils/common';
 
-import { HStack, VStack } from './Utilities';
+import PreviewRow from './PreviewRow';
+import { VStack } from './Utilities';
 
 interface Props extends Omit<React.HTMLAttributes<HTMLDivElement>, 'prefix' | 'suffix'> {
   name: string;
-  matuityDate: string;
+  maturityDate: string;
   durationBond: string;
   collateralToken: string;
   loanToken: string;
@@ -18,7 +19,7 @@ interface Props extends Omit<React.HTMLAttributes<HTMLDivElement>, 'prefix' | 's
 
 const BondCard: React.FC<Props> = ({
   name,
-  matuityDate,
+  maturityDate,
   durationBond,
   collateralToken,
   loanToken,
@@ -41,7 +42,7 @@ const BondCard: React.FC<Props> = ({
       </VStack>
 
       <VStack>
-        <PreviewRow label="Matuity Date" value={matuityDate || ''} />
+        <PreviewRow label="Maturity Date" value={maturityDate || ''} />
 
         <PreviewRow label="Duration" value={durationBond} />
 
@@ -60,17 +61,3 @@ const BondCard: React.FC<Props> = ({
 };
 
 export default BondCard;
-
-interface PreviewRowProps {
-  label: string;
-  value: string | number;
-}
-
-export const PreviewRow: React.FC<PreviewRowProps> = ({ label, value }) => {
-  return (
-    <HStack pos={'apart'} className="text-sm font-semibold">
-      <span>{label}</span>
-      <span>{value}</span>
-    </HStack>
-  );
-};

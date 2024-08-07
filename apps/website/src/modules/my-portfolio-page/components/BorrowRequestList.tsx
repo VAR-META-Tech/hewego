@@ -35,7 +35,7 @@ const BorrowRequestList = () => {
             durationBond={durationBond}
             borrowInterestRate={borrowInterestRate}
             collateralToken={collateralToken}
-            matuityDate={matuityDate}
+            maturityDate={matuityDate}
             className="col-span-1"
             prefix={<StatusBadge status={status} />}
             suffix={<CancelButton />}

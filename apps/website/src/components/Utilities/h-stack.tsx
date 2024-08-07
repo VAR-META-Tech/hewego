@@ -28,6 +28,7 @@ const hStackVariants = cva('flex flex-wrap items-center', {
       20: 'gap-5',
       24: 'gap-6',
       32: 'gap-8',
+      40: 'gap-10',
       48: 'gap-12',
     },
   },

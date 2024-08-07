@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import type { DefaultOptions } from '@tanstack/react-query';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -34,4 +34,4 @@ const Provider: FCC<Props> = ({ children }) => {
   );
 };
 
-export default memo(Provider);
+export default React.memo(Provider);
