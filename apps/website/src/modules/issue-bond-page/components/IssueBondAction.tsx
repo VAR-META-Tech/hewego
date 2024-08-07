@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '@nextui-org/button';
+import { Button } from '@nextui-org/react';
 
 import Note from '@/components/Note';
 import { VStack } from '@/components/Utilities';

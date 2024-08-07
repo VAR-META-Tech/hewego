@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ROUTE } from '@/types';
-import { Button } from '@nextui-org/button';
+import { Button } from '@nextui-org/react';
 
 import { HStack, VStack } from '@/components/Utilities';
 

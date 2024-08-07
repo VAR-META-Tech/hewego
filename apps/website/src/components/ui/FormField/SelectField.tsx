@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/utils/common';
-import { Select, SelectItem, SelectProps } from '@nextui-org/select';
+import { Select, SelectItem, SelectProps } from '@nextui-org/react';
 import { type LucideIcon } from 'lucide-react';
 import type { Control, FieldPath, FieldPathValue, FieldValues } from 'react-hook-form';
 

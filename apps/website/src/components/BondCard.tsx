@@ -4,7 +4,7 @@ import { cn } from '@/utils/common';
 
 import { HStack, VStack } from './Utilities';
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
+interface Props extends Omit<React.HTMLAttributes<HTMLDivElement>, 'prefix' | 'suffix'> {
   name: string;
   matuityDate: string;
   durationBond: string;
@@ -12,8 +12,8 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   loanToken: string;
   volumeBond: string;
   borrowInterestRate: string;
-  status?: string;
-  action?: React.ReactNode;
+  prefix?: React.ReactNode;
+  suffix?: React.ReactNode;
 }
 
 const BondCard: React.FC<Props> = ({
@@ -24,23 +24,14 @@ const BondCard: React.FC<Props> = ({
   loanToken,
   volumeBond,
   borrowInterestRate,
-  status,
-  action,
+  prefix,
+  suffix,
   ...props
 }) => {
   return (
     <VStack {...props} className={cn('shadow-lg p-8 rounded-md w-full', props.className)}>
-      {status && (
-        <HStack pos={'right'}>
-          <span
-            className={cn('text-white text-xs bg-primary-900 px-3 py-1.5 rounded-full', {
-              'bg-red-500': status === 'Failed',
-            })}
-          >
-            {status}
-          </span>
-        </HStack>
-      )}
+      {prefix && prefix}
+
       <VStack align={'center'}>
         <div className="relative w-52 h-52">
           <Image src="/images/bond.webp" alt="preview" fill priority unoptimized quality={100} />
@@ -63,7 +54,7 @@ const BondCard: React.FC<Props> = ({
         <PreviewRow label="Interest Rate" value={borrowInterestRate ? `${borrowInterestRate}%` : ''} />
       </VStack>
 
-      {action && action}
+      {suffix && suffix}
     </VStack>
   );
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/utils/common';
-import { Input, InputProps } from '@nextui-org/input';
+import { Input, InputProps } from '@nextui-org/react';
 import type { Control, FieldPath, FieldPathValue, FieldValues } from 'react-hook-form';
 
 import { Show } from '@/components/Utilities';
