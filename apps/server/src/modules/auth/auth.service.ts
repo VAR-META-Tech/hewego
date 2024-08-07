@@ -35,11 +35,17 @@ export class AuthService {
 
       await this.walletService.validateSignature(payload, nonce);
 
-      user = await this.walletService.loginByWallet(payload, nonce, user);
+      if (!user) {
+        user = await this.userService.createNewUser({
+          walletAddress: payload.wallet,
+          nonce,
+        });
+      }
+      const tokens = await this.signTokens(user.id);
 
       return new LoginWalletDto({
         user,
-        tokens: await this.signTokens(user.id),
+        tokens,
       });
     } catch (error) {
       if (error instanceof HttpException) {

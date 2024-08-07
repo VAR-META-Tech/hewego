@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { User } from '../../database/entities';
 import Web3 from 'web3';
 import { UserLoginWalletDto } from './dto/userLoginWallet.dto';
 import { ApiConfigService } from 'shared/services/api-config.service';
@@ -12,30 +11,6 @@ export class WalletService {
 
     private readonly userService: UserService,
   ) {}
-
-  async loginByWallet(
-    dto: UserLoginWalletDto,
-    nonce: number,
-    existingUser?: User,
-  ): Promise<User> {
-    const { wallet } = dto;
-
-    if (existingUser) {
-      existingUser.nonce = nonce;
-      await this.userService.updateNoneUser({
-        walletAddress: wallet,
-        nonce,
-      });
-      return existingUser;
-    }
-
-    const newUser = this.userService.createNewUser({
-      walletAddress: wallet,
-      nonce,
-    });
-    return newUser;
-  }
-
   private getSignMessage(nonce: number): string {
     const baseMessage = this.configService.authConfig.signatureMessage;
     return nonce === 0 ? baseMessage : `${baseMessage} Nonce: ${nonce}`;
