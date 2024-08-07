@@ -28,7 +28,7 @@ const BondPreview = () => {
         durationBond={durationBond}
         borrowInterestRate={String(borrowInterestRate || '')}
         collateralToken={collateralToken}
-        matuityDate={matuityDate}
+        maturityDate={matuityDate}
         className="w-96"
       />
     </HStack>
