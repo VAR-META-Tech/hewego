@@ -1,50 +1,33 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UserAuthConfig } from '../../../config/userAuth.config';
-import { UserSession } from '../../../database/entities/UserSession.entity';
-import { Repository } from 'typeorm';
+import { ApiConfigService } from 'shared/services/api-config.service';
+import { TokenPayloadType } from '../type/tokenPayload.type';
+import { UserService } from 'modules/user/user.service';
+import { TokenType } from 'constants/token-type';
 
 @Injectable()
 export class UserJwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
   constructor(
-    private readonly configService: ConfigService,
-    @InjectRepository(UserSession)
-    private readonly userSessionRepository: Repository<UserSession>,
+    private readonly userService: UserService,
+    private readonly configService: ApiConfigService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey:
-        configService.get<UserAuthConfig>('userAuth').accessTokenSecret || '',
+      secretOrKey: configService.authConfig.privateKey,
     });
   }
 
-  async validate(payload: { session: string }) {
-    const userExist = await this.userSessionRepository
-      .createQueryBuilder('userSession')
-      .innerJoin('userSession.user', 'user')
-      .where('userSession.id = :id', { id: payload.session })
-      .andWhere('userSession.expiresAt > :date', { date: new Date() })
-      .andWhere('user.isActive = :isActive', { isActive: true })
-      .select([
-        'user.id',
-        'user.email',
-        'user.username',
-        'user.fullName',
-        'user.walletAddress',
-        'user.countryId',
-        'user.nonce',
-        'user.isActive',
-        'user.createdAt',
-        'userSession.id',
-        'userSession.expiresAt',
-      ])
-      .getOne();
+  async validate(payload: TokenPayloadType): Promise<any> {
+    if (payload.sub.type !== TokenType.ACCESS_TOKEN) {
+      throw new UnauthorizedException('Invalid access token');
+    }
 
-    if (!userExist) throw new UnauthorizedException('Invalid access token');
-
-    return userExist.user;
+    const user = await this.userService.getUserById(payload.sub.userId);
+    if (!user) {
+      throw new UnauthorizedException('Invalid access token');
+    }
+    return user;
   }
 }

@@ -90,7 +90,8 @@ export class ApiConfigService {
       password: this.getString('DB_PASSWORD'),
       database: this.getString('DB_DATABASE'),
       subscribers: [],
-      migrationsRun: true,
+      // migrationsRun: true,
+      synchronize: this.getBoolean('DB_SYNCHRONIZE'),
       logging: this.getBoolean('ENABLE_ORM_LOGS'),
     };
   }
@@ -121,8 +122,13 @@ export class ApiConfigService {
   get authConfig() {
     return {
       privateKey: this.getString('JWT_PRIVATE_KEY'),
-      publicKey: this.getString('JWT_PUBLIC_KEY'),
-      jwtExpirationTime: this.getNumber('JWT_EXPIRATION_TIME'),
+      jwtAccessTokenExpirationTime: this.getNumber(
+        'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
+      ),
+      jwtRefreshTokenExpirationTime: this.getNumber(
+        'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
+      ),
+      signatureMessage: this.getString('SIGNATURE_MESSAGE'),
     };
   }
 

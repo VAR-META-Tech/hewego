@@ -1,21 +1,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../database/entities';
-import { Equal, Repository } from 'typeorm';
 import Web3 from 'web3';
-import { WalletValidateDto } from './dto/wallet.validate';
+import { UserLoginWalletDto } from './dto/userLoginWallet.dto';
+import { ApiConfigService } from 'shared/services/api-config.service';
+import { UserService } from 'modules/user/user.service';
 
 @Injectable()
 export class WalletService {
   constructor(
-    private readonly configService: ConfigService,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly configService: ApiConfigService,
+
+    private readonly userService: UserService,
   ) {}
 
   async loginByWallet(
-    dto: WalletValidateDto,
+    dto: UserLoginWalletDto,
     nonce: number,
     existingUser?: User,
   ): Promise<User> {
@@ -23,29 +22,27 @@ export class WalletService {
 
     if (existingUser) {
       existingUser.nonce = nonce;
-      await this.userRepository.update(
-        { walletAddress: Equal(wallet) },
-        { nonce },
-      );
+      await this.userService.updateNoneUser({
+        walletAddress: wallet,
+        nonce,
+      });
       return existingUser;
     }
 
-    const newUser = this.userRepository.create({
+    const newUser = this.userService.createNewUser({
       walletAddress: wallet,
       nonce,
     });
-    return await this.userRepository.save(newUser);
+    return newUser;
   }
 
-  getSignMessage(nonce: number): string {
-    const baseMessage = this.configService.get<string>(
-      'userAuth.signatureMessage',
-    );
+  private getSignMessage(nonce: number): string {
+    const baseMessage = this.configService.authConfig.signatureMessage;
     return nonce === 0 ? baseMessage : `${baseMessage} Nonce: ${nonce}`;
   }
 
   async validateSignature(
-    dto: WalletValidateDto,
+    dto: UserLoginWalletDto,
     nonce: number,
   ): Promise<void> {
     const web3 = new Web3();
@@ -61,22 +58,15 @@ export class WalletService {
   }
 
   async getNonce(walletAddress: string): Promise<number> {
-    const user = await this.getUserByWallet(walletAddress);
+    const user = await this.userService.getUserByWallet(walletAddress);
     if (!user) {
       return -1;
     }
-
     const newNonce = user.nonce + 1;
-    await this.userRepository.update(
-      { walletAddress: Equal(walletAddress) },
-      { nonce: newNonce },
-    );
-    return newNonce;
-  }
-
-  async getUserByWallet(walletAddress: string): Promise<User | undefined> {
-    return await this.userRepository.findOne({
-      where: { walletAddress: Equal(walletAddress) },
+    await this.userService.updateNoneUser({
+      walletAddress,
+      nonce: newNonce,
     });
+    return newNonce;
   }
 }

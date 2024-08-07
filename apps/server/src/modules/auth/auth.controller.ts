@@ -1,45 +1,52 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { WalletValidateDto } from './dto/wallet.validate';
 import { WalletService } from './wallet.service';
-import { UserJwtRefreshTokenGuard } from './guards/userRefreshToken.guard';
 import { UserDecorator } from '../../decorators/user.decorator';
-import { JwtPayloadType, TokensType } from '../../shared/types';
+import { UserLoginWalletDto } from './dto/userLoginWallet.dto';
+import { UserJwtGuard } from './guards/userJwt.guard';
+import { User } from 'database/entities';
+import { LoginWalletDto } from './dto/loginWallet.dto';
+import { LoginWalletResponseDto } from './dto/loginWalletResponse.dto';
+import { GetNonceDto } from './dto/nonce.dto';
+import { UserAuthenticatedDto } from './dto/userAuthenticated.dto';
 
-@ApiTags('auth')
-@Controller('api/user/auth')
+@ApiTags('authentication')
+@Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly walletService: WalletService,
   ) {}
 
-  @Post('login-with-wallet')
-  async loginAsUserWithGoogle(@Body() dto: WalletValidateDto) {
+  @Post('login')
+  @ApiResponse({
+    status: 200,
+    type: LoginWalletResponseDto,
+  })
+  async userLoginWithWallet(
+    @Body() dto: UserLoginWalletDto,
+  ): Promise<LoginWalletDto> {
     return await this.authService.loginByWallet(dto);
   }
 
   @Get('nonce')
-  async getNonce(@Query('wallet') wallet: string) {
+  @ApiResponse({
+    status: 200,
+    type: GetNonceDto,
+  })
+  async getNonce(@Query('wallet') wallet: string): Promise<number> {
     return await this.walletService.getNonce(wallet);
   }
 
+  @Get('me')
+  @UseGuards(UserJwtGuard)
+  @ApiResponse({
+    status: 200,
+    type: UserAuthenticatedDto,
+  })
   @ApiBearerAuth()
-  @Get('logout')
-  @UseGuards(UserJwtRefreshTokenGuard)
-  async logoutAsUser(
-    @UserDecorator('session') session: string,
-  ): Promise<boolean> {
-    return await this.authService.logoutAsUser(session);
-  }
-
-  @ApiBearerAuth()
-  @Get('refresh-token')
-  @UseGuards(UserJwtRefreshTokenGuard)
-  async refreshTokenAsUser(
-    @UserDecorator() user: JwtPayloadType,
-  ): Promise<TokensType> {
-    return await this.authService.refreshTokenAsUser(user);
+  async me(@UserDecorator() user: User) {
+    return user;
   }
 }

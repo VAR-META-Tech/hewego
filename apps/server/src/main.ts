@@ -1,9 +1,4 @@
-import {
-  HttpStatus,
-  Logger,
-  UnprocessableEntityException,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import type { NestExpressApplication } from '@nestjs/platform-express';
@@ -50,15 +45,15 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   // );
   app.setGlobalPrefix('api');
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      transform: true,
-      dismissDefaultMessages: true,
-      exceptionFactory: (errors) => new UnprocessableEntityException(errors),
-    }),
-  );
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     whitelist: true,
+  //     errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+  //     transform: true,
+  //     dismissDefaultMessages: true,
+  //     exceptionFactory: (errors) => new UnprocessableEntityException(errors),
+  //   }),
+  // );
 
   const configService = app.select(SharedModule).get(ApiConfigService);
 

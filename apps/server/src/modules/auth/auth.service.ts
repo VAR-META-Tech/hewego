@@ -1,80 +1,105 @@
-import { Injectable } from '@nestjs/common';
-import { WalletValidateDto } from './dto/wallet.validate';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
+import { TokenType } from 'constants/token-type';
 import { WalletService } from './wallet.service';
-
-import { User } from '../../database/entities/User.entity';
-import type { JwtPayloadType, TokensType } from '../../shared/types';
-import { SessionService } from '../session/session.service';
-import { MyJwtService } from './jwt.service';
+import { ApiConfigService } from 'shared/services/api-config.service';
+import { UserService } from 'modules/user/user.service';
+import { LoginWalletDto } from './dto/loginWallet.dto';
+import { UserLoginWalletDto } from './dto/userLoginWallet.dto';
+import { JwtService } from '@nestjs/jwt';
+import { TokenPayloadType } from './type/tokenPayload.type';
+import { User } from 'database/entities';
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
+    private readonly userService: UserService,
+    private readonly configService: ApiConfigService,
     private readonly walletService: WalletService,
-    private readonly sessionService: SessionService,
-    private readonly jwtService: MyJwtService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async loginByWallet(data: WalletValidateDto) {
-    let userExist = await this.walletService.getUserByWallet(data.wallet);
-
-    const nonce = userExist?.nonce >= 0 ? userExist.nonce : -1;
-    await this.walletService.validateSignature(data, nonce);
-
-    userExist = await this.walletService.loginByWallet(data, nonce, userExist);
-
-    return await this.createUserSession(userExist);
+  private getNonce(user: User): number {
+    return user?.nonce >= 0 ? user.nonce : -1;
   }
 
-  private async createUserSession(
-    user: User,
-  ): Promise<{ user: User; tokens: TokensType }> {
-    const tokens = await this.createTokensAsUser(user);
+  async loginByWallet(payload: UserLoginWalletDto) {
+    try {
+      let user = await this.userService.getUserByWallet(payload.wallet);
+      const nonce = this.getNonce(user);
 
-    return {
-      user,
-      tokens,
-    };
+      await this.walletService.validateSignature(payload, nonce);
+
+      user = await this.walletService.loginByWallet(payload, nonce, user);
+
+      return new LoginWalletDto({
+        user,
+        tokens: await this.signTokens(user.id),
+      });
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
-  /**
-   * Create Token
-   */
-  async createTokensAsUser(user: User): Promise<TokensType> {
-    const { id } = await this.sessionService.createUserSession({
-      user,
-    });
-
-    const tokens = await this.jwtService.signUserTokens({
-      session: id,
-      userId: user.id,
-    });
-
-    return tokens;
+  async signTokens(
+    userId: number,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const accessToken = await this.newAccessToken(userId);
+    const refreshToken = await this.newRefreshToken(userId);
+    return { accessToken, refreshToken };
   }
 
   /**
-   * Refresh Token
+   * New access token
+   * @param userId
    */
-  async refreshTokenAsUser(payload: JwtPayloadType): Promise<TokensType> {
-    const { session, userId } = payload;
-    const { id } = await this.sessionService.createUserSession({
-      id: session,
-    });
-
-    const tokens = await this.jwtService.signUserTokens({
-      session: id,
-      userId,
-    });
-
-    return tokens;
+  async newAccessToken(userId: number): Promise<string> {
+    try {
+      const accessTokenExp =
+        this.configService.authConfig.jwtAccessTokenExpirationTime;
+      const accessTokenPayload: TokenPayloadType = {
+        sub: {
+          userId,
+          type: TokenType.ACCESS_TOKEN,
+        },
+      };
+      return await this.jwtService.signAsync(accessTokenPayload, {
+        expiresIn: accessTokenExp,
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
-
   /**
-   * Logout
+   * New refresh token
+   * @param userId
+   * @param sessionId
    */
-  async logoutAsUser(session: string): Promise<boolean> {
-    return await this.sessionService.deleteUserSession({
-      id: session,
-    });
+  async newRefreshToken(userId: number): Promise<string> {
+    try {
+      const refreshTokenTime =
+        this.configService.authConfig.jwtRefreshTokenExpirationTime;
+      const refreshTokenPayload: TokenPayloadType = {
+        sub: {
+          userId,
+          type: TokenType.REFRESH_TOKEN,
+        },
+      };
+      return await this.jwtService.signAsync(refreshTokenPayload, {
+        expiresIn: refreshTokenTime,
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 }

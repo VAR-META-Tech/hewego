@@ -18,9 +18,6 @@ export class TransformInterceptor<T>
     next: CallHandler,
   ): Observable<Response<T>> {
     const { statusCode } = context.switchToHttp().getResponse();
-    if (context.switchToHttp().getRequest().url.indexOf('/nft/') >= 0) {
-      return next.handle().pipe(map((data) => data));
-    }
     return next.handle().pipe(
       map(
         (data) => (

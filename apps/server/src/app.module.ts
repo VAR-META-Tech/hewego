@@ -13,7 +13,6 @@ import { HealthCheckerModule } from './modules/health-checker/health-checker.mod
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { ExceptionFilter } from './filters/exception.filter';
 import { AuthModule } from './modules/auth/auth.module';
-import userAuthConfig from 'config/userAuth.config';
 
 @Module({
   imports: [
@@ -26,7 +25,6 @@ import userAuthConfig from 'config/userAuth.config';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [userAuthConfig],
       envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
