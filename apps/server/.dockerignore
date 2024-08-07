@@ -1,6 +1,7 @@
-**/node_modules
-**/.turbo
-**/.git
-**/.gitignore
-**/*.md
-**/src
+.git
+dist
+node_modules
+db-data
+.vuepress
+.vscode
+docs

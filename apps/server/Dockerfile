@@ -1,29 +1,32 @@
-FROM node:18.12.1-buster-slim AS builder
+FROM node:lts AS dist
+COPY package.json yarn.lock ./
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN yarn install
 
-ENV UV_THREADPOOL_SIZE 64
+COPY . ./
+
+RUN yarn build:prod
+
+FROM node:lts AS node_modules
+COPY package.json yarn.lock ./
+
+RUN yarn install --prod
+
+FROM node:lts
+
+ARG PORT=3000
+
 ENV NODE_ENV=production
 
-WORKDIR /app
+RUN mkdir -p /usr/src/app
 
-# copy all required package.json files for installation
-COPY ./json .
+WORKDIR /usr/src/app
 
-RUN pnpm install --prod --frozen-lockfile
+COPY --from=dist dist /usr/src/app/dist
+COPY --from=node_modules node_modules /usr/src/app/node_modules
 
-# copy all built files required to run the app
-COPY ./full .
+COPY . /usr/src/app
 
-USER node
+EXPOSE $PORT
 
-EXPOSE 3000
-
-ENV PORT=3000
-
-WORKDIR apps/api
-
-CMD ["pnpm", "start"]
-
+CMD [ "yarn", "start:prod" ]
