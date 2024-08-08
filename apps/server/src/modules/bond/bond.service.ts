@@ -24,6 +24,22 @@ export class BondService {
       const currentDateInSeconds = Math.floor(Date.now() / 1000);
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
+        .select([
+          'bonds.id as id',
+          'bonds.name as name',
+          'bonds.loanTerm as loanTerm',
+          'bonds.loanAmount as loanAmount',
+          'bonds.loanToken as loanToken',
+          'bonds.collateralAmount as collateralAmount',
+          'bonds.collateralToken as collateralToken',
+          'bonds.volumeBond as volumeBond',
+          'bonds.interestRate as interestRate',
+          'bonds.issuanceDate as issuanceDate',
+          'bonds.maturityDate as maturityDate',
+          'bonds.borrowerAddress as borrowerAddress',
+          'bonds.createdAt as createdAt',
+          'bonds.updatedAt as updatedAt',
+        ])
         .where('bonds.maturityDate < :currentDate', {
           currentDate: currentDateInSeconds,
         })
