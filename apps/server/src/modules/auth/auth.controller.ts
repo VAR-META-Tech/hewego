@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { UserDecorator } from '../../decorators/user.decorator';
 import { UserLoginWalletDto } from './dto/userLoginWallet.dto';
-import { UserJwtGuard } from './guards/userJwt.guard';
+import { JWTAuthGuard } from './guards/userJwt.guard';
 import { User } from 'database/entities';
 import { LoginWalletDto } from './dto/loginWallet.dto';
 import { LoginWalletResponseDto } from './dto/loginWalletResponse.dto';
@@ -26,7 +26,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(UserJwtGuard)
+  @UseGuards(JWTAuthGuard)
   @ApiResponse({
     status: 200,
     type: UserAuthenticatedDto,

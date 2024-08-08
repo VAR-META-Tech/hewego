@@ -6,9 +6,10 @@ import { ApiConfigService } from 'shared/services/api-config.service';
 import { TokenPayloadType } from '../type/tokenPayload.type';
 import { UserService } from 'modules/user/user.service';
 import { TokenType } from 'constants/token-type';
+import { User } from 'database/entities';
 
 @Injectable()
-export class UserJwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
+export class UserJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     private readonly userService: UserService,
     private readonly configService: ApiConfigService,
@@ -19,7 +20,7 @@ export class UserJwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
     });
   }
 
-  async validate(payload: TokenPayloadType): Promise<any> {
+  async validate(payload: TokenPayloadType): Promise<User> {
     if (payload.sub.type !== TokenType.ACCESS_TOKEN) {
       throw new UnauthorizedException('Invalid access token');
     }
