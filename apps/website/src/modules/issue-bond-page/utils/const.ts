@@ -26,8 +26,8 @@ export const BOND_DURATION_DATA = [
     value: '4 weeks',
   },
   {
-    label: '3 months',
-    value: '3 months',
+    label: '12 weeks',
+    value: '12 weeks',
   },
 ];
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { onPreventAmountKeyDown, onPreventNumberKeyDown } from '@/utils/common';
 import { useFormContext } from 'react-hook-form';
 
 import { SelectField } from '@/components/ui/FormField/SelectField';
@@ -10,7 +11,7 @@ import { IssueBondFormType } from '../types/schema';
 import { BOND_DURATION_DATA, MOCK_DEFAULT_COLLATERAL_TOKEN, MOCK_DEFAULT_LOAN_TOKEN } from '../utils/const';
 
 const IssueBondForm = () => {
-  const { control } = useFormContext<IssueBondFormType>();
+  const { control, setValue, clearErrors } = useFormContext<IssueBondFormType>();
 
   return (
     <VStack spacing={12} className="flex-1">
@@ -24,6 +25,7 @@ const IssueBondForm = () => {
         control={control}
         required
         className="overflow-hidden"
+        onKeyDown={onPreventAmountKeyDown}
         endContent={
           <SelectField
             aria-label="loanToken"
@@ -45,7 +47,16 @@ const IssueBondForm = () => {
         }
       />
 
-      <TextField type="number" variant="bordered" label="Volume Bond" name="volumeBond" control={control} required />
+      <TextField
+        disabled
+        type="number"
+        variant="bordered"
+        label="Volume Bond"
+        name="volumeBond"
+        control={control}
+        required
+        className="pointer-events-none bg-[#F3F4F6]"
+      />
 
       <SelectField
         aria-label="durationBond"
@@ -65,6 +76,7 @@ const IssueBondForm = () => {
             base: ['data-[selectable=true]:focus:bg-default-50', 'data-[focus-visible=true]:ring-default-500'],
           },
         }}
+        onKeyDown={onPreventNumberKeyDown}
       />
 
       <TextFieldWithNote
@@ -75,6 +87,16 @@ const IssueBondForm = () => {
         control={control}
         required
         note="On close 90% of the borrow side interest is paid to the lender, and 10% is paid to platform."
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          if (
+            e?.target.value &&
+            String(e?.target.value).includes('.') &&
+            String(e?.target.value).split('.')[1].length > 1
+          )
+            return;
+          clearErrors('borrowInterestRate');
+          setValue('borrowInterestRate', Number(e.target.value));
+        }}
       />
 
       <TextFieldWithNote
@@ -89,13 +111,14 @@ const IssueBondForm = () => {
       />
 
       <TextField
+        disabled
         type="number"
         variant="bordered"
         label="Minimum Collateral Amount"
         name="minimumCollateralAmount"
         control={control}
         required
-        className="overflow-hidden"
+        className="overflow-hidden group bg-[#F3F4F6]"
         endContent={
           <SelectField
             aria-label="collateralToken"

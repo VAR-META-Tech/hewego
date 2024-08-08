@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import React from 'react';
 import axios from 'axios';
 import { clsx, type ClassValue } from 'clsx';
 import bigDecimal from 'js-big-decimal';
@@ -7,7 +8,7 @@ import { toast } from 'sonner';
 import { extendTailwindMerge } from 'tailwind-merge';
 
 import { getMutateError } from '../lib/getMutateError';
-import { env } from './constants';
+import { AMOUNT_PREVENT_KEYS, env, NUMBER_PREVENT_KEYS } from './constants';
 
 const twMerge = extendTailwindMerge({});
 
@@ -55,4 +56,12 @@ export const convertMarutiryDateToISO = (value: number, type: 'month' | 'week' =
   }
 
   return newDate.toISOString();
+};
+
+export const onPreventNumberKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  NUMBER_PREVENT_KEYS.includes(event.key) && event.preventDefault();
+};
+
+export const onPreventAmountKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  AMOUNT_PREVENT_KEYS.includes(event.key) && event.preventDefault();
 };

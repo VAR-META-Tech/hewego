@@ -13,7 +13,6 @@ export const env = {
   NETWORK_TYPE: (process.env.NEXT_PUBLIC_NETWORK_TYPE || 'testnet') as 'testnet' | 'mainnet' | 'previewnet',
   SIGNATURE_TEXT: process.env.NEXT_PUBLIC_SIGNATURE_TEXT || '',
   HEDERA_URL: process.env.NEXT_PUBLIC_HEDERA_URL || '',
-  ACCOUNT_ID: process.env.NEXT_PUBLIC_ACCOUNT_ID || '',
 };
 
 export const HASHCONNECT_DEBUG_MODE = false;
@@ -27,3 +26,10 @@ export const COOKIES_KEY = {
   ACCESS_TOKEN: 'access_token',
   REFRESH_TOKEN: 'refresh_token',
 };
+
+export const NUMBER_PREVENT_KEYS = ['e', 'E', '+', '-'];
+export const AMOUNT_PREVENT_KEYS = [...NUMBER_PREVENT_KEYS, '.'];
+
+export const PLATFORM_FEE = 0.5;
+
+export const CONTRACT_ID = '0.0.4661188';
