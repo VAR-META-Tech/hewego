@@ -8,7 +8,6 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { ApiConfigService } from 'shared/services/api-config.service';
 import { UserModule } from 'modules/user/user.module';
-import { WalletService } from './wallet.service';
 
 @Module({
   imports: [
@@ -25,7 +24,7 @@ import { WalletService } from './wallet.service';
     UserModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
-  providers: [AuthService, WalletService, UserJwtStrategy],
+  providers: [AuthService, UserJwtStrategy],
   controllers: [AuthController],
   exports: [AuthService],
 })
