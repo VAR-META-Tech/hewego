@@ -1,15 +1,27 @@
 import { IMeta } from '@/utils/common.type';
 
-export interface IGetNonceParams {
-  wallet: string;
-}
-
-export interface IGetNonceResponse {
-  meta: IMeta;
-  data: number;
-}
-
 export interface ILoginRequest {
   wallet: string;
-  signature: string;
+}
+
+export interface ILoginResponse {
+  meta: IMeta;
+  data: ILoginData;
+}
+
+export interface ILoginData {
+  user: ILoginUserData;
+  tokens: ILoginTokens;
+}
+
+export interface ILoginUserData {
+  walletAddress: string;
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ILoginTokens {
+  accessToken: string;
+  refreshToken: string;
 }

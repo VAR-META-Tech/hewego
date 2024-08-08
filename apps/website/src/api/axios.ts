@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { env } from '@/utils/constants';
+import { COOKIES_KEY, env } from '@/utils/constants';
 import { getCookies, removeCookies } from '@/utils/cookies';
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
@@ -12,17 +12,17 @@ export const request = axios.create({
 });
 
 const onRefreshToken = async () => {
-  const refreshToken = getCookies('refresh_token');
+  const refreshToken = getCookies(COOKIES_KEY.REFRESH_TOKEN);
   if (refreshToken) {
     try {
       return null;
     } catch (e) {
-      removeCookies('access_token');
-      removeCookies('refresh_token');
+      removeCookies(COOKIES_KEY.ACCESS_TOKEN);
+      removeCookies(COOKIES_KEY.REFRESH_TOKEN);
     }
   } else {
-    removeCookies('access_token');
-    removeCookies('refresh_token');
+    removeCookies(COOKIES_KEY.ACCESS_TOKEN);
+    removeCookies(COOKIES_KEY.REFRESH_TOKEN);
   }
 
   return null;
@@ -50,7 +50,7 @@ request.interceptors.response.use(handleSuccess, handleError);
 
 request.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const accessToken = getCookies('access_token');
+    const accessToken = getCookies(COOKIES_KEY.ACCESS_TOKEN);
 
     if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
 

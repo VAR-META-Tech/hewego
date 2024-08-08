@@ -2,7 +2,6 @@
 import React from 'react';
 import { useConnectWalletStore } from '@/store/useConnectWalletStore';
 import { HashConnect, HashConnectTypes, MessageTypes } from 'hashconnect';
-import { toast } from 'sonner';
 
 import { HashConnectState } from './useHashPack';
 
@@ -23,7 +22,6 @@ export default function useHashConnectEvents(
         },
       }));
       onOpenChange();
-      toast.success('HashPack has been connected!');
     },
     [onOpenChange, setHashConnectState]
   );
