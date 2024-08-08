@@ -1,7 +1,8 @@
-import { IsEnum, IsNumberString, IsOptional } from 'class-validator';
+import { IsArray, IsEnum, IsNumberString, IsOptional } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
-import { LoarnTermEnum } from 'shared/enum';
+import { BorrowEnum, CollateralEnum, LoarnTermEnum } from 'shared/enum';
+import { Transform } from 'class-transformer';
 
 export class FindManyActiveBondsParams {
   @ApiProperty({
@@ -27,13 +28,64 @@ export class FindManyActiveBondsParams {
   limit?: string;
 
   @ApiProperty({
-    name: 'loarnTems',
+    name: 'loanTerms',
     required: false,
     type: String,
-    enum: [LoarnTermEnum],
     description: 'Loan term.',
+    example: '1,2,3',
   })
   @IsOptional()
-  @IsEnum(LoarnTermEnum)
-  loarnTerms?: LoarnTermEnum;
+  @IsArray()
+  @IsEnum(LoarnTermEnum, { each: true })
+  @Transform(
+    ({ value }) =>
+      value
+        ? value.split(',').map((term: string) => parseInt(term, 10))
+        : undefined,
+    {
+      toClassOnly: true,
+    },
+  )
+  loanTerms?: LoarnTermEnum[];
+  @ApiProperty({
+    name: 'borrows',
+    required: false,
+    type: String,
+    example: 'USDC,USDT',
+    description: 'Borrow',
+  })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(BorrowEnum, { each: true })
+  @Transform(
+    ({ value }) =>
+      value
+        ? value.split(',').map((term: string) => term as BorrowEnum)
+        : undefined,
+    {
+      toClassOnly: true,
+    },
+  )
+  borrows?: BorrowEnum[];
+
+  @ApiProperty({
+    name: 'collaterals',
+    required: false,
+    type: String,
+    example: 'USDC,USDT',
+    description: 'Collateral',
+  })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(CollateralEnum, { each: true })
+  @Transform(
+    ({ value }) =>
+      value
+        ? value.split(',').map((term: string) => term as CollateralEnum)
+        : undefined,
+    {
+      toClassOnly: true,
+    },
+  )
+  collaterals?: CollateralEnum[];
 }
