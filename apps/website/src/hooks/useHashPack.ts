@@ -1,4 +1,5 @@
 import React from 'react';
+import { useGetNonceMutation } from '@/api/auth/mutations';
 import { getAccountByAddressOrAccountId } from '@/utils/common';
 import { env, HASHCONNECT_DEBUG_MODE, HEDERA_CONFIG } from '@/utils/constants';
 import { HashConnect, HashConnectTypes, MessageTypes } from 'hashconnect';
@@ -20,6 +21,8 @@ const useHashPack = () => {
   const [hashConnectState, setHashConnectState] = React.useState<Partial<HashConnectState>>({});
 
   const { isIframeParent } = useHashConnectEvents(hashConnect, setHashConnectState);
+
+  const { mutate: getNonce } = useGetNonceMutation({});
 
   const initializeHashConnect = React.useCallback(async () => {
     const temp = new HashConnect(HASHCONNECT_DEBUG_MODE);
@@ -65,7 +68,20 @@ const useHashPack = () => {
       await hashConnect.pairingEvent.once((data: MessageTypes.ApprovePairing) => {
         (async () => {
           const wallet = await getAccountByAddressOrAccountId(data.accountIds[0]);
-          console.log(wallet);
+
+          getNonce({
+            wallet: wallet.account,
+          });
+
+          // const message = `Welcome. By signing this message you are verifying your digital identity. This is completely secure and does not cost anything! Nonce: -1`;
+          // const encoder = new TextEncoder();
+          // const messageBytes = encoder.encode(message);
+          // const signature = signer?.sign([messageBytes]);
+          // const signature = await hashConnect?.sign(
+          //   hashConnectState.topic || '',
+          //   hashConnectState.pairingData?.accountIds[0] || '',
+          //   message
+          // );
         })();
       });
     } catch (e) {
@@ -75,7 +91,13 @@ const useHashPack = () => {
         toast.error(e.message);
       }
     }
-  }, [hashConnect, hashConnectState.availableExtension]);
+  }, [
+    getNonce,
+    hashConnect,
+    hashConnectState.availableExtension,
+    hashConnectState.pairingData?.accountIds,
+    hashConnectState.topic,
+  ]);
 
   return {
     hashConnect,

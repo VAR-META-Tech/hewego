@@ -79,6 +79,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.52.1",
     "react-query": "^3.39.3",
+    "react-query-kit": "^3.3.0",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.4.0",
     "tailwind-variants": "^0.2.1",
