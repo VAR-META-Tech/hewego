@@ -24,7 +24,7 @@ export class BondService {
       const currentDateInSeconds = Math.floor(Date.now() / 1000);
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
-        .where('bonds.maturityDate > :currentDate', {
+        .where('bonds.maturityDate < :currentDate', {
           currentDate: currentDateInSeconds,
         })
         .orderBy('bonds.maturityDate', 'DESC');

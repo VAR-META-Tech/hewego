@@ -3,6 +3,8 @@ import { BondService } from './bond.service';
 import { FindManyActiveBondsParams } from './dto/FindManyAcademyParams.dto';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ActiveBondResponseDto } from './dto/activeBondResponse.dto';
+import { ActiveBondItemResponseDto } from './dto/activeBondItemResponse.dto';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 @Controller('bonds')
 @ApiTags('bonds')
@@ -13,7 +15,9 @@ export class BondController {
     status: 200,
     type: ActiveBondResponseDto,
   })
-  async getActiveBonds(@Query() queries: FindManyActiveBondsParams) {
+  async getActiveBonds(
+    @Query() queries: FindManyActiveBondsParams,
+  ): Promise<Pagination<ActiveBondItemResponseDto>> {
     return this.bondService.findActiveBondsWihPageable(queries);
   }
 }
