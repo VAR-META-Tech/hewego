@@ -19,9 +19,6 @@ export class User {
   })
   walletAddress: string;
 
-  @Column({ name: 'nonce', type: 'int', nullable: false, default: 0 })
-  nonce: number;
-
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 

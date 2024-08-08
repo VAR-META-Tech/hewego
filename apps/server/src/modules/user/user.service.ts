@@ -19,16 +19,6 @@ export class UserService {
   async createNewUser(user: Partial<User>): Promise<User> {
     return await this.userRepository.save(user);
   }
-  async updateNoneUser(user: Partial<User>): Promise<void> {
-    await this.userRepository.update(
-      {
-        walletAddress: Equal(user.walletAddress),
-      },
-      {
-        nonce: user.nonce,
-      },
-    );
-  }
 
   async getUserById(id: number): Promise<User> {
     return await this.userRepository.findOne({

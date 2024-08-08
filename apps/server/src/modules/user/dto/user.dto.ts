@@ -10,9 +10,6 @@ export class UserDto {
   })
   walletAddress: string;
 
-  @ApiProperty({ description: 'User nonce', example: 123456 })
-  nonce: number;
-
   @ApiProperty({
     description: 'Creation date',
     example: '2023-08-07T12:34:56Z',
