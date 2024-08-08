@@ -1,7 +1,8 @@
 import React from 'react';
-import { useGetNonceMutation } from '@/api/auth/mutations';
-import { getAccountByAddressOrAccountId } from '@/utils/common';
-import { env, HASHCONNECT_DEBUG_MODE, HEDERA_CONFIG } from '@/utils/constants';
+import { useLoginMutation } from '@/api/auth/mutations';
+import { getAccountByAddressOrAccountId, onMutateError } from '@/utils/common';
+import { COOKIES_KEY, env, HASHCONNECT_DEBUG_MODE, HEDERA_CONFIG } from '@/utils/constants';
+import { setCookies } from '@/utils/cookies';
 import { HashConnect, HashConnectTypes, MessageTypes } from 'hashconnect';
 import { HashConnectConnectionState } from 'hashconnect/dist/types';
 import { toast } from 'sonner';
@@ -22,7 +23,17 @@ const useHashPack = () => {
 
   const { isIframeParent } = useHashConnectEvents(hashConnect, setHashConnectState);
 
-  const { mutate: getNonce } = useGetNonceMutation({});
+  const { mutate: login } = useLoginMutation({
+    onSuccess: ({ data }) => {
+      setCookies(COOKIES_KEY.ACCESS_TOKEN, data?.tokens?.accessToken);
+      setCookies(COOKIES_KEY.REFRESH_TOKEN, data?.tokens?.refreshToken);
+      toast.success('HashPack has been connected!');
+    },
+    onError: (error) => {
+      onMutateError(error);
+      disconnectFromHashPack();
+    },
+  });
 
   const initializeHashConnect = React.useCallback(async () => {
     const temp = new HashConnect(HASHCONNECT_DEBUG_MODE);
@@ -69,19 +80,9 @@ const useHashPack = () => {
         (async () => {
           const wallet = await getAccountByAddressOrAccountId(data.accountIds[0]);
 
-          getNonce({
+          login({
             wallet: wallet.account,
           });
-
-          // const message = `Welcome. By signing this message you are verifying your digital identity. This is completely secure and does not cost anything! Nonce: -1`;
-          // const encoder = new TextEncoder();
-          // const messageBytes = encoder.encode(message);
-          // const signature = signer?.sign([messageBytes]);
-          // const signature = await hashConnect?.sign(
-          //   hashConnectState.topic || '',
-          //   hashConnectState.pairingData?.accountIds[0] || '',
-          //   message
-          // );
         })();
       });
     } catch (e) {
@@ -91,13 +92,7 @@ const useHashPack = () => {
         toast.error(e.message);
       }
     }
-  }, [
-    getNonce,
-    hashConnect,
-    hashConnectState.availableExtension,
-    hashConnectState.pairingData?.accountIds,
-    hashConnectState.topic,
-  ]);
+  }, [hashConnect, hashConnectState.availableExtension, login]);
 
   return {
     hashConnect,
