@@ -16,3 +16,14 @@ export function getArrayPaginationBuildTotal<T>(
 
   return new Pagination(selectedItems, pagination);
 }
+
+export function getOffset(paginationOptions: IPaginationOptions) {
+  let offset = 0;
+  if (paginationOptions.page && paginationOptions.limit) {
+    if (Number(paginationOptions.page) > 0) {
+      offset =
+        (Number(paginationOptions.page) - 1) * Number(paginationOptions.limit);
+    }
+  }
+  return offset;
+}

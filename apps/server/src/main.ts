@@ -55,7 +55,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   if (!configService.isDevelopment) {
     app.enableShutdownHooks();
   }
-
+  app.enableCors();
   const port = configService.appConfig.port;
   await app.listen(port);
 

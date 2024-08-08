@@ -13,6 +13,7 @@ import { HealthCheckerModule } from './modules/health-checker/health-checker.mod
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { ExceptionFilter } from './filters/exception.filter';
 import { AuthModule } from './modules/auth/auth.module';
+import { BondModule } from 'modules/bond/bond.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     HealthCheckerModule,
     AuthModule,
+    BondModule,
   ],
   providers: [
     {
