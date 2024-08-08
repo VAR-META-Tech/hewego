@@ -67,7 +67,7 @@ export class Bond {
     name: 'borrower_address',
     type: 'varchar',
     length: 80,
-    nullable: false,
+    nullable: true,
   })
   borrowerAddress: string;
 
