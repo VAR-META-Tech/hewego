@@ -9,6 +9,8 @@ import type { AppProps } from 'next/app';
 import { fontSans, fontSerif } from '@/assets/fonts';
 import HederaWalletProvider from '@/context/HederaContext';
 import { NextPageWithLayout } from '@/types';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { DefaultOptions } from '@tanstack/react-query';
 
 import { siteConfig } from '@/config/site';
 import MainLayout from '@/components/layouts/MainLayout';
@@ -21,7 +23,18 @@ type AppPropsWithLayout = AppProps & {
   session: Session;
 };
 
+const queryOption: DefaultOptions['queries'] = {
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+  retry: false,
+};
+
+const queryClient = new QueryClient({ defaultOptions: { queries: queryOption } });
+
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
+  const [_queryClient] = React.useState(() => queryClient);
+
   const getLayout = Component.getLayout ?? ((page: React.ReactNode) => <MainLayout>{page}</MainLayout>);
 
   return (
@@ -55,11 +68,13 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
       <div>
         <NextThemeProvider themeProps={{ attribute: 'class', forcedTheme: 'light', children: <></> }}>
-          <ModuleLayout>
-            <HederaWalletProvider>
-              <Provider>{getLayout(<Component {...pageProps} />)}</Provider>
-            </HederaWalletProvider>
-          </ModuleLayout>
+          <QueryClientProvider client={_queryClient}>
+            <ModuleLayout>
+              <HederaWalletProvider>
+                <Provider>{getLayout(<Component {...pageProps} />)}</Provider>
+              </HederaWalletProvider>
+            </ModuleLayout>
+          </QueryClientProvider>
         </NextThemeProvider>
       </div>
     </>
