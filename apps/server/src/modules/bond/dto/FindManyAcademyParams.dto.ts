@@ -1,6 +1,7 @@
-import { IsNumberString, IsOptional } from 'class-validator';
+import { IsEnum, IsNumberString, IsOptional } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
+import { LoarnTermEnum } from 'shared/enum';
 
 export class FindManyActiveBondsParams {
   @ApiProperty({
@@ -24,4 +25,15 @@ export class FindManyActiveBondsParams {
   @IsOptional()
   @IsNumberString()
   limit?: string;
+
+  @ApiProperty({
+    name: 'loarnTems',
+    required: false,
+    type: String,
+    enum: [LoarnTermEnum],
+    description: 'Loan term.',
+  })
+  @IsOptional()
+  @IsEnum(LoarnTermEnum)
+  loarnTerms?: LoarnTermEnum;
 }

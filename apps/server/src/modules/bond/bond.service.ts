@@ -21,7 +21,7 @@ export class BondService {
     params: FindManyActiveBondsParams,
   ): Promise<Pagination<ActiveBondItemResponseDto>> {
     try {
-      const currentDateInSeconds = Math.floor(Date.now() / 1000);
+      // const currentDateInSeconds = Math.floor(Date.now() / 1000);
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
         .select([
@@ -40,10 +40,10 @@ export class BondService {
           'bonds.createdAt as createdAt',
           'bonds.updatedAt as updatedAt',
         ])
-        .where('bonds.maturityDate < :currentDate', {
-          currentDate: currentDateInSeconds,
-        })
-        .orderBy('bonds.maturityDate', 'DESC');
+        // .where('bonds.maturityDate < :currentDate', {
+        //   currentDate: currentDateInSeconds,
+        // })
+        .orderBy('bonds.createdAt', 'DESC');
 
       const totalbondsActive = await queryBuilder.getCount();
 

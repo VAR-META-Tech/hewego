@@ -3,8 +3,8 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { DataSource } from 'typeorm';
-import { addTransactionalDataSource } from 'typeorm-transactional';
+// import { DataSource } from 'typeorm';
+// import { addTransactionalDataSource } from 'typeorm-transactional';
 
 import { ApiConfigService } from './shared/services/api-config.service';
 import { SharedModule } from './shared/shared.module';
@@ -33,15 +33,15 @@ import { BondModule } from 'modules/bond/bond.module';
       useFactory: (configService: ApiConfigService) =>
         configService.postgresConfig,
       inject: [ApiConfigService],
-      dataSourceFactory: (options) => {
-        if (!options) {
-          throw new Error('Invalid options passed');
-        }
+      // dataSourceFactory: (options) => {
+      //   if (!options) {
+      //     throw new Error('Invalid options passed');
+      //   }
 
-        return Promise.resolve(
-          addTransactionalDataSource(new DataSource(options)),
-        );
-      },
+      //   return Promise.resolve(
+      //     addTransactionalDataSource(new DataSource(options)),
+      //   );
+      // },
     }),
     HealthCheckerModule,
     AuthModule,
