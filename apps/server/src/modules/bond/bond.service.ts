@@ -82,4 +82,21 @@ export class BondService {
       throw new InternalServerErrorException(error.message);
     }
   }
+
+  async getActiveBondById(id: number): Promise<ActiveBondItemResponseDto> {
+    try {
+      const activeBond = await this.bondRepository.findOne({
+        where: { id },
+      });
+      return {
+        ...activeBond,
+        totalSales: 10,
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(error.message);
+    }
+  }
 }

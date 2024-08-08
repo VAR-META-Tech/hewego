@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { BondService } from './bond.service';
 import { FindManyActiveBondsParams } from './dto/FindManyAcademyParams.dto';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -19,5 +19,13 @@ export class BondController {
     @Query() queries: FindManyActiveBondsParams,
   ): Promise<Pagination<ActiveBondItemResponseDto>> {
     return this.bondService.findActiveBondsWihPageable(queries);
+  }
+
+  @Get('/:id')
+  @ApiResponse({ status: 200, type: ActiveBondItemResponseDto })
+  async getActiveBondById(
+    @Param('id') id: string,
+  ): Promise<ActiveBondItemResponseDto> {
+    return await this.bondService.getActiveBondById(+id);
   }
 }

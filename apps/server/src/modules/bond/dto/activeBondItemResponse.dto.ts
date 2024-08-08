@@ -42,4 +42,7 @@ export class ActiveBondItemResponseDto {
 
   @ApiProperty({ example: '2021-01-01T00:00:00Z' })
   updatedAt: Date;
+
+  @ApiProperty({ example: 100 })
+  totalSales: number;
 }
