@@ -2,7 +2,7 @@ import React from 'react';
 import { useIssueBondStore } from '@/store/useIssueBondStore';
 import { FCC } from '@/types';
 import { convertMarutiryDateToISO } from '@/utils/common';
-import { DATE_FORMAT } from '@/utils/constants';
+import { DATE_FORMAT, PLATFORM_FEE } from '@/utils/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebouncedValue } from '@mantine/hooks';
 import { format } from 'date-fns';
@@ -18,20 +18,23 @@ const IssueBondFormWrapper: FCC = ({ children }) => {
 
   const form = useForm<IssueBondFormType>({
     resolver: zodResolver(issueBondSchema),
+    mode: 'onTouched',
   });
 
-  const [durationBond, borrowInterestRate, loanToken, collateralToken] = form.watch([
+  const [durationBond, borrowInterestRate, loanToken, collateralToken, loanAmount] = form.watch([
     'durationBond',
     'borrowInterestRate',
     'loanToken',
     'collateralToken',
+    'loanAmount',
   ]);
 
-  const [borrowInterestRateDebounced] = useDebouncedValue(borrowInterestRate, 200);
+  const [borrowInterestRateDebounced] = useDebouncedValue(borrowInterestRate, 300);
+  const [loanAmountDebounced] = useDebouncedValue(loanAmount, 300);
 
   React.useEffect(() => {
-    if (borrowInterestRateDebounced) {
-      form.setValue('lenderInterestRate', borrowInterestRateDebounced);
+    if (borrowInterestRateDebounced && borrowInterestRateDebounced >= 1) {
+      form.setValue('lenderInterestRate', borrowInterestRateDebounced - PLATFORM_FEE);
     }
   }, [borrowInterestRateDebounced, form]);
 
@@ -51,6 +54,12 @@ const IssueBondFormWrapper: FCC = ({ children }) => {
 
     form.setValue('matuityDate', format(new Date(newDate).toISOString().slice(0, 10), DATE_FORMAT.DD_MM_YYYY));
   }, [durationBond, form]);
+
+  React.useEffect(() => {
+    if (!loanAmountDebounced) return;
+
+    form.setValue('volumeBond', Math.round(loanAmountDebounced / 100));
+  }, [form, loanAmountDebounced]);
 
   const handleSubmit: SubmitHandler<IssueBondFormType> = () => {
     if (!loanToken || !collateralToken) {

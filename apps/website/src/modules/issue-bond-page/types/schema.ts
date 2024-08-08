@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
 
-import { numberRequired, validationMessages } from '@/lib/validations/validation.utility';
+import { validationMessages } from '@/lib/validations/validation.utility';
 
 export const issueBondSchema = z.object({
   name: z.string({
@@ -23,8 +23,13 @@ export const issueBondSchema = z.object({
       if (Number(data) < 1000) return false;
 
       return true;
-    }, 'This field must be greater than 1000 units'),
-  volumeBond: numberRequired,
+    }, 'This field must be greater than 1000 units')
+    .refine((data) => {
+      if (Number(data) % 100 !== 0) return false;
+
+      return true;
+    }, 'This field'),
+  volumeBond: z.any(),
   durationBond: z.string({
     required_error: validationMessages.required(),
   }),
@@ -40,12 +45,17 @@ export const issueBondSchema = z.object({
       return true;
     }, validationMessages.number())
     .refine((data) => {
+      if (Number(data) < 1) return false;
+
+      return true;
+    }, validationMessages.gte(1))
+    .refine((data) => {
       if (Number(data) > 20) return false;
 
       return true;
     }, validationMessages.lt(20)),
   lenderInterestRate: z.any(),
-  minimumCollateralAmount: numberRequired,
+  minimumCollateralAmount: z.any(),
   collateralToken: z.any(),
   issuanceDate: z.string({
     required_error: validationMessages.required(),
