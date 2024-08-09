@@ -26,20 +26,20 @@ export class BondService {
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
         .select([
-          'bonds.id as id',
-          'bonds.name as name',
-          'bonds.loanTerm as loanTerm',
-          'bonds.loanAmount as loanAmount',
-          'bonds.loanToken as loanToken',
-          'bonds.collateralAmount as collateralAmount',
-          'bonds.collateralToken as collateralToken',
-          'bonds.volumeBond as volumeBond',
-          'bonds.borrowerInterestRate as interestRate',
-          'bonds.issuanceDate as issuanceDate',
-          'bonds.maturityDate as maturityDate',
-          'bonds.borrowerAddress as borrowerAddress',
-          'bonds.createdAt as createdAt',
-          'bonds.updatedAt as updatedAt',
+          'bond.id AS "id"',
+          'bond.name AS "bondName"',
+          'bond.loanTerm AS "loanTerm"',
+          'bond.loanAmount AS "loanAmount"',
+          'bond.loanToken AS "loanToken"',
+          'bond.borrowerInterestRate AS "interestRate"',
+          'bond.collateralToken AS "collateralToken"',
+          'bond.volumeBond AS "volumeBond"',
+          'bond.issuanceDate AS "issuanceDate"',
+          'bond.maturityDate AS "maturityDate"',
+          'bond.borrowerAddress AS "borrowerAddress"',
+          'bond.bond_id AS "bondId"',
+          'bond.createdAt AS "createdAt"',
+          'bond.updatedAt AS "updatedAt"',
         ])
 
         .orderBy('bonds.createdAt', 'DESC');

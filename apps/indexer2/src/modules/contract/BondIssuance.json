@@ -1,0 +1,894 @@
+[
+  {
+    "type": "constructor",
+    "stateMutability": "undefined",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_priceFeed"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "BondCreated",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bondId",
+        "indexed": false
+      },
+      {
+        "type": "string",
+        "name": "name",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "borrower",
+        "indexed": true
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "BondLiquidated",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bondId",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "borrower",
+        "indexed": true
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "BondRepaid",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bondId",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "borrower",
+        "indexed": true
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "BorrowerClaimLoanToken",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bondId",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "borrower",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "lentToken",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "amount",
+        "indexed": false
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "LenderParticipated",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bondId",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "lender",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "amount",
+        "indexed": false
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "RateTokenPerBondUpdated",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "token",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "rate",
+        "indexed": false
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "RoleAdminChanged",
+    "inputs": [
+      {
+        "type": "bytes32",
+        "name": "role",
+        "indexed": true
+      },
+      {
+        "type": "bytes32",
+        "name": "previousAdminRole",
+        "indexed": true
+      },
+      {
+        "type": "bytes32",
+        "name": "newAdminRole",
+        "indexed": true
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "RoleGranted",
+    "inputs": [
+      {
+        "type": "bytes32",
+        "name": "role",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "account",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "sender",
+        "indexed": true
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "RoleRevoked",
+    "inputs": [
+      {
+        "type": "bytes32",
+        "name": "role",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "account",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "sender",
+        "indexed": true
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "UpScaleCollateralUpdated",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "token",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "scale",
+        "indexed": false
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "ADMIN_ROLE",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [
+      {
+        "type": "bytes32",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "BORROWER_ROLE",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [
+      {
+        "type": "bytes32",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "DEFAULT_ADMIN_ROLE",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [
+      {
+        "type": "bytes32",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "LENDER_ROLE",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [
+      {
+        "type": "bytes32",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "bondToken",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "bonds",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": ""
+      }
+    ],
+    "outputs": [
+      {
+        "type": "string",
+        "name": "name"
+      },
+      {
+        "type": "address",
+        "name": "loanToken"
+      },
+      {
+        "type": "uint256",
+        "name": "loanAmount"
+      },
+      {
+        "type": "uint256",
+        "name": "volumeBond"
+      },
+      {
+        "type": "uint256",
+        "name": "bondDuration"
+      },
+      {
+        "type": "uint256",
+        "name": "borrowerInterestRate"
+      },
+      {
+        "type": "uint256",
+        "name": "lenderInterestRate"
+      },
+      {
+        "type": "address",
+        "name": "collateralToken"
+      },
+      {
+        "type": "uint256",
+        "name": "collateralAmount"
+      },
+      {
+        "type": "uint256",
+        "name": "issuanceDate"
+      },
+      {
+        "type": "uint256",
+        "name": "maturityDate"
+      },
+      {
+        "type": "address",
+        "name": "borrower"
+      },
+      {
+        "type": "bool",
+        "name": "isActive"
+      },
+      {
+        "type": "uint256",
+        "name": "totalLend"
+      },
+      {
+        "type": "bool",
+        "name": "isRepaid"
+      },
+      {
+        "type": "bool",
+        "name": "isClaimed"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "borrowerClaim",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bondId"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "buyBond",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bondId"
+      },
+      {
+        "type": "uint256",
+        "name": "amount"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "collateralAmountCaculation",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_loanToken"
+      },
+      {
+        "type": "uint256",
+        "name": "_loanAmount"
+      },
+      {
+        "type": "address",
+        "name": "_collateralToken"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "createBond",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "string",
+        "name": "_name"
+      },
+      {
+        "type": "address",
+        "name": "_loanToken"
+      },
+      {
+        "type": "uint256",
+        "name": "_loanAmount"
+      },
+      {
+        "type": "uint256",
+        "name": "_bondDuration"
+      },
+      {
+        "type": "uint256",
+        "name": "_borrowerInterestRate"
+      },
+      {
+        "type": "uint256",
+        "name": "_lenderInterestRate"
+      },
+      {
+        "type": "address",
+        "name": "_collateralToken"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "getBond",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bondId"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "tuple",
+        "name": "",
+        "components": [
+          {
+            "type": "string",
+            "name": "name"
+          },
+          {
+            "type": "address",
+            "name": "loanToken"
+          },
+          {
+            "type": "uint256",
+            "name": "loanAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "volumeBond"
+          },
+          {
+            "type": "uint256",
+            "name": "bondDuration"
+          },
+          {
+            "type": "uint256",
+            "name": "borrowerInterestRate"
+          },
+          {
+            "type": "uint256",
+            "name": "lenderInterestRate"
+          },
+          {
+            "type": "address",
+            "name": "collateralToken"
+          },
+          {
+            "type": "uint256",
+            "name": "collateralAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "issuanceDate"
+          },
+          {
+            "type": "uint256",
+            "name": "maturityDate"
+          },
+          {
+            "type": "address",
+            "name": "borrower"
+          },
+          {
+            "type": "tuple[]",
+            "name": "lenders",
+            "components": [
+              {
+                "type": "address",
+                "name": "lender"
+              },
+              {
+                "type": "uint256",
+                "name": "amount"
+              }
+            ]
+          },
+          {
+            "type": "bool",
+            "name": "isActive"
+          },
+          {
+            "type": "uint256",
+            "name": "totalLend"
+          },
+          {
+            "type": "bool",
+            "name": "isRepaid"
+          },
+          {
+            "type": "bool",
+            "name": "isClaimed"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "getRoleAdmin",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "bytes32",
+        "name": "role"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "bytes32",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "getUserBonds",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": "user"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256[]",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "grantRole",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "bytes32",
+        "name": "role"
+      },
+      {
+        "type": "address",
+        "name": "account"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "hasRole",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "bytes32",
+        "name": "role"
+      },
+      {
+        "type": "address",
+        "name": "account"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "bool",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "liquidateBond",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bondId"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "loanTokenToBondCaculation",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_loanToken"
+      },
+      {
+        "type": "uint256",
+        "name": "_loanAmount"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "priceFeed",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "rateTokenPerBond",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "renounceRole",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "bytes32",
+        "name": "role"
+      },
+      {
+        "type": "address",
+        "name": "account"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "repayBond",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bondId"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "revokeRole",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "bytes32",
+        "name": "role"
+      },
+      {
+        "type": "address",
+        "name": "account"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "setBorrower",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_borrower"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "setLender",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_lender"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "setRateTokenPerBond",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_token"
+      },
+      {
+        "type": "uint256",
+        "name": "_rate"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "setUpScaleCollateral",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_token"
+      },
+      {
+        "type": "uint256",
+        "name": "_scale"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "supportsInterface",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "bytes4",
+        "name": "interfaceId"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "bool",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "thresholdLiquidityCollateral",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "upScaleCollateral",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "userBonds",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": ""
+      },
+      {
+        "type": "uint256",
+        "name": ""
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": ""
+      }
+    ]
+  }
+]
