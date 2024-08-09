@@ -14,6 +14,7 @@ import { ActiveBondItemResponseDto } from './dto/activeBondItemResponse.dto';
 import { FindManyRequestBondsParamsDto } from './dto/findManyRequestBondParams.dto';
 import { RequestBondItemResponseDto } from './dto/requestBondItemResponse.dto';
 import { BorrowBondRequestSummaryDto } from './dto/borrowBondRequestSummary.dto';
+import { BondStatusEnum } from 'shared/enum';
 
 @Injectable()
 export class BondService {
@@ -28,7 +29,6 @@ export class BondService {
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds') // use 'bonds' as the alias
         .select([
-          'bonds.id AS "id"', // update to 'bonds'
           'bonds.name AS "bondName"',
           'bonds.loanTerm AS "loanTerm"',
           'bonds.loanAmount AS "loanAmount"',
@@ -91,7 +91,6 @@ export class BondService {
       const activeBond = await this.bondRepository
         .createQueryBuilder('bond')
         .select([
-          'bond.id AS "id"',
           'bond.name AS "bondName"',
           'bond.loanTerm AS "loanTerm"',
           'bond.loanAmount AS "loanAmount"',
@@ -105,15 +104,16 @@ export class BondService {
           'bond.bond_id AS "bondId"',
           'bond.createdAt AS "createdAt"',
           'bond.updatedAt AS "updatedAt"',
-          'CAST(COUNT(bondCheckout.bond_id) AS INT) AS "totalSales"',
+          'bond.totalSold AS "totalSales"',
         ])
-        .leftJoin(
-          BondCheckout,
-          'bondCheckout',
-          'bondCheckout.bond_id = bond.bond_id',
-        )
-        .where('bond.id = :id', { id })
-        .groupBy('bond.id')
+        // .leftJoin(
+        //   BondCheckout,
+        //   'bondCheckout',
+        //   'bondCheckout.bond_id = bond.bond_id',
+        // )
+        .where('bond.bond_id = :id', { id })
+        // .groupBy('bond.bond_id')
+        // .addGroupBy('bond.contract_address')
         .getRawOne();
 
       return {
@@ -135,7 +135,6 @@ export class BondService {
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
         .select([
-          'bonds.id as id',
           'bonds.name as name',
           'bonds.loanTerm as loanTerm',
           'bonds.loanAmount as loanAmount',
@@ -150,7 +149,21 @@ export class BondService {
           'bonds.createdAt as createdAt',
           'bonds.updatedAt as updatedAt',
           'bonds.status as status',
+          'bonds.totalSold as totalSales',
+          //   'status', CASE
+          //   WHEN gameInfo.startTime > ${currentTime} AND gameInfo.endTime > ${currentTime}
+          //   THEN '${GameInfoAction.UP_COMING}'
+          //   WHEN gameInfo.startTime < ${currentTime} AND gameInfo.endTime > ${currentTime}
+          //   THEN '${GameInfoAction.ON_GOING}'
+          //   ELSE '${GameInfoAction.CLOSED}'
+          // END'
         ])
+        // .addSelect(
+        //   `CASE
+        //   WHEN bonds.issuanceDate > ${Date.now()} AND bonds.maturityDate > ${Date.now()} THEN '${BondStatusEnum.PENDING_ISSUANCE}'
+        //   END`,
+        //   'status',
+        // )
         .where({
           borrowerAddress: user?.walletAddress,
         })

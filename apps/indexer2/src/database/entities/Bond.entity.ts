@@ -5,13 +5,15 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Unique,
+  Index,
+  PrimaryColumn,
 } from "typeorm";
 
 @Entity("bonds")
-@Unique("uk_bondId", ["bondId"])
+@Unique(["bondId", "contractAddress"])
 export class Bond {
-  @PrimaryGeneratedColumn({ name: "id", type: "int" })
-  id: number;
+  // @PrimaryGeneratedColumn({ name: "id", type: "int" })
+  // id: number;
 
   @Column({
     name: "name",
@@ -25,12 +27,13 @@ export class Bond {
 
   @Column({
     name: "loan_amount",
-    type: "decimal",
-    precision: 40,
-    scale: 8,
+    type: "varchar",
     nullable: true,
   })
-  public loanAmount: number;
+  public loanAmount: string;
+
+  @Column({ name: "total_sold", type: "int", nullable: false, default: 0 })
+  totalSold: number;
 
   @Column({ name: "loan_token", type: "varchar", nullable: true })
   public loanToken: string;
@@ -59,7 +62,6 @@ export class Bond {
   })
   borrowerInterestRate: number;
 
-
   @Column({
     name: "lender_interest_rate",
     type: "decimal",
@@ -83,22 +85,23 @@ export class Bond {
   })
   borrowerAddress: string;
 
-
-  @Column({ type: "varchar", name: "contract_address", nullable: true })
+  @Column({
+    type: "varchar",
+    name: "contract_address",
+    nullable: true,
+  })
   contractAddress: string;
 
   @Column({ type: "varchar", name: "transaction_hash", nullable: true })
   transactionHash: string;
 
   @Column({ type: "varchar", name: "onchain_status", nullable: true })
-  onchainStatus: string; 
-  
+  onchainStatus: string;
 
   @Column({ type: "varchar", name: "status", nullable: true })
-  status: string; 
-  
+  status: string;
 
-  @Column({ name: "bond_id", type: "int", nullable: true })
+  @PrimaryColumn({ name: "bond_id", type: "int" })
   public bondId: number;
 
   @Column({ name: "block_number", type: "bigint", nullable: true })

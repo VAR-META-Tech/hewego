@@ -78,8 +78,21 @@ export class HederaWorkerV2Service {
           // Handling different event types based on the event name
           switch (event.eventName) {
             case "BondCreated":
-              const { bondId, name, borrower } = event;
-              console.log({ event });
+              const {
+                bondId,
+                name,
+                borrower,
+                loanToken,
+                loanAmount,
+                volumeBond,
+                bondDuration,
+                borrowerInterestRate,
+                lenderInterestRate,
+                collateralToken,
+                collateralAmount,
+                issuanceDate,
+                maturityDate
+              } = event;
               const borrowerAccountId = convertToHederaAccountId(borrower);
 
               await manager
@@ -94,16 +107,35 @@ export class HederaWorkerV2Service {
                   blockNumber: meta.block_number,
                   transactionHash: meta.transaction_hash,
                   onchainStatus: OnchainStatus.CONFIRMING,
+                  loanToken,
+                  loanAmount,
+                  volumeBond,
+                  loanTerm: bondDuration,
+                  borrowerInterestRate,
+                  lenderInterestRate,
+                  collateralToken,
+                  collateralAmount,
+                  issuanceDate,
+                  maturityDate
                 })
                 .orUpdate(
                   [
                     "name",
                     "borrower_address",
-                    "contract_address",
                     "block_number",
                     "transaction_hash",
+                    "loan_token",
+                    "loan_amount",
+                    "volume_bond",
+                    "loan_term",
+                    "borrower_interest_rate",
+                    "lender_interest_rate",
+                    "collateral_token",
+                    "collateral_amount",
+                    "issuance_date",
+                    "maturity_date"
                   ],
-                  ["bond_id"]
+                  ["bond_id","contract_address"]
                 )
                 .execute();
               break;

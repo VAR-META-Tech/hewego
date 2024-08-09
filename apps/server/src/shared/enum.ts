@@ -12,3 +12,19 @@ export enum BorrowEnum {
   USDC = 'USDC',
   USDT = 'USDT',
 }
+
+export enum BondStatusEnum {
+  ACTIVE = 'ACTIVE',
+  CLOSED = 'CLOSED',
+  PENDING_ISSUANCE = 'PENDING_ISSUANCE',
+  AUTOMATED_LIQUIDATION = 'AUTOMATED_LIQUIDATION',
+  FAILED = 'FAILED',
+}
+export enum TokenSymbolEnum {
+  USDC = 'USDC',
+  USDT = 'USDT',
+}
+export enum TokenTypeEnum {
+  COLLATERAL = 'COLLATERAL',
+  LOAN = 'LOAN',
+}

@@ -314,3 +314,20 @@ export enum TransactionTag {
     IN_GM_SYSTEM = "in_gm_system",
     OUT_GM_SYSTEM = "out_gm_system",
 }
+
+export enum BondStatusEnum {
+    ACTIVE = 'ACTIVE',
+    CLOSED = 'CLOSED',
+    PENDING_ISSUANCE = 'PENDING_ISSUANCE',
+    AUTOMATED_LIQUIDATION = 'AUTOMATED_LIQUIDATION',
+    FAILED = 'FAILED',
+  }
+  export enum TokenSymbolEnum {
+    USDC = 'USDC',
+    USDT = 'USDT',
+  }
+  export enum TokenTypeEnum {
+    COLLATERAL = 'COLLATERAL',
+    LOAN = 'LOAN',
+  }
+  
