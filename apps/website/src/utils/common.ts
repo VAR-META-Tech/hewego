@@ -65,3 +65,12 @@ export const onPreventNumberKeyDown = (event: React.KeyboardEvent<HTMLInputEleme
 export const onPreventAmountKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
   AMOUNT_PREVENT_KEYS.includes(event.key) && event.preventDefault();
 };
+
+export const range = (start: number, end: number) => {
+  const length = end - start + 1;
+  /*
+    Create an array of certain length and set the elements within it from
+    start value to end value.
+  */
+  return Array.from({ length }, (_, idx) => idx + start);
+};

@@ -2,7 +2,6 @@ import angleDown from '@/assets/svg/angle-down-solid.svg';
 import arrowDown from '@/assets/svg/arrow-down.svg';
 import bell from '@/assets/svg/bell.svg';
 import bookmark from '@/assets/svg/bookmark.svg';
-import calendar from '@/assets/svg/calendar.svg';
 import checkCircleXs from '@/assets/svg/check-circle-xs.svg';
 import checkCircle from '@/assets/svg/check-circle.svg';
 import check from '@/assets/svg/check.svg';
@@ -38,17 +37,22 @@ import youtube from '@/assets/svg/youtube.svg';
 import type { LucideIcon } from 'lucide-react';
 import {
   ArrowLeft,
+  Calendar,
   Camera,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  Circle,
   CircleAlert,
   Copy,
+  EllipsisVertical,
   HelpCircle,
   Link,
+  Link2Off,
   Loader2,
   LogOut,
+  MoveRight,
   Search,
   User,
   Wallet,
@@ -103,7 +107,6 @@ const IconList = {
   youtube,
   menu,
   close,
-  calendar,
   checkCircleXs,
   chevronDown: ChevronDown,
   chevronUp: ChevronUp,
@@ -111,6 +114,11 @@ const IconList = {
   link: Link,
   x: X,
   circleAlert: CircleAlert,
+  ellipsisVertical: EllipsisVertical,
+  link2Off: Link2Off,
+  circle: Circle,
+  calendar: Calendar,
+  moveRight: MoveRight,
 };
 
 export const Icons = IconList as Record<keyof typeof IconList, Icon>;
