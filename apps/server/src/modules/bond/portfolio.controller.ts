@@ -13,7 +13,7 @@ import { UserDecorator } from 'decorators/user.decorator';
 @UseGuards(JWTAuthGuard)
 export class PortfolioController {
   constructor(private readonly bondService: BondService) {}
-  @Get('/request-bonds')
+  @Get('/borrow-requests')
   @ApiResponse({
     status: 200,
     type: RequestBondItemResponseDto,
