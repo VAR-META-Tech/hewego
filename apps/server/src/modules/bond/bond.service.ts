@@ -24,24 +24,23 @@ export class BondService {
   ): Promise<Pagination<ActiveBondItemResponseDto>> {
     try {
       const queryBuilder = this.bondRepository
-        .createQueryBuilder('bonds')
+        .createQueryBuilder('bonds') // use 'bonds' as the alias
         .select([
-          'bond.id AS "id"',
-          'bond.name AS "bondName"',
-          'bond.loanTerm AS "loanTerm"',
-          'bond.loanAmount AS "loanAmount"',
-          'bond.loanToken AS "loanToken"',
-          'bond.borrowerInterestRate AS "interestRate"',
-          'bond.collateralToken AS "collateralToken"',
-          'bond.volumeBond AS "volumeBond"',
-          'bond.issuanceDate AS "issuanceDate"',
-          'bond.maturityDate AS "maturityDate"',
-          'bond.borrowerAddress AS "borrowerAddress"',
-          'bond.bond_id AS "bondId"',
-          'bond.createdAt AS "createdAt"',
-          'bond.updatedAt AS "updatedAt"',
+          'bonds.id AS "id"', // update to 'bonds'
+          'bonds.name AS "bondName"',
+          'bonds.loanTerm AS "loanTerm"',
+          'bonds.loanAmount AS "loanAmount"',
+          'bonds.loanToken AS "loanToken"',
+          'bonds.borrowerInterestRate AS "interestRate"',
+          'bonds.collateralToken AS "collateralToken"',
+          'bonds.volumeBond AS "volumeBond"',
+          'bonds.issuanceDate AS "issuanceDate"',
+          'bonds.maturityDate AS "maturityDate"',
+          'bonds.borrowerAddress AS "borrowerAddress"',
+          'bonds.bond_id AS "bondId"',
+          'bonds.createdAt AS "createdAt"',
+          'bonds.updatedAt AS "updatedAt"',
         ])
-
         .orderBy('bonds.createdAt', 'DESC');
       if (params?.loanTerms) {
         const loanTerms = params.loanTerms;
@@ -88,7 +87,7 @@ export class BondService {
   async getActiveBondById(id: number): Promise<ActiveBondItemResponseDto> {
     try {
       const activeBond = await this.bondRepository
-        .createQueryBuilder('bond')
+        .createQueryBuilder()
         .select([
           'bond.id AS "id"',
           'bond.name AS "bondName"',
