@@ -7,6 +7,8 @@ import { FindManyRequestBondsParamsDto } from './dto/findManyRequestBondParams.d
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { User } from 'database/entities';
 import { UserDecorator } from 'decorators/user.decorator';
+import { BorrowBondRequestSummaryDto } from './dto/borrowBondRequestSummary.dto';
+import { BorrowBondRequestSummaryResponseDto } from './dto/borrowBondRequestSummaryResponse.dto';
 @Controller('proftfolio')
 @ApiTags('portfolio')
 @ApiBearerAuth()
@@ -23,5 +25,16 @@ export class PortfolioController {
     @UserDecorator() user: User,
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     return await this.bondService.getManyRequestBonds(user, queries);
+  }
+
+  @Get('/borrow-requests/summary')
+  @ApiResponse({
+    status: 200,
+    type: BorrowBondRequestSummaryResponseDto,
+  })
+  async getBorrowBondRequestSummary(
+    @UserDecorator() user: User,
+  ): Promise<BorrowBondRequestSummaryDto> {
+    return await this.bondService.getBorrowBondRequestSummary(user);
   }
 }

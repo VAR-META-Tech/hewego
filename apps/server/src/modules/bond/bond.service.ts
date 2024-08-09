@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   HttpException,
   Injectable,
@@ -12,6 +13,7 @@ import { getArrayPaginationBuildTotal, getOffset } from 'utils/pagination';
 import { ActiveBondItemResponseDto } from './dto/activeBondItemResponse.dto';
 import { FindManyRequestBondsParamsDto } from './dto/findManyRequestBondParams.dto';
 import { RequestBondItemResponseDto } from './dto/requestBondItemResponse.dto';
+import { BorrowBondRequestSummaryDto } from './dto/borrowBondRequestSummary.dto';
 
 @Injectable()
 export class BondService {
@@ -31,7 +33,7 @@ export class BondService {
           'bonds.loanTerm AS "loanTerm"',
           'bonds.loanAmount AS "loanAmount"',
           'bonds.loanToken AS "loanToken"',
-          'bonds.borrowerInterestRate AS "interestRate"',
+          'bonds.lenderInterestRate AS "interestRate"',
           'bonds.collateralToken AS "collateralToken"',
           'bonds.volumeBond AS "volumeBond"',
           'bonds.issuanceDate AS "issuanceDate"',
@@ -52,7 +54,7 @@ export class BondService {
       if (params?.borrows) {
         const borrows = params.borrows;
 
-        queryBuilder.andWhere('bonds.borrowerAddress IN (:...borrows)', {
+        queryBuilder.andWhere('bonds.loanToken IN (:...borrows)', {
           borrows,
         });
       }
@@ -87,14 +89,14 @@ export class BondService {
   async getActiveBondById(id: number): Promise<ActiveBondItemResponseDto> {
     try {
       const activeBond = await this.bondRepository
-        .createQueryBuilder()
+        .createQueryBuilder('bond')
         .select([
           'bond.id AS "id"',
           'bond.name AS "bondName"',
           'bond.loanTerm AS "loanTerm"',
           'bond.loanAmount AS "loanAmount"',
           'bond.loanToken AS "loanToken"',
-          'bond.borrowerInterestRate AS "interestRate"',
+          'bond.lenderInterestRate AS "interestRate"',
           'bond.collateralToken AS "collateralToken"',
           'bond.volumeBond AS "volumeBond"',
           'bond.issuanceDate AS "issuanceDate"',
@@ -141,7 +143,7 @@ export class BondService {
           'bonds.collateralAmount as collateralAmount',
           'bonds.collateralToken as collateralToken',
           'bonds.volumeBond as volumeBond',
-          'bonds.borrowerInterestRate as interestRate',
+          'bonds.lenderInterestRate as interestRate',
           'bonds.issuanceDate as issuanceDate',
           'bonds.maturityDate as maturityDate',
           'bonds.borrowerAddress as borrowerAddress',
@@ -175,5 +177,18 @@ export class BondService {
       }
       throw new InternalServerErrorException(error.message);
     }
+  }
+
+  async getBorrowBondRequestSummary(
+    user: User,
+  ): Promise<BorrowBondRequestSummaryDto> {
+    return new BorrowBondRequestSummaryDto(
+      1000000,
+      800000,
+      1500000,
+      500000,
+      2000,
+      3000,
+    );
   }
 }

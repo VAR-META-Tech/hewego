@@ -15,11 +15,11 @@ export class BondCheckout {
   bondId: number;
 
   @Column({
-    name: 'lender_id',
-    type: 'int',
+    name: 'lender_address',
+    type: 'varchar',
     nullable: true,
   })
-  lenderId: number;
+  lenderAddress: string;
 
   @Column({
     name: 'amount_purchased',
