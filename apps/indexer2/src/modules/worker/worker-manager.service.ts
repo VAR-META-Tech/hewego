@@ -1,13 +1,11 @@
-import { AuctionStatus, LootBoxStatus } from "../../shared/enums";
-import { LatestBlock } from "../../database/entities";
 import { Injectable } from "@nestjs/common";
 import * as _ from "lodash";
-import { InjectDataSource, InjectRepository } from "@nestjs/typeorm";
+import { InjectDataSource } from "@nestjs/typeorm";
 import { getLogger } from "../../shared/logger";
-import { DataSource, Repository } from "typeorm";
+import { DataSource } from "typeorm";
 import { HederaWorkerService } from "./hedera-worker.service";
+import { HederaWorkerV2Service } from "./hedera-worker-v2.service";
 const logger = getLogger("WorkerManagerService");
-var cron = require("node-cron");
 
 @Injectable()
 export class WorkerManagerService {
@@ -19,7 +17,8 @@ export class WorkerManagerService {
   }
 
   async init() {
-    new HederaWorkerService(this.dataSource);
+    // new HederaWorkerService(this.dataSource);
+    new HederaWorkerV2Service(this.dataSource);
   }
 
   runWorker(_cb: () => void) {
