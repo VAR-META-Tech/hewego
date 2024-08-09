@@ -14,6 +14,7 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { ExceptionFilter } from './filters/exception.filter';
 import { AuthModule } from './modules/auth/auth.module';
 import { BondModule } from 'modules/bond/bond.module';
+import { Token } from 'database/entities';
 
 @Module({
   imports: [
@@ -33,19 +34,11 @@ import { BondModule } from 'modules/bond/bond.module';
       useFactory: (configService: ApiConfigService) =>
         configService.postgresConfig,
       inject: [ApiConfigService],
-      // dataSourceFactory: (options) => {
-      //   if (!options) {
-      //     throw new Error('Invalid options passed');
-      //   }
-
-      //   return Promise.resolve(
-      //     addTransactionalDataSource(new DataSource(options)),
-      //   );
-      // },
     }),
     HealthCheckerModule,
     AuthModule,
     BondModule,
+    Token,
   ],
   providers: [
     {

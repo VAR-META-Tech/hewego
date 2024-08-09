@@ -1,17 +1,17 @@
 import { IPaginationOptions, Pagination } from "nestjs-typeorm-paginate";
-import Web3 from "web3";
-import axios from "axios";
-import { BigNumber } from "bignumber.js";
-import { AppWallet, BlockfrostProvider, resolveSlotNo } from "@meshsdk/core";
-import {
-  Client,
-  ContractExecuteTransaction,
-  ContractFunctionParameters,
-  ContractFunctionResult,
-  ContractId,
-  TransactionReceipt,
-  TransactionRecord,
-} from "@hashgraph/sdk";
+// import Web3 from "web3";
+// import axios from "axios";
+// import { BigNumber } from "bignumber.js";
+// import { AppWallet, BlockfrostProvider, resolveSlotNo } from "@meshsdk/core";
+// import {
+//   Client,
+//   ContractExecuteTransaction,
+//   ContractFunctionParameters,
+//   ContractFunctionResult,
+//   ContractId,
+//   TransactionReceipt,
+//   TransactionRecord,
+// } from "@hashgraph/sdk";
 // import {fileTypeFromBuffer} from "file-type";
 
 const NodeCache = require("node-cache");
@@ -97,47 +97,47 @@ export function existValueInEnum(type: any, value: any): boolean {
   );
 }
 
-export async function checkTypeERC(
-  rpcEndpoint: string,
-  contractAddress: string,
-  type: string
-) {
-  const web3 = new Web3(rpcEndpoint);
+// export async function checkTypeERC(
+//   rpcEndpoint: string,
+//   contractAddress: string,
+//   type: string
+// ) {
+//   const web3 = new Web3(rpcEndpoint);
 
-  const ERC165Abi: any = [
-    {
-      inputs: [
-        {
-          internalType: "bytes4",
-          name: "interfaceId",
-          type: "bytes4",
-        },
-      ],
-      name: "supportsInterface",
-      outputs: [
-        {
-          internalType: "bool",
-          name: "",
-          type: "bool",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-  ];
-  const ERC1155InterfaceId: string = "0xd9b67a26";
-  const ERC721InterfaceId: string = "0x80ac58cd";
+//   const ERC165Abi: any = [
+//     {
+//       inputs: [
+//         {
+//           internalType: "bytes4",
+//           name: "interfaceId",
+//           type: "bytes4",
+//         },
+//       ],
+//       name: "supportsInterface",
+//       outputs: [
+//         {
+//           internalType: "bool",
+//           name: "",
+//           type: "bool",
+//         },
+//       ],
+//       stateMutability: "view",
+//       type: "function",
+//     },
+//   ];
+//   const ERC1155InterfaceId: string = "0xd9b67a26";
+//   const ERC721InterfaceId: string = "0x80ac58cd";
 
-  const contract = new web3.eth.Contract(ERC165Abi, contractAddress);
+//   const contract = new web3.eth.Contract(ERC165Abi, contractAddress);
 
-  if (type == "ERC1155") {
-    return contract.methods.supportsInterface(ERC1155InterfaceId).call();
-  }
+//   if (type == "ERC1155") {
+//     return contract.methods.supportsInterface(ERC1155InterfaceId).call();
+//   }
 
-  if (type == "ERC721") {
-    return contract.methods.supportsInterface(ERC721InterfaceId).call();
-  }
-}
+//   if (type == "ERC721") {
+//     return contract.methods.supportsInterface(ERC721InterfaceId).call();
+//   }
+// }
 
 async function web3Cache(key, func) {
   let value = nodeCache.get(key);
@@ -199,12 +199,6 @@ export function binarySearch(
   return false;
 }
 
-export function getContentTypeByURL(link: string) {
-  return axios.get(link).then(async function (response) {
-    return response.headers["content-type"];
-  });
-}
-
 export function isJsonString(str) {
   try {
     JSON.parse(str);
@@ -229,9 +223,9 @@ export function nativeCoin(chain: string) {
   }
 }
 
-export function convertTokenBalance(balance: BigNumber, decimals: number) {
-  return balance.div(new BigNumber(10).pow(decimals));
-}
+// export function convertTokenBalance(balance: BigNumber, decimals: number) {
+//   return balance.div(new BigNumber(10).pow(decimals));
+// }
 
 export function genExchangeSignature(
   userId: number,
@@ -247,63 +241,7 @@ export function genExchangeSignature(
   });
 }
 
-export function aesEncrypt(data, key) {
-  return CryptoJS.AES.encrypt(data, key).toString();
-}
 
-export function aesDecrypt(cipherText, key) {
-  return CryptoJS.AES.decrypt(cipherText, key).toString(CryptoJS.enc.Utf8);
-}
-
-export const bytesToString = (bytes) => {
-  return Buffer.from(bytes, "hex").toString("hex");
-};
-
-export function generateWallet(): { wallet: AppWallet; mnemonic: string } {
-  // generate cardano wallet by mesh/core library
-  const mnemonic = AppWallet.brew();
-
-  console.log("mnemonic", mnemonic);
-  if (!process.env.BLOCKFROST_API_KEY) {
-    throw new Error("BLOCKFROST_API_KEY is not defined");
-  }
-
-  const provider = new BlockfrostProvider(process.env.BLOCKFROST_API_KEY);
-  const wallet = new AppWallet({
-    networkId: 0,
-    fetcher: provider,
-    submitter: provider,
-    key: {
-      type: "mnemonic",
-      words: mnemonic,
-    },
-  });
-
-  return {
-    wallet: wallet,
-    mnemonic: JSON.stringify(mnemonic),
-  };
-}
-
-//TODO: check 1641600 is correct
-export const timestampToSlot = (timestamp: number): string => {
-  return (Number(resolveSlotNo("preprod", timestamp)) - 1641600).toString();
-};
-
-export const getLastestBlock = async () => {
-  const { data } = await axios.get(
-    `${process.env.HEDERA_URL}/api/v1/blocks?order=DESC&limit=1`
-  );
-  return data.blocks;
-};
-
-export const callQueryHederaSmc = async (payload: any) => {
-  const { data } = await axios.post(
-    `${process.env.HEDERA_URL}/api/v1/contracts/call`,
-    payload
-  );
-  return data;
-};
 
 export function convertToHederaAccountId(hexAddress: string) {
   // Remove the leading zeros and the '0x' prefix

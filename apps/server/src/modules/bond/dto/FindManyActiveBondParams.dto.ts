@@ -1,7 +1,7 @@
 import { IsArray, IsEnum, IsNumberString, IsOptional } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
-import { BorrowEnum, CollateralEnum, LoarnTermEnum } from 'shared/enum';
+import { LoarnTermEnum } from 'shared/enum';
 import { Transform } from 'class-transformer';
 
 export class FindManyActiveBondsParams {
@@ -51,41 +51,30 @@ export class FindManyActiveBondsParams {
     name: 'borrows',
     required: false,
     type: String,
-    example: 'USDC,USDT',
+    example: '0x00,0x01',
     description: 'Borrow',
   })
   @IsOptional()
-  @IsArray()
-  @IsEnum(BorrowEnum, { each: true })
-  @Transform(
-    ({ value }) =>
-      value
-        ? value.split(',').map((term: string) => term as BorrowEnum)
-        : undefined,
-    {
-      toClassOnly: true,
-    },
-  )
-  borrows?: BorrowEnum[];
+  // @IsArray()
+  // @IsEnum(BorrowEnum, { each: true })
+  // @Transform(
+  //   ({ value }) =>
+  //     value
+  //       ? value.split(',').map((term: string) => term as BorrowEnum)
+  //       : undefined,
+  //   {
+  //     toClassOnly: true,
+  //   },
+  // )
+  borrows?: string[];
 
   @ApiProperty({
     name: 'collaterals',
     required: false,
     type: String,
-    example: 'USDC,USDT',
+    example: '0x00,0x01',
     description: 'Collateral',
   })
   @IsOptional()
-  @IsArray()
-  @IsEnum(CollateralEnum, { each: true })
-  @Transform(
-    ({ value }) =>
-      value
-        ? value.split(',').map((term: string) => term as CollateralEnum)
-        : undefined,
-    {
-      toClassOnly: true,
-    },
-  )
-  collaterals?: CollateralEnum[];
+  collaterals?: string[];
 }

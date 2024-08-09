@@ -1,0 +1,39 @@
+import { TokenSymbolEnum, TokenTypeEnum } from '../../shared/enum';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
+@Entity('bonds')
+export class Token {
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
+  id: number;
+
+  @Column({
+    name: 'symbol',
+    type: 'enum',
+    nullable: true,
+    enum: TokenSymbolEnum,
+  })
+  symbol: TokenSymbolEnum;
+
+  @Column({
+    name: 'type',
+    type: 'enum',
+    nullable: true,
+    enum: TokenTypeEnum,
+  })
+  type: TokenTypeEnum;
+
+  @Column({ name: 'address', type: 'int', nullable: true })
+  address: number;
+
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt: Date;
+}

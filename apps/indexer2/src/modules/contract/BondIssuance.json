@@ -29,6 +29,56 @@
         "type": "address",
         "name": "borrower",
         "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "loanToken",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "loanAmount",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "volumeBond",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "bondDuration",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "borrowerInterestRate",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "lenderInterestRate",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "collateralToken",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "collateralAmount",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "issuanceDate",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "maturityDate",
+        "indexed": false
       }
     ]
   },
@@ -40,12 +90,37 @@
       {
         "type": "uint256",
         "name": "bondId",
-        "indexed": false
+        "indexed": true
       },
       {
         "type": "address",
         "name": "borrower",
         "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "collateralAmount",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "currentCollateralValue",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "loanTokenReceived",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "repaymentAmount",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "excessRefund",
+        "indexed": false
       }
     ]
   },
@@ -57,12 +132,32 @@
       {
         "type": "uint256",
         "name": "bondId",
-        "indexed": false
+        "indexed": true
       },
       {
         "type": "address",
         "name": "borrower",
         "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "totalLend",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "interestPaid",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "repaymentAmount",
+        "indexed": false
+      },
+      {
+        "type": "bool",
+        "name": "collateralReturned",
+        "indexed": false
       }
     ]
   },
@@ -96,6 +191,38 @@
   {
     "type": "event",
     "anonymous": false,
+    "name": "LenderClaimed",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "lender",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "bondId",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "bondTokenAmount",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "loanTokenAmount",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "totalRepayment",
+        "indexed": false
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
     "name": "LenderParticipated",
     "inputs": [
       {
@@ -110,7 +237,12 @@
       },
       {
         "type": "uint256",
-        "name": "amount",
+        "name": "amountLend",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "amountBond",
         "indexed": false
       }
     ]
@@ -231,35 +363,7 @@
   },
   {
     "type": "function",
-    "name": "BORROWER_ROLE",
-    "constant": true,
-    "stateMutability": "view",
-    "payable": false,
-    "inputs": [],
-    "outputs": [
-      {
-        "type": "bytes32",
-        "name": ""
-      }
-    ]
-  },
-  {
-    "type": "function",
     "name": "DEFAULT_ADMIN_ROLE",
-    "constant": true,
-    "stateMutability": "view",
-    "payable": false,
-    "inputs": [],
-    "outputs": [
-      {
-        "type": "bytes32",
-        "name": ""
-      }
-    ]
-  },
-  {
-    "type": "function",
-    "name": "LENDER_ROLE",
     "constant": true,
     "stateMutability": "view",
     "payable": false,
@@ -281,6 +385,29 @@
     "outputs": [
       {
         "type": "address",
+        "name": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "bondTokenToLoanTokenCalculation",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_loanToken"
+      },
+      {
+        "type": "uint256",
+        "name": "_bondTokenAmount"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256",
         "name": ""
       }
     ]
@@ -355,12 +482,20 @@
         "name": "totalLend"
       },
       {
-        "type": "bool",
-        "name": "isRepaid"
+        "type": "uint256",
+        "name": "totalBond"
       },
       {
         "type": "bool",
-        "name": "isClaimed"
+        "name": "readyToRepay"
+      },
+      {
+        "type": "bool",
+        "name": "isBorrowerClaimed"
+      },
+      {
+        "type": "uint256",
+        "name": "liquidationAmount"
       }
     ]
   },
@@ -533,7 +668,11 @@
               },
               {
                 "type": "uint256",
-                "name": "amount"
+                "name": "amountLend"
+              },
+              {
+                "type": "uint256",
+                "name": "amountBond"
               }
             ]
           },
@@ -546,12 +685,20 @@
             "name": "totalLend"
           },
           {
-            "type": "bool",
-            "name": "isRepaid"
+            "type": "uint256",
+            "name": "totalBond"
           },
           {
             "type": "bool",
-            "name": "isClaimed"
+            "name": "readyToRepay"
+          },
+          {
+            "type": "bool",
+            "name": "isBorrowerClaimed"
+          },
+          {
+            "type": "uint256",
+            "name": "liquidationAmount"
           }
         ]
       }
@@ -637,6 +784,19 @@
   },
   {
     "type": "function",
+    "name": "lenderClaim",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bondId"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
     "name": "liquidateBond",
     "constant": false,
     "payable": false,
@@ -650,7 +810,7 @@
   },
   {
     "type": "function",
-    "name": "loanTokenToBondCaculation",
+    "name": "loanTokenToBondTokenCalculation",
     "constant": true,
     "stateMutability": "view",
     "payable": false,
@@ -747,32 +907,6 @@
       {
         "type": "address",
         "name": "account"
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "type": "function",
-    "name": "setBorrower",
-    "constant": false,
-    "payable": false,
-    "inputs": [
-      {
-        "type": "address",
-        "name": "_borrower"
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "type": "function",
-    "name": "setLender",
-    "constant": false,
-    "payable": false,
-    "inputs": [
-      {
-        "type": "address",
-        "name": "_lender"
       }
     ],
     "outputs": []

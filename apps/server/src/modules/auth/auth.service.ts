@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { TokenType } from 'constants/token-type';
+import { TokenType } from '../../constants/token-type';
 import { ApiConfigService } from 'shared/services/api-config.service';
 import { UserService } from 'modules/user/user.service';
 import { LoginWalletDto } from './dto/loginWallet.dto';
