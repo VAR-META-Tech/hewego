@@ -106,20 +106,20 @@ export class BondService {
         .leftJoinAndSelect(
           'tokens',
           'loanToken',
-          'bonds.loanToken = loanToken.address',
+          'bond.loanToken = loanToken.address',
         )
         .leftJoinAndSelect(
           'tokens',
           'collateralToken',
-          'bonds.collateralToken = collateralToken.address',
+          'bond.collateralToken = collateralToken.address',
         )
         .select([
           'bond.name AS "bondName"',
           'bond.loanTerm AS "loanTerm"',
           'bond.loanAmount AS "loanAmount"',
           'bond.loanToken AS "loanToken"',
-          'bonds.collateralAmount AS "collateralAmount"',
-          'bonds.collateralToken AS "collateralToken"',
+          'bond.collateralAmount AS "collateralAmount"',
+          'bond.collateralToken AS "collateralToken"',
           'bond.lenderInterestRate AS "interestRate"',
           'bond.volumeBond AS "volumeBond"',
           'bond.issuanceDate AS "issuanceDate"',
