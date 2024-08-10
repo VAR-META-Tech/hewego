@@ -28,8 +28,8 @@ export class Token {
   })
   type: TokenTypeEnum;
 
-  @Column({ name: 'address', type: 'int', nullable: true })
-  address: number;
+  @Column({ name: 'address', type: 'varchar', nullable: true })
+  address: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
