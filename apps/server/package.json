@@ -1,5 +1,5 @@
 {
-  "name": "@shop/server",
+  "name": "server",
   "version": "10.0.0",
   "description": "Awesome NestJS Boilerplate, Typescript, Postgres, TypeORM",
   "author": "Narek Hakobyan <narek.hakobyan.07@gmail.com>",

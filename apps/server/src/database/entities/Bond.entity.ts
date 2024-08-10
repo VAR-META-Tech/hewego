@@ -1,11 +1,9 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   Unique,
-  Index,
   PrimaryColumn,
 } from 'typeorm';
 
@@ -31,6 +29,7 @@ export class Bond {
 
   @Column({ name: 'total_sold', type: 'int', nullable: false, default: 0 })
   totalSold: number;
+
   @Column({ name: 'loan_token', type: 'varchar', nullable: true })
   public loanToken: string;
 
@@ -45,7 +44,7 @@ export class Bond {
   @Column({ name: 'collateral_token', type: 'varchar', nullable: true })
   public collateralToken: string;
 
-  @Column({ name: 'volume_bond', type: 'int', nullable: true })
+  @Column({ name: 'volume_bond', type: 'bigint', nullable: false })
   public volumeBond: number;
 
   @Column({
