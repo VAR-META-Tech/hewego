@@ -12,7 +12,7 @@ importers:
         specifier: ^1.10.16
         version: 1.13.4
 
-  apps/indexer2:
+  apps/indexer:
     dependencies:
       '@hashgraph/sdk':
         specifier: 2.25.0

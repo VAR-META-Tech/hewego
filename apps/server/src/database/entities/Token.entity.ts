@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('bonds')
+@Entity('tokens')
 export class Token {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;

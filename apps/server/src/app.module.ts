@@ -14,7 +14,8 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { ExceptionFilter } from './filters/exception.filter';
 import { AuthModule } from './modules/auth/auth.module';
 import { BondModule } from 'modules/bond/bond.module';
-import { Token } from 'database/entities';
+
+import { TokenModule } from 'modules/token/token.module';
 
 @Module({
   imports: [
@@ -38,7 +39,7 @@ import { Token } from 'database/entities';
     HealthCheckerModule,
     AuthModule,
     BondModule,
-    Token,
+    TokenModule,
   ],
   providers: [
     {
