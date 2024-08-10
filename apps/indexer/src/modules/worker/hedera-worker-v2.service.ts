@@ -5,9 +5,12 @@ import { DataSource, EntityManager } from "typeorm";
 import { Logger } from "@nestjs/common";
 const Web3 = require("web3");
 const axios = require("axios");
+import { AccountId } from "@hashgraph/sdk";
 
 import abi from "../contract/BondIssuance.json";
-import { convertToHederaAccountId } from "../../shared/Utils";
+import {
+  convertToHederaAccountId,
+} from "../../shared/Utils";
 import { ethers } from "ethers";
 const web3 = new Web3();
 
@@ -111,6 +114,7 @@ export class HederaWorkerV2Service {
                 issuanceDate,
                 maturityDate,
               };
+              console.log({ bondCreatedEventData });
               await this.handleBondCreated(bondCreatedEventData, manager);
 
               break;

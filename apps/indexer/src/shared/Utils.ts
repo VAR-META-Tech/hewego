@@ -1,18 +1,6 @@
-import { IPaginationOptions, Pagination } from "nestjs-typeorm-paginate";
-// import Web3 from "web3";
-// import axios from "axios";
-// import { BigNumber } from "bignumber.js";
-// import { AppWallet, BlockfrostProvider, resolveSlotNo } from "@meshsdk/core";
-// import {
-//   Client,
-//   ContractExecuteTransaction,
-//   ContractFunctionParameters,
-//   ContractFunctionResult,
-//   ContractId,
-//   TransactionReceipt,
-//   TransactionRecord,
-// } from "@hashgraph/sdk";
-// import {fileTypeFromBuffer} from "file-type";
+import { Pagination } from "nestjs-typeorm-paginate";
+
+import { AccountId } from "@hashgraph/sdk";
 
 const NodeCache = require("node-cache");
 const nodeCache = new NodeCache({ stdTTL: 2, checkperiod: 2 });
@@ -241,17 +229,6 @@ export function genExchangeSignature(
   });
 }
 
-
-
-export function convertToHederaAccountId(hexAddress: string) {
-  // Remove the leading zeros and the '0x' prefix
-  const cleanedHex = hexAddress.replace(/^0x0+/, "0x");
-
-  // Convert the cleaned hex to a decimal value
-  const accountNum = parseInt(cleanedHex, 16);
-
-  // Format as `0.0.accountNum`
-  const hederaAccountID = `0.0.${accountNum}`;
-
-  return hederaAccountID;
+export function convertToHederaAccountId(hexAddress: string): string {
+  return AccountId.fromString(hexAddress).toString();
 }
