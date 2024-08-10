@@ -46,7 +46,7 @@ export class Bond {
   @Column({ name: "collateral_token", type: "varchar", nullable: true })
   public collateralToken: string;
 
-  @Column({ name: "volume_bond", type: "bigint", nullable: true })
+  @Column({ name: "volume_bond", type: "bigint",nullable: false })
   public volumeBond: number;
 
   @Column({

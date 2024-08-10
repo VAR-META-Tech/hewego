@@ -172,7 +172,7 @@ export class HederaWorkerV2Service {
       maturityDate,
     } = eventData;
 
-    const borrowerAccountId = convertToHederaAccountId(borrowerAddress);
+    // const borrowerAccountId = convertToHederaAccountId(borrowerAddress);
 
     const parseLoanAmount = parseFloat(
       ethers.utils.formatUnits(loanAmount, 18)
@@ -192,7 +192,7 @@ export class HederaWorkerV2Service {
       .values({
         bondId,
         name,
-        borrowerAddress: borrowerAccountId,
+        borrowerAddress,
         contractAddress,
         blockNumber,
         transactionHash,
