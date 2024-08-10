@@ -14,10 +14,16 @@ export class User {
   @Column({
     name: 'wallet_address',
     type: 'varchar',
-    length: 80,
-    nullable: false,
+    nullable: true,
   })
   walletAddress: string;
+
+  @Column({
+    name: 'account_id',
+    type: 'varchar',
+    nullable: true,
+  })
+  accountId: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;

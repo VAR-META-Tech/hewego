@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { FindManyActiveBondsParams } from './dto/FindManyActiveBondParams.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { Bond, BondCheckout, User } from 'database/entities';
+import { Bond, BondCheckout, Token, User } from 'database/entities';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { getArrayPaginationBuildTotal, getOffset } from 'utils/pagination';
@@ -22,19 +22,28 @@ export class BondService {
     @InjectRepository(Bond)
     private bondRepository: Repository<Bond>,
   ) {}
-  async findActiveBondsWihPageable(
+  async findActiveBondsWithPageable(
     params: FindManyActiveBondsParams,
   ): Promise<Pagination<ActiveBondItemResponseDto>> {
     try {
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds') // use 'bonds' as the alias
+        .leftJoinAndSelect(
+          'tokens',
+          'loanToken',
+          'bonds.loanToken = loanToken.address',
+        )
+        .leftJoinAndSelect(
+          'tokens',
+          'collateralToken',
+          'bonds.collateralToken = collateralToken.address',
+        )
         .select([
           'bonds.name AS "bondName"',
           'bonds.loanTerm AS "loanTerm"',
           'bonds.loanAmount AS "loanAmount"',
           'bonds.loanToken AS "loanToken"',
           'bonds.lenderInterestRate AS "interestRate"',
-          'bonds.collateralToken AS "collateralToken"',
           'bonds.volumeBond AS "volumeBond"',
           'bonds.issuanceDate AS "issuanceDate"',
           'bonds.maturityDate AS "maturityDate"',
@@ -42,18 +51,19 @@ export class BondService {
           'bonds.bond_id AS "bondId"',
           'bonds.createdAt AS "createdAt"',
           'bonds.updatedAt AS "updatedAt"',
+          'loanToken.symbol AS "loanTokenType"',
+          'collateralToken.symbol AS "collateralTokenType"',
         ])
         .orderBy('bonds.createdAt', 'DESC');
+
       if (params?.loanTerms) {
         const loanTerms = params.loanTerms;
-
         queryBuilder.andWhere('bonds.loanTerm IN (:...loanTerms)', {
           loanTerms,
         });
       }
       if (params?.borrows) {
         const borrows = params.borrows;
-
         queryBuilder.andWhere('bonds.loanToken IN (:...borrows)', {
           borrows,
         });
@@ -64,7 +74,8 @@ export class BondService {
           collaterals,
         });
       }
-      const totalbondsActive = await queryBuilder.getCount();
+
+      const totalBondsActive = await queryBuilder.getCount();
 
       const limit = Number(params?.limit || 10);
       const page = Number(params?.page || 1);
@@ -75,7 +86,7 @@ export class BondService {
 
       return getArrayPaginationBuildTotal<ActiveBondItemResponseDto>(
         selectedActiveBonds,
-        totalbondsActive,
+        totalBondsActive,
         { page, limit },
       );
     } catch (error) {
@@ -90,6 +101,16 @@ export class BondService {
     try {
       const activeBond = await this.bondRepository
         .createQueryBuilder('bond')
+        .leftJoinAndSelect(
+          'tokens',
+          'loanToken',
+          'bonds.loanToken = loanToken.address',
+        )
+        .leftJoinAndSelect(
+          'tokens',
+          'collateralToken',
+          'bonds.collateralToken = collateralToken.address',
+        )
         .select([
           'bond.name AS "bondName"',
           'bond.loanTerm AS "loanTerm"',
@@ -105,6 +126,8 @@ export class BondService {
           'bond.createdAt AS "createdAt"',
           'bond.updatedAt AS "updatedAt"',
           'bond.totalSold AS "totalSales"',
+          'loanToken.symbol AS "loanTokenType"',
+          'collateralToken.symbol AS "collateralTokenType"',
         ])
         // .leftJoin(
         //   BondCheckout,
@@ -134,6 +157,16 @@ export class BondService {
     try {
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
+        .leftJoinAndSelect(
+          'tokens',
+          'loanToken',
+          'bonds.loanToken = loanToken.address',
+        )
+        .leftJoinAndSelect(
+          'tokens',
+          'collateralToken',
+          'bonds.collateralToken = collateralToken.address',
+        )
         .select([
           'bonds.name as name',
           'bonds.loanTerm as loanTerm',
@@ -150,6 +183,8 @@ export class BondService {
           'bonds.updatedAt as updatedAt',
           'bonds.status as status',
           'bonds.totalSold as totalSales',
+          'loanToken.symbol AS "loanTokenType"',
+          'collateralToken.symbol AS "collateralTokenType"',
           //   'status', CASE
           //   WHEN gameInfo.startTime > ${currentTime} AND gameInfo.endTime > ${currentTime}
           //   THEN '${GameInfoAction.UP_COMING}'

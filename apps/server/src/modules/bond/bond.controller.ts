@@ -18,7 +18,7 @@ export class BondController {
   async getActiveBonds(
     @Query() queries: FindManyActiveBondsParams,
   ): Promise<Pagination<ActiveBondItemResponseDto>> {
-    return await this.bondService.findActiveBondsWihPageable(queries);
+    return await this.bondService.findActiveBondsWithPageable(queries);
   }
 
   @Get('/:id')

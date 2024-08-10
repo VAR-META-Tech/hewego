@@ -10,9 +10,9 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async getUserByWallet(wallet: string): Promise<User> {
+  async getUserByWallet(accountId: string): Promise<User> {
     return await this.userRepository.findOne({
-      where: { walletAddress: Equal(wallet) },
+      where: { accountId: Equal(accountId) },
     });
   }
 
