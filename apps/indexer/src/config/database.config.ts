@@ -1,6 +1,6 @@
 import { DataSourceOptions } from "typeorm";
-import { Bond, BondCheckout, LatestBlock, User } from "../database/entities";
-import { Token } from "../../../server/src/database/entities/Token.entity";
+import { Bond, BondCheckout, LatestBlock, User,Token } from "../database/entities";
+
 
 export const databaseConfig: DataSourceOptions = {
   type: process.env.DB_TYPE || ("postgres" as any),

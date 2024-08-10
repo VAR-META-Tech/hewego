@@ -12,9 +12,6 @@ import {
 @Entity('bonds')
 @Unique(['bondId', 'contractAddress'])
 export class Bond {
-  // @PrimaryGeneratedColumn({ name: "id", type: "int" })
-  // id: number;
-
   @Column({
     name: 'name',
     type: 'varchar',
@@ -34,18 +31,16 @@ export class Bond {
 
   @Column({ name: 'total_sold', type: 'int', nullable: false, default: 0 })
   totalSold: number;
-
   @Column({ name: 'loan_token', type: 'varchar', nullable: true })
   public loanToken: string;
 
   @Column({
     name: 'collateral_amount',
-    type: 'decimal',
-    precision: 50,
-    scale: 8,
+    type: 'varchar',
+
     nullable: true,
   })
-  public collateralAmount: number;
+  public collateralAmount: string;
 
   @Column({ name: 'collateral_token', type: 'varchar', nullable: true })
   public collateralToken: string;

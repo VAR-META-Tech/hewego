@@ -1,15 +1,14 @@
 import { OnchainStatus } from "../../shared/enums";
 import * as _ from "lodash";
 import { Bond, LatestBlock } from "../../database/entities";
-import { DataSource } from "typeorm";
+import { DataSource, EntityManager } from "typeorm";
 import { Logger } from "@nestjs/common";
 const Web3 = require("web3");
 const axios = require("axios");
 
 import abi from "../contract/BondIssuance.json";
-import { convertToHederaAccountId } from "src/shared/Utils";
-import { eventNames } from "process";
-
+import { convertToHederaAccountId } from "../../shared/Utils";
+import { ethers } from "ethers";
 const web3 = new Web3();
 
 export class HederaWorkerV2Service {
@@ -40,7 +39,7 @@ export class HederaWorkerV2Service {
           await this.delay(500); // 0.5 seconds, to avoid too many requests
         }
       } catch (e) {
-        console.log(e);
+        console.log({ e });
         this.logger.error(e.message);
       }
     } while (true);
@@ -69,12 +68,12 @@ export class HederaWorkerV2Service {
         toBlock,
         manager
       );
-      console.log({ data });
+      this.logger.debug({ data });
 
       for (const item of data) {
         if (item) {
           const { event, meta } = item;
-          console.log({ meta });
+          this.logger.debug({ event, meta });
           // Handling different event types based on the event name
           switch (event.eventName) {
             case "BondCreated":
@@ -91,53 +90,29 @@ export class HederaWorkerV2Service {
                 collateralToken,
                 collateralAmount,
                 issuanceDate,
-                maturityDate
+                maturityDate,
               } = event;
-              const borrowerAccountId = convertToHederaAccountId(borrower);
+              const bondCreatedEventData: Partial<Bond> = {
+                bondId,
+                name,
+                borrowerAddress: borrower,
+                contractAddress: meta.address,
+                blockNumber: meta.block_number,
+                transactionHash: meta.transaction_hash,
+                onchainStatus: OnchainStatus.CONFIRMING,
+                loanToken,
+                loanAmount,
+                volumeBond,
+                loanTerm: bondDuration,
+                borrowerInterestRate,
+                lenderInterestRate,
+                collateralToken,
+                collateralAmount,
+                issuanceDate,
+                maturityDate,
+              };
+              await this.handleBondCreated(bondCreatedEventData, manager);
 
-              await manager
-                .createQueryBuilder()
-                .insert()
-                .into(Bond)
-                .values({
-                  bondId,
-                  name,
-                  borrowerAddress: borrowerAccountId,
-                  contractAddress: meta.address,
-                  blockNumber: meta.block_number,
-                  transactionHash: meta.transaction_hash,
-                  onchainStatus: OnchainStatus.CONFIRMING,
-                  loanToken,
-                  loanAmount,
-                  volumeBond,
-                  loanTerm: bondDuration,
-                  borrowerInterestRate,
-                  lenderInterestRate,
-                  collateralToken,
-                  collateralAmount,
-                  issuanceDate,
-                  maturityDate
-                })
-                .orUpdate(
-                  [
-                    "name",
-                    "borrower_address",
-                    "block_number",
-                    "transaction_hash",
-                    "loan_token",
-                    "loan_amount",
-                    "volume_bond",
-                    "loan_term",
-                    "borrower_interest_rate",
-                    "lender_interest_rate",
-                    "collateral_token",
-                    "collateral_amount",
-                    "issuance_date",
-                    "maturity_date"
-                  ],
-                  ["bond_id","contract_address"]
-                )
-                .execute();
               break;
 
             case "BondUpdated":
@@ -172,6 +147,84 @@ export class HederaWorkerV2Service {
       return true;
     });
   }
+  async handleBondCreated(eventData: Partial<Bond>, manager: EntityManager) {
+    const {
+      bondId,
+      name,
+      blockNumber,
+      transactionHash,
+      onchainStatus,
+      contractAddress,
+      borrowerAddress,
+      loanToken,
+      loanAmount,
+      volumeBond,
+      loanTerm,
+      borrowerInterestRate,
+      lenderInterestRate,
+      collateralToken,
+      collateralAmount,
+      issuanceDate,
+      maturityDate,
+    } = eventData;
+
+    const borrowerAccountId = convertToHederaAccountId(borrowerAddress);
+
+    const parseLoanAmount = parseFloat(
+      ethers.utils.formatUnits(loanAmount, 18)
+    ).toFixed(0);
+    const parsecollateralAmount = parseFloat(
+      ethers.utils.formatUnits(collateralAmount, 18)
+    ).toFixed(0);
+
+    this.logger.debug(`
+      ParseLoanAmount: ${parseLoanAmount} , ParseCollateralAmount: ${parsecollateralAmount}
+    `);
+
+    await manager
+      .createQueryBuilder()
+      .insert()
+      .into(Bond)
+      .values({
+        bondId,
+        name,
+        borrowerAddress: borrowerAccountId,
+        contractAddress,
+        blockNumber,
+        transactionHash,
+        onchainStatus,
+        loanToken,
+        loanAmount: parseLoanAmount,
+        volumeBond,
+        loanTerm,
+        borrowerInterestRate,
+        lenderInterestRate,
+        collateralToken,
+        collateralAmount: parsecollateralAmount,
+        issuanceDate,
+        maturityDate,
+      })
+      .orUpdate(
+        [
+          "name",
+          "borrower_address",
+          "block_number",
+          "transaction_hash",
+          "loan_token",
+          "loan_amount",
+          "volume_bond",
+          "loan_term",
+          "borrower_interest_rate",
+          "lender_interest_rate",
+          "collateral_token",
+          "collateral_amount",
+          "issuance_date",
+          "maturity_date",
+        ],
+        ["bond_id", "contract_address"]
+      )
+      .execute();
+  }
 
   async getEventsFromMirror(contractId, blockNumber, toBlock, manager) {
     const dataEmit = [];
@@ -179,7 +232,7 @@ export class HederaWorkerV2Service {
     try {
       const response = await axios.get(url);
       const jsonResponse = response.data;
-      console.log(0, jsonResponse);
+      this.logger.debug({ jsonResponse });
 
       if (jsonResponse && jsonResponse.logs.length > 0) {
         this.logger.debug(JSON.stringify(jsonResponse));
@@ -209,19 +262,16 @@ export class HederaWorkerV2Service {
             const decodedLog = web3.eth.abi.decodeLog(
               eventAbi.inputs,
               log,
-              topics.slice(1) // Remove the first topic which is the event signature
+              topics.slice(1)
             );
-            console.log(`Decoded event ${eventAbi.name}:`, decodedLog);
+            this.logger.debug({ decodedLog });
             const buildDecodeEvent = {
               ...decodedLog,
               eventName: eventAbi.name,
             };
-
-            // Return the decoded log, ensuring no circular references
             decodedEvents.push(JSON.parse(JSON.stringify(buildDecodeEvent)));
           }
         } catch (e) {
-          // Handle any errors that occur during decoding
           this.logger.error(
             `Decoding error for event ${eventAbi.name}: ${e.message}`
           );

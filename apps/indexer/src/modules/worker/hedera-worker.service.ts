@@ -8,7 +8,7 @@ const fs = require("fs");
 const axios = require("axios");
 
 import abi from "../contract/BondIssuance.json";
-import { convertToHederaAccountId } from "src/shared/Utils";
+import { convertToHederaAccountId } from "../../shared/Utils";
 console.log(abi);
 const web3 = new Web3();
 export class HederaWorkerService {
