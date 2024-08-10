@@ -15,6 +15,7 @@ import { FindManyRequestBondsParamsDto } from './dto/findManyRequestBondParams.d
 import { RequestBondItemResponseDto } from './dto/requestBondItemResponse.dto';
 import { BorrowBondRequestSummaryDto } from './dto/borrowBondRequestSummary.dto';
 import { BondStatusEnum } from 'shared/enum';
+import { toUpperCaseHex } from 'utils';
 
 @Injectable()
 export class BondService {
@@ -158,6 +159,7 @@ export class BondService {
     params: FindManyRequestBondsParamsDto,
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     try {
+      const walletAddressUperCase = toUpperCaseHex(user.walletAddress);
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
         .leftJoinAndSelect(
@@ -188,22 +190,10 @@ export class BondService {
           'bonds.totalSold as totalSales',
           'loanToken.symbol AS "loanTokenType"',
           'collateralToken.symbol AS "collateralTokenType"',
-          //   'status', CASE
-          //   WHEN gameInfo.startTime > ${currentTime} AND gameInfo.endTime > ${currentTime}
-          //   THEN '${GameInfoAction.UP_COMING}'
-          //   WHEN gameInfo.startTime < ${currentTime} AND gameInfo.endTime > ${currentTime}
-          //   THEN '${GameInfoAction.ON_GOING}'
-          //   ELSE '${GameInfoAction.CLOSED}'
-          // END'
+          'bonds.status AS "status',
         ])
-        // .addSelect(
-        //   `CASE
-        //   WHEN bonds.issuanceDate > ${Date.now()} AND bonds.maturityDate > ${Date.now()} THEN '${BondStatusEnum.PENDING_ISSUANCE}'
-        //   END`,
-        //   'status',
-        // )
         .where({
-          borrowerAddress: user?.walletAddress,
+          borrowerAddress: walletAddressUperCase,
         })
 
         .orderBy('bonds.createdAt', 'DESC');
@@ -233,13 +223,30 @@ export class BondService {
   async getBorrowBondRequestSummary(
     user: User,
   ): Promise<BorrowBondRequestSummaryDto> {
-    return new BorrowBondRequestSummaryDto(
-      1000000,
-      800000,
-      1500000,
-      500000,
-      2000,
-      3000,
-    );
+    try {
+      const walletAddressUperCase = toUpperCaseHex(user.walletAddress);
+      const queryBuilder = this.bondRepository
+        .createQueryBuilder('bonds')
+        .select([
+          'SUM(bonds.loan_amount::numeric) AS "totalLoanAmount"',
+          'SUM(bonds.collateral_amount::numeric) AS "totalDepositedCollateral"',
+          'CAST(SUM(bonds.volumeBond) AS BIGINT) AS "totalBondsIssued"',
+          'CAST(SUM(bonds.totalSold) AS BIGINT) AS "totalBondsSold"',
+        ])
+        .where({
+          borrowerAddress: walletAddressUperCase,
+        });
+      const result = await queryBuilder.getRawOne();
+      return new BorrowBondRequestSummaryDto(
+        Number(result.totalLoanAmount),
+        1000,
+        Number(result.totalDepositedCollateral),
+        10,
+        Number(result.totalBondsSold),
+        Number(result.totalBondsIssued),
+      );
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 }
