@@ -58,9 +58,7 @@ export class FindManyActiveBondsParams {
   @IsArray()
   @Transform(
     ({ value }) =>
-      value
-        ? value.split(',').map((borrow: string) => borrow)
-        : undefined,
+      value ? value.split(',').map((borrow: string) => borrow) : undefined,
     {
       toClassOnly: true,
     },
