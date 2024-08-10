@@ -28,7 +28,7 @@ export class TokenItemResponseDto extends BaseResponse {
     description: 'The address of the token.',
     nullable: true,
   })
-  address: number;
+  address: string;
 
   @ApiProperty({
     example: '2024-08-09T12:34:56Z',
