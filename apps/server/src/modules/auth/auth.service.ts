@@ -23,11 +23,12 @@ export class AuthService {
 
   async loginByWallet(payload: UserLoginWalletDto) {
     try {
-      let user = await this.userService.getUserByWallet(payload.wallet);
+      let user = await this.userService.getUserByWallet(payload.accountId);
 
       if (!user) {
         user = await this.userService.createNewUser({
           walletAddress: payload.wallet,
+          accountId: payload.accountId,
         });
       }
       const tokens = await this.signTokens(user.id);
