@@ -10,7 +10,6 @@ import { AccountId } from "@hashgraph/sdk";
 import abi from "../contract/BondIssuance.json";
 import {
   convertToHederaAccountId,
-  evmAddressToHederaAccountId,
 } from "../../shared/Utils";
 import { ethers } from "ethers";
 const web3 = new Web3();
@@ -173,8 +172,7 @@ export class HederaWorkerV2Service {
       maturityDate,
     } = eventData;
 
-    const borrowerAccountId = AccountId.fromString(borrowerAddress);
-    console.log({ borrowerAccountId });
+    const borrowerAccountId = convertToHederaAccountId(borrowerAddress);
 
     const parseLoanAmount = parseFloat(
       ethers.utils.formatUnits(loanAmount, 18)
@@ -194,7 +192,7 @@ export class HederaWorkerV2Service {
       .values({
         bondId,
         name,
-        borrowerAddress: borrowerAccountId.toString(),
+        borrowerAddress: borrowerAccountId,
         contractAddress,
         blockNumber,
         transactionHash,
