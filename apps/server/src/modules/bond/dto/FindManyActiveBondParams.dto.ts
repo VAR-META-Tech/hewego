@@ -55,17 +55,16 @@ export class FindManyActiveBondsParams {
     description: 'Borrow',
   })
   @IsOptional()
-  // @IsArray()
-  // @IsEnum(BorrowEnum, { each: true })
-  // @Transform(
-  //   ({ value }) =>
-  //     value
-  //       ? value.split(',').map((term: string) => term as BorrowEnum)
-  //       : undefined,
-  //   {
-  //     toClassOnly: true,
-  //   },
-  // )
+  @IsArray()
+  @Transform(
+    ({ value }) =>
+      value
+        ? value.split(',').map((borrow: string) => borrow)
+        : undefined,
+    {
+      toClassOnly: true,
+    },
+  )
   borrows?: string[];
 
   @ApiProperty({
@@ -76,5 +75,15 @@ export class FindManyActiveBondsParams {
     description: 'Collateral',
   })
   @IsOptional()
+  @Transform(
+    ({ value }) =>
+      value
+        ? value.split(',').map((collateral: string) => collateral)
+        : undefined,
+    {
+      toClassOnly: true,
+    },
+  )
+  @IsArray()
   collaterals?: string[];
 }
