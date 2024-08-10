@@ -1,18 +1,7 @@
-import { IPaginationOptions, Pagination } from "nestjs-typeorm-paginate";
-// import Web3 from "web3";
-// import axios from "axios";
-// import { BigNumber } from "bignumber.js";
-// import { AppWallet, BlockfrostProvider, resolveSlotNo } from "@meshsdk/core";
-// import {
-//   Client,
-//   ContractExecuteTransaction,
-//   ContractFunctionParameters,
-//   ContractFunctionResult,
-//   ContractId,
-//   TransactionReceipt,
-//   TransactionRecord,
-// } from "@hashgraph/sdk";
-// import {fileTypeFromBuffer} from "file-type";
+import { Pagination } from "nestjs-typeorm-paginate";
+
+import { AccountId } from "@hashgraph/sdk";
+import { ethers } from "ethers";
 
 const NodeCache = require("node-cache");
 const nodeCache = new NodeCache({ stdTTL: 2, checkperiod: 2 });
@@ -241,8 +230,6 @@ export function genExchangeSignature(
   });
 }
 
-
-
 export function convertToHederaAccountId(hexAddress: string) {
   // Remove the leading zeros and the '0x' prefix
   const cleanedHex = hexAddress.replace(/^0x0+/, "0x");
@@ -254,4 +241,25 @@ export function convertToHederaAccountId(hexAddress: string) {
   const hederaAccountID = `0.0.${accountNum}`;
 
   return hederaAccountID;
+}
+
+// Function to convert EVM address to Hedera Account ID
+export function evmAddressToHederaAccountId(evmAddress: string): string {
+  // Ensure the address is in the correct format
+  if (!ethers.utils.isAddress(evmAddress)) {
+    throw new Error("Invalid Ethereum address");
+  }
+
+  // Hash the Ethereum address
+  const hash = ethers.utils.keccak256(ethers.utils.arrayify(evmAddress));
+
+  // Get the account number from the last 20 bytes of the hash
+  const accountNumberHex = hash.slice(-40); // Last 40 hex characters (20 bytes)
+
+  // Create Hedera account ID (shard number: 0, realm number: 0)
+  const accountId = AccountId.fromString(
+    `0.0.${parseInt(accountNumberHex, 16)}`
+  );
+
+  return accountId.toString();
 }
