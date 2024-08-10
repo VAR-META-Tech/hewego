@@ -1,11 +1,9 @@
 import { OnchainStatus } from "../../shared/enums";
-import * as _ from "lodash";
 import { Bond, LatestBlock } from "../../database/entities";
 import { DataSource, EntityManager } from "typeorm";
 import { Logger } from "@nestjs/common";
 const Web3 = require("web3");
 const axios = require("axios");
-import { AccountId } from "@hashgraph/sdk";
 
 import abi from "../contract/BondIssuance.json";
 import {
@@ -19,6 +17,9 @@ export class HederaWorkerV2Service {
   _adminAddress = null;
   public isStopped = false;
   public isDelisted = false;
+  public contractId = process.env.CONTRACT_ID;
+  public contractAddress = process.env.CONTRACT_ADDRESS;
+  public chainId = process.env.CHAIN_ID;
 
   constructor(private readonly dataSource: DataSource) {
     this._setup();
@@ -55,23 +56,37 @@ export class HederaWorkerV2Service {
   async crawlData() {
     return await this.dataSource.transaction(async (manager) => {
       const toBlock = new Date().getTime() / 1000;
+      let crawlName = `crawl_${this.chainId}_${this.contractId}`
       let latestBlockInDb = await manager
         .getRepository(LatestBlock)
         .createQueryBuilder("latest_block")
         .useTransaction(true)
-        .where("latest_block.currency = :chain", { chain: "HBAR" })
+        .where("latest_block.currency = :crawlName", { crawlName })
         .getOne();
 
       this.logger.debug(`latestBlockInDb: ${JSON.stringify(latestBlockInDb)}`);
-      const contractId = process.env.CONTRACT_ID || "0.0.4661188";
+
+      if (!latestBlockInDb) {
+        latestBlockInDb = new LatestBlock();
+        latestBlockInDb.currency = crawlName;
+        latestBlockInDb.blockNumber = Number(process.env.SYNC_BLOCK_NUMBER) || 34652403;
+        if (latestBlockInDb.blockNumber) {
+          await manager.getRepository(LatestBlock).save(latestBlockInDb);
+        }
+
+        await manager.delete(Bond, {
+          contractAddress: this.contractId,
+        });
+
+        return 1;
+      }
 
       const data = await this.getEventsFromMirror(
-        contractId,
+        this.contractId,
         latestBlockInDb ? latestBlockInDb.blockNumber : toBlock,
         toBlock,
         manager
       );
-      this.logger.debug({ data });
 
       for (const item of data) {
         if (item) {

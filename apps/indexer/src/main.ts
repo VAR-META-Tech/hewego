@@ -1,5 +1,4 @@
-import { config } from "dotenv";
-config();
+require("dotenv").config();
 
 import { NestFactory } from "@nestjs/core";
 import { debugLog, logger } from "./shared/logger";
