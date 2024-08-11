@@ -1,11 +1,9 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   Unique,
-  Index,
   PrimaryColumn,
 } from 'typeorm';
 
@@ -80,10 +78,9 @@ export class Bond {
   })
   borrowerAddress: string;
 
-  @Column({
+  @PrimaryColumn({
     type: 'varchar',
     name: 'contract_address',
-    nullable: true,
   })
   contractAddress: string;
 
