@@ -137,6 +137,13 @@ export class ApiConfigService {
       port: this.getString('PORT'),
     };
   }
+  get getHederaConfig() {
+    return {
+      operatorId: this.getString('HEDERA_OPERATOR_ID'),
+      operatorKey: this.getString('HEDERA_OPERATOR_KEY'),
+      priceFeedContractId: this.getString('HEDERA_PRICE_FEED_CONTRACT_ID'),
+    };
+  }
 
   private get(key: string): string {
     const value = this.configService.get<string>(key);
