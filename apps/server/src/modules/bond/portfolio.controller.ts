@@ -9,7 +9,7 @@ import { User } from 'database/entities';
 import { UserDecorator } from 'decorators/user.decorator';
 import { BorrowBondRequestSummaryDto } from './dto/borrowBondRequestSummary.dto';
 import { BorrowBondRequestSummaryResponseDto } from './dto/borrowBondRequestSummaryResponse.dto';
-@Controller('proftfolio')
+@Controller('portfolio')
 @ApiTags('portfolio')
 @ApiBearerAuth()
 @UseGuards(JWTAuthGuard)

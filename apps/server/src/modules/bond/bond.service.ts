@@ -159,7 +159,8 @@ export class BondService {
     params: FindManyRequestBondsParamsDto,
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     try {
-      const walletAddressUperCase = toUpperCaseHex(user.walletAddress);
+      const walletAddressUpperCase = toUpperCaseHex(user.walletAddress);
+      const currentTimestamp = Math.floor(Date.now() / 1000);
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
         .leftJoinAndSelect(
@@ -186,14 +187,20 @@ export class BondService {
           'bonds.borrowerAddress as borrowerAddress',
           'bonds.createdAt as createdAt',
           'bonds.updatedAt as updatedAt',
-          'bonds.status as status',
           'bonds.totalSold as totalSales',
           'loanToken.symbol AS "loanTokenType"',
           'collateralToken.symbol AS "collateralTokenType"',
-          'bonds.status AS "status',
+          `CASE
+            WHEN bonds.issuanceDate > ${currentTimestamp} THEN 'pending_issuance'
+            WHEN bonds.issuanceDate <= ${currentTimestamp} AND bonds.maturityDate > ${currentTimestamp} THEN 'active'
+            WHEN bonds.maturityDate <= ${currentTimestamp} AND bonds.repaidAt IS NULL THEN 'grace_period'
+            WHEN bonds.repaidAt IS NOT NULL THEN 'repaid'
+            WHEN bonds.liquidatedAt IS NOT NULL THEN 'automated_liquidation'
+            ELSE bonds.status
+          END as status`,
         ])
         .where({
-          borrowerAddress: walletAddressUperCase,
+          borrowerAddress: walletAddressUpperCase,
         })
 
         .orderBy('bonds.createdAt', 'DESC');
