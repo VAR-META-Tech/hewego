@@ -69,10 +69,14 @@
         "typescript": "^5.1.6"
     },
     "dependencies": {
+        "@hashgraph/hardhat-hethers": "^1.0.4",
+        "@hashgraph/hethers": "^1.2.5",
+        "@hashgraph/sdk": "^2.49.2",
         "@openzeppelin/contracts": "^4.9.6",
         "@openzeppelin/contracts-upgradeable": "^5.0.0",
         "@openzeppelin/hardhat-upgrades": "^2.0.1",
-        "@typechain/ethers-v5": "^11.1.2"
+        "@typechain/ethers-v5": "^11.1.2",
+        "solc": "^0.8.26"
     },
     "husky": {
         "hooks": {

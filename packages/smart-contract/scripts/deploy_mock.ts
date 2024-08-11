@@ -14,9 +14,10 @@ async function main() {
     console.log("admin: " + admin);
 
     const ERC20TokenFactory = await ethers.getContractFactory("ERC20Token");
-    const erc20AddressContract: ERC20Token = await ERC20TokenFactory.deploy();
+    const erc20AddressContract: ERC20Token = await ERC20TokenFactory.deploy("Test", "Test");
     // await erc20AddressContract.waitForDeployment();
     await erc20AddressContract.deploymentTransaction();
+    await erc20AddressContract.mint(admin, 10000);
 
     const erc20Address = await erc20AddressContract.getAddress();
 

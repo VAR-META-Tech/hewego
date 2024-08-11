@@ -34,6 +34,7 @@ const config: HardhatUserConfig = {
             url: "https://testnet.hashio.io/api",
             accounts: accounts,
             chainId: 296,
+            timeout: 200000,
         },
         ftmtestnet: {
             url: `https://rpc.testnet.fantom.network/`,
@@ -53,9 +54,6 @@ const config: HardhatUserConfig = {
                     optimizer: {
                         enabled: true,
                         runs: 200,
-                        details: {
-                            yul: true,
-                        },
                     },
                     viaIR: true,
                 },
