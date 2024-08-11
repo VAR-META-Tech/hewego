@@ -24,10 +24,10 @@ export class Bond {
 
   @Column({
     name: "loan_amount",
-    type: "varchar",
+    type: "bigint",
     nullable: true,
   })
-  public loanAmount: string;
+  public loanAmount: number;
 
   @Column({ name: "total_sold", type: "int", nullable: false, default: 0 })
   totalSold: number;
@@ -37,16 +37,15 @@ export class Bond {
 
   @Column({
     name: "collateral_amount",
-    type: "varchar",
-
+    type: "bigint",
     nullable: true,
   })
-  public collateralAmount: string;
+  public collateralAmount: number;
 
   @Column({ name: "collateral_token", type: "varchar", nullable: true })
   public collateralToken: string;
 
-  @Column({ name: "volume_bond", type: "bigint",nullable: false })
+  @Column({ name: "volume_bond", type: "bigint", nullable: false })
   public volumeBond: number;
 
   @Column({
