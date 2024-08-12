@@ -22,23 +22,17 @@ export class BondCheckout {
   lenderAddress: string;
 
   @Column({
-    name: 'amount_purchased',
-    type: 'decimal',
-    precision: 40,
-    scale: 8,
+    name: 'purchased_amount',
+    type: 'bigint',
     nullable: true,
   })
-  amountPurchased: number;
+  purchasedAmount: number;
 
-  @Column({ name: 'amount_purchased_bond', type: 'int', nullable: true })
-  amountPurchasedBond: number;
+  @Column({ name: 'bond_amount', type: 'int', nullable: true })
+  bondAmount: number;
 
   @Column({ name: 'purchase_date', type: 'date' })
   purchaseDate: Date;
-
-
-  @Column({ name: 'status', type: 'varchar', length: 50 })
-  status: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
