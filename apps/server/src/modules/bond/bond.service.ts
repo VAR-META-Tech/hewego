@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
+  BadRequestException,
   HttpException,
   Injectable,
   InternalServerErrorException,
@@ -164,8 +165,14 @@ export class BondService {
     params: FindManyRequestBondsParamsDto,
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     try {
+      if (!params.status) {
+        throw new BadRequestException('Status is required');
+      }
+
       const walletAddressUpperCase = toUpperCaseHex(user.walletAddress);
       const currentTimestamp = Math.floor(Date.now() / 1000);
+      const gracePeriodInSeconds = 3 * 24 * 60 * 60; // 3 days in seconds
+
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
         .leftJoinAndSelect(
@@ -195,20 +202,32 @@ export class BondService {
           'bonds.totalSold as totalSales',
           'loanToken.symbol AS "loanTokenType"',
           'collateralToken.symbol AS "collateralTokenType"',
-          `CASE
-            WHEN bonds.issuanceDate > ${currentTimestamp} THEN 'pending_issuance'
-            WHEN bonds.issuanceDate <= ${currentTimestamp} AND bonds.maturityDate > ${currentTimestamp} THEN 'active'
-            WHEN bonds.maturityDate <= ${currentTimestamp} AND bonds.repaidAt IS NULL THEN 'grace_period'
-            WHEN bonds.repaidAt IS NOT NULL THEN 'repaid'
-            WHEN bonds.liquidatedAt IS NOT NULL THEN 'automated_liquidation'
-            ELSE bonds.status
-          END as status`,
+          `'${params.status}' as status`,
+          'bonds.canceledAt as canceledAt',
+          'bonds.repaidAt as repaidAt',
+          'bonds.claimedLoanAt as claimedLoanAt',
+          'bonds.liquidatedAt as liquidatedAt',
+          'bonds.gracePeriodEndsAt as gracePeriodEndsAt',
         ])
         .where({
           borrowerAddress: walletAddressUpperCase,
         })
-
         .orderBy('bonds.createdAt', 'DESC');
+
+      const statusConditions: any = {
+        [BondStatusEnum.PENDING_ISSUANCE]: 'bonds.issuanceDate > :currentTimestamp',
+        [BondStatusEnum.ACTIVE]: 'bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp',
+        [BondStatusEnum.GRACE_PERIOD]: 'bonds.repaidAt IS NULL AND bonds.maturityDate <= :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp',
+        [BondStatusEnum.REPAID]: 'bonds.repaidAt IS NOT NULL',
+        [BondStatusEnum.AUTOMATED_LIQUIDATION]: 'bonds.liquidatedAt IS NOT NULL',
+      };
+
+      const statusCondition = statusConditions[params.status];
+      queryBuilder.andWhere(statusCondition, {
+        currentTimestamp,
+        status: params.status,
+        gracePeriodInSeconds,
+      });
 
       const totalRequestBonds = await queryBuilder.getCount();
 

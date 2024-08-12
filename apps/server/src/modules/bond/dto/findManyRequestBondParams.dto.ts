@@ -1,8 +1,20 @@
-import { IsNumberString, IsOptional } from 'class-validator';
+import { IsEnum, IsNumberString, IsOptional } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
+import { BondStatusEnum } from '../../../shared/enum';
 
 export class FindManyRequestBondsParamsDto {
+  @ApiProperty({
+    name: 'status',
+    required: true,
+    type: String,
+    description: `Available values: ${Object.values(BondStatusEnum).join(', ')}`,
+    example: BondStatusEnum.ACTIVE,
+  })
+  @IsOptional()
+  @IsEnum(Object.values(BondStatusEnum))
+  status?: string;
+
   @ApiProperty({
     name: 'page',
     required: false,
