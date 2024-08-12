@@ -31,7 +31,7 @@ const useHashPack = () => {
     },
     onError: (error) => {
       onMutateError(error);
-      disconnectFromHashPack();
+      // disconnectFromHashPack();
     },
   });
 
@@ -81,7 +81,8 @@ const useHashPack = () => {
           const wallet = await getAccountByAddressOrAccountId(data.accountIds[0]);
 
           login({
-            wallet: wallet.account,
+            wallet: wallet.evm_address,
+            accountId: wallet.account,
           });
         })();
       });

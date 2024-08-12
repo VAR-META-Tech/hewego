@@ -10,7 +10,6 @@ import { HStack, VStack } from '@/components/Utilities';
 
 const WalletPoppover = () => {
   const [isOpen, setIsOpen] = React.useState(false);
-  console.log('🚀 ~ WalletPoppover ~ isOpen:', isOpen);
   const router = useRouter();
   const [copied, copy] = useCopy();
   const { accountId, handleDisconnect } = React.useContext(HederaWalletsContext);
@@ -29,7 +28,7 @@ const WalletPoppover = () => {
           <VStack spacing={20}>
             <VStack spacing={8}>
               <Button variant="light" startContent={<Icons.user />} onClick={() => router.push(ROUTE.MY_PORTFOLIO)}>
-                My Porfolio
+                My Portfolio
               </Button>
 
               <Button variant="light" disabled={copied} startContent={<Icons.copy />} onClick={() => copy(accountId)}>

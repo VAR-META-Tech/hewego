@@ -1,10 +1,11 @@
 import React from 'react';
 import { Accordion, AccordionItem, Checkbox } from '@nextui-org/react';
 
+import { useGetMetaToken } from '@/hooks/useGetMetaToken';
 import { HStack, VStack } from '@/components/Utilities';
 
 import { IGetBondsFilterType } from '../../hooks/useGetActiveBonds';
-import { BORROW_TOKEN_DATA, COLLATERAL_TOKEN_DATA, LOAN_TERM_DATA } from '../../utils/const';
+import { LOAN_TERM_DATA } from '../../utils/const';
 
 interface Props {
   filter: IGetBondsFilterType;
@@ -21,6 +22,8 @@ const itemClasses = {
 };
 
 const ActiveBondFilter: React.FC<Props> = ({ filter, handleSearchChange }) => {
+  const { borrowTokenData, collateralTokenData } = useGetMetaToken();
+  console.log('🚀 ~ data:', borrowTokenData);
   const handleClear = React.useCallback(() => {
     handleSearchChange({
       loanTerms: [],
@@ -93,6 +96,7 @@ const ActiveBondFilter: React.FC<Props> = ({ filter, handleSearchChange }) => {
                   <Checkbox
                     color="default"
                     key={index}
+                    isSelected={filter.loanTerms.includes(String(loan.value))}
                     onValueChange={() => {
                       handleLoanTermChange(loan.value);
                     }}
@@ -108,9 +112,14 @@ const ActiveBondFilter: React.FC<Props> = ({ filter, handleSearchChange }) => {
         <Accordion defaultSelectedKeys={['Supply/Borrow']} itemClasses={itemClasses}>
           <AccordionItem key="Supply/Borrow" aria-label="Supply/Borrow" title="Supply/Borrow">
             <VStack className="p-4 rounded-md border border-border">
-              {BORROW_TOKEN_DATA.map((borrow, index) => {
+              {borrowTokenData.map((borrow, index) => {
                 return (
-                  <Checkbox onValueChange={() => handleBorrowChange(borrow.value)} color="default" key={index}>
+                  <Checkbox
+                    isSelected={filter.borrows.includes(String(borrow.value))}
+                    onValueChange={() => handleBorrowChange(borrow.value)}
+                    color="default"
+                    key={index}
+                  >
                     {borrow.label}
                   </Checkbox>
                 );
@@ -122,9 +131,14 @@ const ActiveBondFilter: React.FC<Props> = ({ filter, handleSearchChange }) => {
         <Accordion defaultSelectedKeys={['Collateral']} itemClasses={itemClasses}>
           <AccordionItem key="Collateral" aria-label="Collateral" title="Collateral">
             <VStack className="p-4 rounded-md border border-border">
-              {COLLATERAL_TOKEN_DATA.map((collateral, index) => {
+              {collateralTokenData.map((collateral, index) => {
                 return (
-                  <Checkbox onValueChange={() => handleCollateralChange(collateral.value)} color="default" key={index}>
+                  <Checkbox
+                    isSelected={filter.collaterals.includes(String(collateral.value))}
+                    onValueChange={() => handleCollateralChange(collateral.value)}
+                    color="default"
+                    key={index}
+                  >
                     {collateral.label}
                   </Checkbox>
                 );

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createMutation } from 'react-query-kit';
 
 import { loginRequest } from './request';

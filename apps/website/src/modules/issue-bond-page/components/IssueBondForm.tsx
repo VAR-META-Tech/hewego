@@ -2,16 +2,30 @@ import React from 'react';
 import { onPreventAmountKeyDown, onPreventNumberKeyDown } from '@/utils/common';
 import { useFormContext } from 'react-hook-form';
 
+import { useGetMetaToken } from '@/hooks/useGetMetaToken';
 import { SelectField } from '@/components/ui/FormField/SelectField';
 import { TextField } from '@/components/ui/FormField/TextField';
 import TextFieldWithNote from '@/components/ui/FormField/TextFieldWithNote';
 import { VStack } from '@/components/Utilities';
 
 import { IssueBondFormType } from '../types/schema';
-import { BOND_DURATION_DATA, MOCK_DEFAULT_COLLATERAL_TOKEN, MOCK_DEFAULT_LOAN_TOKEN } from '../utils/const';
+import { BOND_DURATION_DATA } from '../utils/const';
 
 const IssueBondForm = () => {
   const { control, setValue, clearErrors } = useFormContext<IssueBondFormType>();
+  const { borrowTokenData, collateralTokenData, isSuccess } = useGetMetaToken();
+
+  React.useEffect(() => {
+    if (isSuccess && !!borrowTokenData?.length) {
+      setValue('loanToken', borrowTokenData[0]?.value);
+    }
+  }, [borrowTokenData, isSuccess, setValue]);
+
+  React.useEffect(() => {
+    if (isSuccess && !!collateralTokenData?.length) {
+      setValue('collateralToken', collateralTokenData[0]?.value);
+    }
+  }, [collateralTokenData, isSuccess, setValue]);
 
   return (
     <VStack spacing={12} className="flex-1">
@@ -29,7 +43,7 @@ const IssueBondForm = () => {
         endContent={
           <SelectField
             aria-label="loanToken"
-            data={MOCK_DEFAULT_LOAN_TOKEN}
+            data={borrowTokenData}
             variant="underlined"
             name="loanToken"
             control={control}
@@ -122,7 +136,7 @@ const IssueBondForm = () => {
         endContent={
           <SelectField
             aria-label="collateralToken"
-            data={MOCK_DEFAULT_COLLATERAL_TOKEN}
+            data={collateralTokenData}
             variant="underlined"
             name="collateralToken"
             control={control}

@@ -1,9 +1,12 @@
 import React from 'react';
 import { FCC } from '@/types';
+import { COOKIES_KEY } from '@/utils/constants';
 import { HashConnect } from 'hashconnect';
 import { toast } from 'sonner';
 
 import useHashPack, { HashConnectState } from '@/hooks/useHashPack';
+
+import { removeCookies } from '../utils/cookies';
 
 interface HederaWalletsContextType {
   hashConnect?: HashConnect | null;
@@ -72,6 +75,9 @@ export const HederaWalletProvider: FCC = ({ children }) => {
       disconnectFromHashPack();
 
       // clearConnectedBladeWalletData();
+
+      removeCookies(COOKIES_KEY.ACCESS_TOKEN);
+      removeCookies(COOKIES_KEY.REFRESH_TOKEN);
 
       if (isShowToast) {
         toast.success('Disconnected!');

@@ -29,38 +29,16 @@ export const COLLATERAL_TOKEN_VALUE = {
   USDT: 'USDT',
 };
 
-export const COLLATERAL_TOKEN_DATA = [
-  {
-    label: 'USDC',
-    value: COLLATERAL_TOKEN_VALUE.USDC,
-  },
-  {
-    label: 'USDT',
-    value: COLLATERAL_TOKEN_VALUE.USDT,
-  },
-];
-
 export const BORROW_TOKEN_VALUE = {
   USDC: 'USDC',
   USDT: 'USDT',
 };
 
-export const BORROW_TOKEN_DATA = [
-  {
-    label: 'USDC',
-    value: BORROW_TOKEN_VALUE.USDC,
-  },
-  {
-    label: 'USDT',
-    value: BORROW_TOKEN_VALUE.USDT,
-  },
-];
-
 export const HEADER_ACTIVE_BONDS_KEYS = {
   MATURITY_DATE: 'maturityDate',
   LOAN_TERM: 'loanTerm',
-  COLLATERAL_TOKEN: 'collateralToken',
-  LOAN_TOKEN: 'loanToken',
+  COLLATERAL_TOKEN: 'collateralTokenType',
+  LOAN_TOKEN: 'loanTokenType',
   INTEREST_RATE: 'interestRate',
   ACTION: 'action',
 };

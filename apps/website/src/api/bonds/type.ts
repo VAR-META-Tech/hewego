@@ -1,4 +1,4 @@
-import { IMetaPagination } from '@/utils/common.type';
+import { IMeta, IMetaPagination } from '@/utils/common.type';
 
 export interface IGetBondActiveParams {
   page: number;
@@ -14,18 +14,45 @@ export interface IGetBondActiveResponse {
 }
 
 export interface IGetBondActiveData {
-  id: number;
   bondName: string;
-  loanTerm?: number;
-  loanAmount: string | null;
-  loanToken?: string;
-  interestRate: string | null;
-  collateralToken: string | null;
-  volumeBond?: number;
-  issuanceDate?: string;
-  maturityDate?: string;
-  borrowerAddress?: string;
-  bondId?: number;
+  loanTerm: number;
+  loanAmount: string;
+  loanToken: string;
+  interestRate: string;
+  volumeBond: string;
+  issuanceDate: string;
+  maturityDate: string;
+  borrowerAddress: string;
+  bondId: number;
   createdAt: string;
   updatedAt: string;
+  loanTokenType: string;
+  collateralTokenType: string;
+}
+
+export interface IGetBondDetailParams {
+  id: number;
+}
+
+export interface IGetBondDetailResponse {
+  meta: IMeta;
+  data: IGetBondDetailData;
+}
+
+export interface IGetBondDetailData {
+  id: number;
+  bondName: string;
+  loanTerm: number;
+  loanAmount: string | null;
+  loanToken: string;
+  interestRate: string | null;
+  collateralToken: string | null;
+  volumeBond: number;
+  issuanceDate: string;
+  maturityDate: string;
+  borrowerAddress: string | null;
+  bondId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  totalSales: number;
 }
