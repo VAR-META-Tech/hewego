@@ -7,6 +7,7 @@ import {
   ContractFunctionParameters,
 } from '@hashgraph/sdk';
 import { ApiConfigService } from 'shared/services/api-config.service';
+import { LatestTokenPriceFeedResponseDto } from './dto/latestTokenPriceFeedResponse.dto';
 @Injectable()
 export class ContractService {
   private _client: Client;
@@ -23,7 +24,10 @@ export class ContractService {
       this.configService.getHederaConfig.priceFeedContractId;
   }
 
-  async getLatestPrice(tokenA: string, tokenB: string) {
+  async getLatestPrice(
+    tokenA: string,
+    tokenB: string,
+  ): Promise<LatestTokenPriceFeedResponseDto> {
     try {
       const contractQuery = new ContractCallQuery()
         .setContractId(this._priceFeedContractId)
@@ -36,9 +40,11 @@ export class ContractService {
         );
 
       const contractExec = await contractQuery.execute(this._client);
-      return contractExec;
+      return new LatestTokenPriceFeedResponseDto(
+        contractExec.getInt16(0),
+        contractExec.getInt16(1),
+      );
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
