@@ -1,16 +1,10 @@
-import { OnchainStatus } from "../../shared/enums";
-import { Bond, LatestBlock } from "../../database/entities";
+import { EventType, OnchainStatus } from "../../shared/enums";
+import { Bond, BondCheckout, LatestBlock } from "../../database/entities";
 import { DataSource, EntityManager } from "typeorm";
 import { Logger } from "@nestjs/common";
-const Web3 = require("web3");
-const axios = require("axios");
-
+import axios from "axios";
+import { BigNumber, ethers } from "ethers";
 import abi from "../contract/BondIssuance.json";
-import {
-  convertToHederaAccountId,
-} from "../../shared/Utils";
-import { ethers } from "ethers";
-const web3 = new Web3();
 
 export class HederaWorkerV2Service {
   private logger = new Logger(HederaWorkerV2Service.name);
@@ -56,7 +50,7 @@ export class HederaWorkerV2Service {
   async crawlData() {
     return await this.dataSource.transaction(async (manager) => {
       const toBlock = new Date().getTime() / 1000;
-      let crawlName = `crawl_${this.chainId}_${this.contractId}`
+      let crawlName = `crawl_${this.chainId}_${this.contractId}`;
       let latestBlockInDb = await manager
         .getRepository(LatestBlock)
         .createQueryBuilder("latest_block")
@@ -69,7 +63,8 @@ export class HederaWorkerV2Service {
       if (!latestBlockInDb) {
         latestBlockInDb = new LatestBlock();
         latestBlockInDb.currency = crawlName;
-        latestBlockInDb.blockNumber = Number(process.env.SYNC_BLOCK_NUMBER) || 1723278251;
+        latestBlockInDb.blockNumber =
+          Number(process.env.SYNC_BLOCK_NUMBER) || 1723278251;
         if (latestBlockInDb.blockNumber) {
           await manager.getRepository(LatestBlock).save(latestBlockInDb);
         }
@@ -78,151 +73,133 @@ export class HederaWorkerV2Service {
           contractAddress: this.contractId,
         });
 
-        return 1;
+        return true;
       }
 
-      const data = await this.getEventsFromMirror(
+      const events = await this.getEventsFromMirror(
+        [EventType.BondCreated, EventType.LenderParticipated],
         this.contractId,
         latestBlockInDb ? latestBlockInDb.blockNumber : toBlock,
-        toBlock,
-        manager
+        toBlock
+      );
+      this.logger.debug({
+        events,
+      });
+      await Promise.all(
+        events.map((eventItem) => this.handleEvents(eventItem, manager))
       );
 
-      for (const item of data) {
-        if (item) {
-          const { event, meta } = item;
-          this.logger.debug({ event, meta });
-          // Handling different event types based on the event name
-          switch (event.eventName) {
-            case "BondCreated":
-              const {
-                bondId,
-                name,
-                borrower,
-                loanToken,
-                loanAmount,
-                volumeBond,
-                bondDuration,
-                borrowerInterestRate,
-                lenderInterestRate,
-                collateralToken,
-                collateralAmount,
-                issuanceDate,
-                maturityDate,
-              } = event;
-              const bondCreatedEventData: Partial<Bond> = {
-                bondId,
-                name,
-                borrowerAddress: borrower,
-                contractAddress: meta.address,
-                blockNumber: meta.block_number,
-                transactionHash: meta.transaction_hash,
-                onchainStatus: OnchainStatus.CONFIRMING,
-                loanToken,
-                loanAmount,
-                volumeBond,
-                loanTerm: bondDuration,
-                borrowerInterestRate,
-                lenderInterestRate,
-                collateralToken,
-                collateralAmount,
-                issuanceDate,
-                maturityDate,
-              };
-              this.logger.debug({ bondCreatedEventData });
-              await this.handleBondCreated(bondCreatedEventData, manager);
-
-              break;
-
-            case "BondUpdated":
-              // Handle BondUpdated event
-
-              break;
-
-            // Add cases for other events as needed
-
-            default:
-              this.logger.warn(`Unhandled event type: ${meta.eventName}`);
-              break;
-          }
-        }
-      }
-
-      if (latestBlockInDb && data && data.length > 0) {
+      if (latestBlockInDb && events?.length > 0) {
         latestBlockInDb.blockNumber = Math.floor(toBlock);
         await manager.save(latestBlockInDb);
-
-        const bondIds = data?.map((item) => item.event.bondId);
-        if (bondIds.length > 0) {
-          await manager
-            .createQueryBuilder()
-            .update(Bond)
-            .set({ onchainStatus: OnchainStatus.CONFIRMED })
-            .where("bond_id IN (:...bondIds)", { bondIds })
-            .execute();
-        }
       }
 
       return true;
     });
   }
-  async handleBondCreated(eventData: Partial<Bond>, manager: EntityManager) {
-    const {
+
+  async handleEvents(
+    event: Record<string, Record<string, any>>,
+    manager: EntityManager
+  ) {
+    this.logger.debug({
+      event,
+    });
+    switch (event?.event?.name) {
+      case EventType.BondCreated:
+        await this.handleBondCreated(event, manager);
+        break;
+      case EventType.LenderParticipated:
+        await this.handleBondCheckout(event, manager);
+        break;
+      default:
+        this.logger.debug(
+          `unknown event: ${JSON.stringify(event?.event.name)}`
+        );
+        break;
+    }
+  }
+  async handleBondCheckout(eventCheckoutBondPayload, manager: EntityManager) {
+    const [bondId, lender, amountLend, amountBond] =
+      eventCheckoutBondPayload?.event?.args;
+
+    const newBoundCheckout = new BondCheckout();
+
+    newBoundCheckout.bondId = BigNumber.from(bondId).toNumber();
+    newBoundCheckout.lenderAddress = lender;
+    newBoundCheckout.purchasedAmount = BigNumber.from(amountLend).toNumber();
+    newBoundCheckout.bondAmount = BigNumber.from(amountBond).toNumber();
+    newBoundCheckout.purchaseDate = new Date();
+    console.log(newBoundCheckout);
+
+    await manager
+      .createQueryBuilder()
+      .insert()
+      .into(BondCheckout)
+      .values(newBoundCheckout)
+      .execute();
+
+    const bond = await manager
+      .createQueryBuilder(Bond, "bond")
+      .select("bond.totalSold")
+      .where("bond.bond_id = :bondId", { bondId: newBoundCheckout.bondId })
+      .getOne();
+
+    const newTotalSold = bond.totalSold + newBoundCheckout.bondAmount;
+    this.logger.debug(`newTotalSold: ${newTotalSold}`);
+
+    await manager
+      .createQueryBuilder()
+      .update(Bond)
+      .set({ totalSold: newTotalSold })
+      .where("bond_id = :bondId", { bondId: newBoundCheckout.bondId })
+      .execute();
+  }
+
+  async handleBondCreated(eventBondCreatedPayLoad, manager: EntityManager) {
+    const [
       bondId,
       name,
-      blockNumber,
-      transactionHash,
-      onchainStatus,
-      contractAddress,
-      borrowerAddress,
+      borrower,
       loanToken,
       loanAmount,
       volumeBond,
-      loanTerm,
+      bondDuration,
       borrowerInterestRate,
       lenderInterestRate,
       collateralToken,
       collateralAmount,
       issuanceDate,
       maturityDate,
-    } = eventData;
+    ] = eventBondCreatedPayLoad?.event?.args;
+    const metaData = eventBondCreatedPayLoad?.meta;
 
-    // const borrowerAccountId = convertToHederaAccountId(borrowerAddress);
-
-    // const parseLoanAmount = parseFloat(
-    //   ethers.utils.formatUnits(loanAmount, 18)
-    // ).toFixed(0);
-    // const parsecollateralAmount = parseFloat(
-    //   ethers.utils.formatUnits(collateralAmount, 18)
-    // ).toFixed(0);
-
-    // this.logger.debug(`
-    //   ParseLoanAmount: ${parseLoanAmount} , ParseCollateralAmount: ${parsecollateralAmount}
-    // `);
+    const newBond = new Bond();
+    newBond.bondId = BigNumber.from(bondId).toNumber();
+    newBond.name = name;
+    newBond.borrowerAddress = borrower;
+    newBond.contractAddress = metaData?.address;
+    newBond.blockNumber = metaData?.blockNumber;
+    newBond.transactionHash = metaData?.transaction_hash;
+    newBond.onchainStatus = OnchainStatus.CONFIRMED;
+    newBond.loanToken = loanToken;
+    newBond.loanAmount = BigNumber.from(loanAmount).toNumber();
+    newBond.volumeBond = BigNumber.from(volumeBond).toNumber();
+    newBond.loanTerm = BigNumber.from(bondDuration).toNumber();
+    newBond.borrowerInterestRate =
+      BigNumber.from(borrowerInterestRate).toNumber() / 10;
+    newBond.lenderInterestRate =
+      BigNumber.from(lenderInterestRate).toNumber() / 10;
+    newBond.collateralToken = collateralToken;
+    newBond.collateralAmount = BigNumber.from(collateralAmount).toNumber();
+    newBond.issuanceDate = BigNumber.from(issuanceDate).toNumber();
+    newBond.maturityDate = BigNumber.from(maturityDate).toNumber();
 
     await manager
       .createQueryBuilder()
       .insert()
       .into(Bond)
-      .values({
-        bondId,
-        name,
-        borrowerAddress,
-        contractAddress,
-        blockNumber,
-        transactionHash,
-        onchainStatus,
-        loanToken,
-        loanAmount,
-        volumeBond,
-        loanTerm,
-        borrowerInterestRate:  borrowerInterestRate/10,
-        lenderInterestRate: lenderInterestRate/10,
-        collateralToken,
-        collateralAmount,
-        issuanceDate,
-        maturityDate,
-      })
+      .values(newBond)
       .orUpdate(
         [
           "name",
@@ -245,59 +222,40 @@ export class HederaWorkerV2Service {
       .execute();
   }
 
-  async getEventsFromMirror(contractId, blockNumber, toBlock, manager) {
+  async getEventsFromMirror(
+    eventNames: string[],
+    contractId: string,
+    blockNumber: number,
+    toBlock: number
+  ) {
     const dataEmit = [];
     const url = `https://testnet.mirrornode.hedera.com/api/v1/contracts/${contractId}/results/logs?order=asc&timestamp=gt:${blockNumber}&timestamp=lt:${toBlock}`;
     try {
       const response = await axios.get(url);
-      const jsonResponse = response.data;
-      this.logger.debug({ jsonResponse });
+      const data = response.data;
 
-      if (jsonResponse && jsonResponse.logs.length > 0) {
-        this.logger.debug(JSON.stringify(jsonResponse));
-
-        jsonResponse.logs.forEach((log) => {
-          const events = this.decodeEvents(log.data, log.topics);
-          events.forEach((event) => {
-            if (event) {
-              dataEmit.push({ event, meta: log });
-            }
-          });
+      if (data && data.logs.length > 0) {
+        data.logs.forEach((log) => {
+          const event = this.decodeEvent(log.data, log.topics);
+          if (event && eventNames.includes(event.name)) {
+            dataEmit.push({ event, meta: log });
+          }
         });
       }
     } catch (err) {
       this.logger.error(err);
+      throw err;
     }
     return dataEmit;
   }
 
-  decodeEvents(log, topics) {
-    const decodedEvents = [];
+  private decodeEvent(data: string, topics: string[]) {
+    const iface = new ethers.utils.Interface(abi);
 
-    abi.forEach((eventAbi) => {
-      if (eventAbi.type === "event") {
-        try {
-          if (eventAbi.name === "BondCreated") {
-            const decodedLog = web3.eth.abi.decodeLog(
-              eventAbi.inputs,
-              log,
-              topics.slice(1)
-            );
-            this.logger.debug({ decodedLog });
-            const buildDecodeEvent = {
-              ...decodedLog,
-              eventName: eventAbi.name,
-            };
-            decodedEvents.push(JSON.parse(JSON.stringify(buildDecodeEvent)));
-          }
-        } catch (e) {
-          this.logger.error(
-            `Decoding error for event ${eventAbi.name}: ${e.message}`
-          );
-        }
-      }
+    const parsedLog = iface.parseLog({
+      data,
+      topics,
     });
-
-    return decodedEvents;
+    return parsedLog;
   }
 }
