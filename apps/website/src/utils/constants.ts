@@ -27,9 +27,41 @@ export const COOKIES_KEY = {
   REFRESH_TOKEN: 'refresh_token',
 };
 
+export const TOKEN_TYPE = {
+  LOAN: 'LOAN',
+  COLLATERAL: 'COLLATERAL',
+};
+
+export const DATETIME_FORMAT = {
+  FULL_DATE_TIME: "yyyy-M-dd'T'HH:mm:ss.SSSX",
+  DATETIME_SECONDS: 'dd/MM/yyyy HH:mm:ss',
+  DATETIME_SECONDS_GTM: 'DD/MM/yyyy HH:mm:ss [GMT]Z',
+  MONTH_DATE_YEAR: 'LLL dd, y',
+  DATE_MONTH_YEAR: 'dd LLL yyyy',
+  DATETIME_MINUTES: 'dd/MM/yyyy HH:mm',
+  REVERT_DATETIME: 'yyyy-MM-dd HH:mm',
+  DATETIME_MINUTES_HYPHEN: 'DD-MM-YYYY HH:mm',
+  DATE_TIME: 'yyyy-MM-dd',
+  DATE_YEAR: 'dd-MM-yyyy',
+  DATE_TIME_SECONDS: 'YYYY-MM-DD HH:mm:ss',
+  HOUR_MINUTES: 'HH:mm',
+  MONTH_YEAR: 'MMM yyyy',
+};
+
+export const TIME_FORMAT = {
+  HOUR_MIN: 'hh:mm a',
+};
+
 export const NUMBER_PREVENT_KEYS = ['e', 'E', '+', '-'];
 export const AMOUNT_PREVENT_KEYS = [...NUMBER_PREVENT_KEYS, '.'];
 
+export const TOKEN_UNIT = 8;
+
 export const PLATFORM_FEE = 0.5;
 
-export const CONTRACT_ID = '0.0.4661188';
+export const CONTRACT_ID = process.env.NEXT_PUBLIC_CONTRACT_ID || '0.0.4673119';
+export const COLLATERAL_CONTRACT_ID = process.env.NEXT_PUBLIC_COLLATERAL_CONTRACT_ID || '0.0.4673010';
+export const LOAN_CONTRACT_ID = process.env.NEXT_PUBLIC_LOAN_CONTRACT_ID || '0.0.4673011';
+
+export const CONTRACT_ADDRESS =
+  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0xCCCdc46d7930c89517817e14B6c79262f8984202';

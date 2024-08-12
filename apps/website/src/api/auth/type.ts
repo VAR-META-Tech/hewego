@@ -2,6 +2,7 @@ import { IMeta } from '@/utils/common.type';
 
 export interface ILoginRequest {
   wallet: string;
+  accountId: string;
 }
 
 export interface ILoginResponse {

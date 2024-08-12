@@ -23,7 +23,7 @@ const ActiveBondTable: React.FC<Props> = ({ bonds, isLoading }) => {
       switch (columnKey) {
         case HEADER_ACTIVE_BONDS_KEYS.MATURITY_DATE:
           return (
-            <span className="font-bold">
+            <span className="font-bold text-nowrap">
               {item?.maturityDate && format(new Date(Number(item?.maturityDate) * 1000), 'dd-MMM-yy')}
             </span>
           );
@@ -31,18 +31,20 @@ const ActiveBondTable: React.FC<Props> = ({ bonds, isLoading }) => {
           return (
             <>
               {item?.loanTerm && (
-                <HStack spacing={8} className="py-1 px-2 rounded-lg bg-primary-50 w-fit">
+                <HStack noWrap spacing={8} className="py-1 px-2 rounded-lg bg-primary-50 w-fit">
                   <Icons.calendar color="#66d7e6" size={16} />
 
-                  <span className="text-primary-900 text-sm">{`${item?.loanTerm} weeks`}</span>
+                  <span className="text-primary-900 text-sm text-nowrap">{`${item?.loanTerm} weeks`}</span>
                 </HStack>
               )}
             </>
           );
+        case HEADER_ACTIVE_BONDS_KEYS.INTEREST_RATE:
+          return <span>{item?.interestRate && `${Number(item?.interestRate).toFixed(2)}%`}</span>;
         case HEADER_ACTIVE_BONDS_KEYS.ACTION:
           return (
             <Button
-              onPress={() => router.push(ROUTE.BUY_BOND.replace(':id', String(item?.id)))}
+              onPress={() => router.push(ROUTE.BUY_BOND.replace(':id', String(item?.bondId)))}
               startContent={<Icons.moveRight />}
               className="bg-primary-900 text-white"
             >

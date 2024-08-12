@@ -50,6 +50,7 @@ import {
   HelpCircle,
   Link,
   Link2Off,
+  ListFilter,
   Loader2,
   LogOut,
   MoveRight,
@@ -119,6 +120,7 @@ const IconList = {
   circle: Circle,
   calendar: Calendar,
   moveRight: MoveRight,
+  listFilter: ListFilter,
 };
 
 export const Icons = IconList as Record<keyof typeof IconList, Icon>;
