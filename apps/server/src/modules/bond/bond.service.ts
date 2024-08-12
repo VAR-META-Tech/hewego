@@ -57,8 +57,9 @@ export class BondService {
           'bonds.updatedAt AS "updatedAt"',
           'loanToken.symbol AS "loanTokenType"',
           'collateralToken.symbol AS "collateralTokenType"',
+	  'bonds.totalSold AS "totalSold"'
         ])
-        .where('bonds.issuanceDate >=: currentTimestamp', {
+        .where('bonds.issuanceDate >=:currentTimestamp', {
           currentTimestamp,
         })
         .orderBy('bonds.createdAt', 'DESC');
