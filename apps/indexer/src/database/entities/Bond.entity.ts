@@ -10,6 +10,9 @@ import {
 @Entity("bonds")
 @Unique(["bondId", "contractAddress"])
 export class Bond {
+  @PrimaryColumn({ name: "bond_id", type: "int" })
+  public bondId: number;
+
   @Column({
     name: "name",
     type: "varchar",
@@ -90,11 +93,32 @@ export class Bond {
   @Column({ type: "varchar", name: "onchain_status", nullable: true })
   onchainStatus: string;
 
-  @Column({ type: "varchar", name: "status", nullable: true })
+  @Column({
+    type: "enum",
+    name: "status",
+    enum: [
+      "pending_issuance",
+      "active",
+      "repaid",
+      "grace_period",
+      "automated_liquidation",
+      "cancelled",
+    ],
+    default: "pending_issuance",
+  })
   status: string;
 
-  @PrimaryColumn({ name: "bond_id", type: "int" })
-  public bondId: number;
+  @Column({ name: "claimed_loan_at", type: "timestamp", nullable: true })
+  claimedLoanAt: Date;
+
+  @Column({ name: "repaid_at", type: "timestamp", nullable: true })
+  repaidAt: Date;
+
+  @Column({ name: "grace_period_ends_at", type: "timestamp", nullable: true })
+  gracePeriodEndsAt: Date;
+
+  @Column({ name: "liquidated_at", type: "timestamp", nullable: true })
+  liquidatedAt: Date;
 
   @Column({ name: "block_number", type: "bigint", nullable: true })
   blockNumber: number;

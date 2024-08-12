@@ -1,16 +1,20 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PriceFeedService } from './price-feed.service';
+import { PriceFeedParamsDto } from './dto/latestTokenPriceParams.dto';
+import { PriceFeedResponseDto } from './dto/priceFeedItemResponse.dto';
+import { JWTAuthGuard } from 'modules/auth/guards/userJwt.guard';
 
 @Controller('price-feed')
 @ApiTags('price-feed')
+@ApiBearerAuth()
+@UseGuards(JWTAuthGuard)
 export class PriceFeedController {
   constructor(private readonly priceFeedService: PriceFeedService) {}
   @Get('')
-  async getLatestPrice() {
-    const tokenA = '0x0000000000000000000000000000000000474Df2';
-    const tokenB = '0x0000000000000000000000000000000000474df3';
-    const result = await this.priceFeedService.getLatestPrice(tokenA, tokenB);
-    return result;
+  async getLatestPrice(
+    @Query() queries: PriceFeedParamsDto,
+  ): Promise<PriceFeedResponseDto> {
+    return await this.priceFeedService.getLatestPriceFeed(queries);
   }
 }

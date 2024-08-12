@@ -1,8 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
-export class LatestTokenPriceParamsDto {
+export class PriceFeedParamsDto {
   @ApiProperty({ example: 5.2, type: Number })
+  @Transform(({ value }) => Number(value))
   collateralAmount: number;
-  @ApiProperty({ example: 5.2, type: Number })
+  @ApiProperty({ example: 10, type: Number })
+  @Transform(({ value }) => Number(value))
   loanAmount: number;
 }

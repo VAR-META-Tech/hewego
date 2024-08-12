@@ -1,7 +1,7 @@
 import { IsArray, IsEnum, IsNumberString, IsOptional } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
-import { LoarnTermEnum } from 'shared/enum';
+import { LoanTermEnum } from 'shared/enum';
 import { Transform } from 'class-transformer';
 
 export class FindManyActiveBondsParams {
@@ -36,7 +36,7 @@ export class FindManyActiveBondsParams {
   })
   @IsOptional()
   @IsArray()
-  @IsEnum(LoarnTermEnum, { each: true })
+  @IsEnum(LoanTermEnum, { each: true })
   @Transform(
     ({ value }) =>
       value
@@ -46,7 +46,7 @@ export class FindManyActiveBondsParams {
       toClassOnly: true,
     },
   )
-  loanTerms?: LoarnTermEnum[];
+  loanTerms?: LoanTermEnum[];
   @ApiProperty({
     name: 'borrows',
     required: false,
