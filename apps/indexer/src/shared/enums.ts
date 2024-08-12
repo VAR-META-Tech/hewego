@@ -330,4 +330,8 @@ export enum BondStatusEnum {
     COLLATERAL = 'COLLATERAL',
     LOAN = 'LOAN',
   }
+  export enum EventType {
+    BondCreated = "BondCreated",
+    LenderParticipated = "LenderParticipated",
+  }
   
