@@ -8,7 +8,7 @@ import { ContractService } from 'modules/contract/contract.service';
 import { TokenService } from 'modules/token/token.service';
 import { TokenTypeEnum } from 'shared/enum';
 import { PriceFeedParamsDto } from './dto/latestTokenPriceParams.dto';
-import { PriceFeedResponseDto } from './dto/priceFeedItemResponse.dto';
+import { PriceFeedItemResponseDto } from './dto/priceFeedItemResponse.dto';
 
 @Injectable()
 export class PriceFeedService {
@@ -19,14 +19,13 @@ export class PriceFeedService {
   ) {}
   async getLatestPriceFeed(
     dto: PriceFeedParamsDto,
-  ): Promise<PriceFeedResponseDto> {
+  ): Promise<PriceFeedItemResponseDto> {
     try {
       const { collateralAmount, loanAmount } = dto;
       const [collateralToken, loanToken] = await Promise.all([
         this.tokenService.getTokenByType(TokenTypeEnum.COLLATERAL),
         this.tokenService.getTokenByType(TokenTypeEnum.LOAN),
       ]);
-
       this.logger.debug(
         `collateralToken: ${collateralToken} || loanToken: ${loanToken}`,
       );
@@ -35,12 +34,20 @@ export class PriceFeedService {
         loanToken,
         collateralToken,
       );
+      this.logger.debug(
+        `latestPriceFromOnchain: ${JSON.stringify(latestPriceFromOnchain)}`,
+      );
 
       const collateralAmountRatio =
         latestPriceFromOnchain?.collateralPrice * collateralAmount;
       const loanAmountRatio = latestPriceFromOnchain?.loanPrice * loanAmount;
-
-      return new PriceFeedResponseDto(collateralAmountRatio, loanAmountRatio);
+      this.logger.debug(
+        `collateralAmountRatio: ${collateralAmountRatio} || loanAmountRatio: ${loanAmountRatio}`,
+      );
+      return new PriceFeedItemResponseDto(
+        collateralAmountRatio,
+        loanAmountRatio,
+      );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
