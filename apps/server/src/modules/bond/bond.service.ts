@@ -27,6 +27,7 @@ export class BondService {
     params: FindManyActiveBondsParams,
   ): Promise<Pagination<ActiveBondItemResponseDto>> {
     try {
+      const currentTimestamp = Math.floor(Date.now() / 1000);
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds') // use 'bonds' as the alias
         .leftJoinAndSelect(
@@ -57,6 +58,9 @@ export class BondService {
           'loanToken.symbol AS "loanTokenType"',
           'collateralToken.symbol AS "collateralTokenType"',
         ])
+        .where('bonds.issuanceDate >=: currentTimestamp', {
+          currentTimestamp,
+        })
         .orderBy('bonds.createdAt', 'DESC');
 
       if (params?.loanTerms) {
@@ -231,7 +235,7 @@ export class BondService {
     user: User,
   ): Promise<BorrowBondRequestSummaryDto> {
     try {
-      const walletAddressUperCase = toUpperCaseHex(user.walletAddress);
+      const walletAddressUpperCase = toUpperCaseHex(user.walletAddress);
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
         .select([
@@ -241,7 +245,7 @@ export class BondService {
           'CAST(SUM(bonds.totalSold) AS BIGINT) AS "totalBondsSold"',
         ])
         .where({
-          borrowerAddress: walletAddressUperCase,
+          borrowerAddress: walletAddressUpperCase,
         });
       const result = await queryBuilder.getRawOne();
       return new BorrowBondRequestSummaryDto(

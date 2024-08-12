@@ -142,6 +142,9 @@ export class ApiConfigService {
       operatorId: this.getString('HEDERA_OPERATOR_ID'),
       operatorKey: this.getString('HEDERA_OPERATOR_KEY'),
       priceFeedContractId: this.getString('HEDERA_PRICE_FEED_CONTRACT_ID'),
+      bondIssuanceContractId: this.getString(
+        'HEDERA_BOND_ISSUANCE_CONTRACT_ID',
+      ),
     };
   }
 
