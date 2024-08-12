@@ -7,11 +7,11 @@ import {
   ContractFunctionParameters,
 } from '@hashgraph/sdk';
 import { ApiConfigService } from 'shared/services/api-config.service';
-import { LatestTokenPriceFeedResponseDto } from './dto/latestTokenPriceFeedResponse.dto';
+import { BigNumber } from '@hashgraph/sdk/lib/Transfer';
 @Injectable()
 export class ContractService {
   private _client: Client;
-  private _priceFeedContractId: string;
+  private _bondIssuanceContractId: string;
 
   constructor(private readonly configService: ApiConfigService) {
     this._client = Client.forTestnet().setOperator(
@@ -20,30 +20,28 @@ export class ContractService {
         this.configService.getHederaConfig.operatorKey,
       ),
     );
-    this._priceFeedContractId =
-      this.configService.getHederaConfig.priceFeedContractId;
+    this._bondIssuanceContractId =
+      this.configService.getHederaConfig.bondIssuanceContractId;
   }
 
-  async getLatestPrice(
-    tokenA: string,
-    tokenB: string,
-  ): Promise<LatestTokenPriceFeedResponseDto> {
+  async getCollateralAmount(
+    loanToken: string,
+    loanAmount: number,
+    collateralToken: string,
+  ): Promise<BigNumber> {
     try {
       const contractQuery = new ContractCallQuery()
-        .setContractId(this._priceFeedContractId)
+        .setContractId(this._bondIssuanceContractId)
         .setGas(100000)
         .setFunction(
-          'getLatestPrice',
+          'collateralAmountCalculation',
           new ContractFunctionParameters()
-            .addAddress(tokenA)
-            .addAddress(tokenB),
+            .addAddress(loanToken)
+            .addUint256(loanAmount)
+            .addAddress(collateralToken),
         );
-
       const contractExec = await contractQuery.execute(this._client);
-      return new LatestTokenPriceFeedResponseDto(
-        contractExec.getInt16(0),
-        contractExec.getInt16(1),
-      );
+      return contractExec.getUint256(0);
     } catch (error) {
       throw error;
     }

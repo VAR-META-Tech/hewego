@@ -20,6 +20,6 @@ export class PriceFeedController {
   async getLatestPrice(
     @Query() queries: PriceFeedParamsDto,
   ): Promise<PriceFeedItemResponseDto> {
-    return await this.priceFeedService.getLatestPriceFeed(queries);
+    return await this.priceFeedService.collateralAmountCalculation(queries);
   }
 }

@@ -1,12 +1,10 @@
+import { BigNumber } from '@hashgraph/sdk/lib/Transfer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class PriceFeedItemResponseDto {
-  @ApiProperty({ example: 2068039252.8, type: Number })
-  collateralPrice: number;
-  @ApiProperty({ example: 1000000000, type: Number })
-  loanPrice: number;
-  constructor(collateralPrice: number, loanPrice: number) {
+  @ApiProperty({ example: 2068039252, type: String })
+  collateralPrice: BigNumber;
+  constructor(collateralPrice: BigNumber) {
     this.collateralPrice = collateralPrice;
-    this.loanPrice = loanPrice;
   }
 }
