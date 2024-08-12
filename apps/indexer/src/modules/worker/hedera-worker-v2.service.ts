@@ -102,9 +102,7 @@ export class HederaWorkerV2Service {
     event: Record<string, Record<string, any>>,
     manager: EntityManager
   ) {
-    this.logger.debug({
-      event,
-    });
+    console.log({ event });
     switch (event?.event?.name) {
       case EventType.BondCreated:
         await this.handleBondCreated(event, manager);
@@ -179,7 +177,7 @@ export class HederaWorkerV2Service {
     newBond.name = name;
     newBond.borrowerAddress = borrower;
     newBond.contractAddress = metaData?.address;
-    newBond.blockNumber = metaData?.blockNumber;
+    newBond.blockNumber = metaData?.block_number;
     newBond.transactionHash = metaData?.transaction_hash;
     newBond.onchainStatus = OnchainStatus.CONFIRMED;
     newBond.loanToken = loanToken;
