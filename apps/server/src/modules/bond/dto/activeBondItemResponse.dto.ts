@@ -45,4 +45,7 @@ export class ActiveBondItemResponseDto {
 
   @ApiProperty({ example: 100 })
   totalSales: number;
+
+  @ApiProperty({ example: '', required: false })
+  status: string;
 }

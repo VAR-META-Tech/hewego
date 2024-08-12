@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TokenSymbolEnum, TokenTypeEnum } from '../../../shared/enum';
-import { BaseResponse } from 'common/dto/baseResponse.dto';
 
-export class TokenItemResponseDto extends BaseResponse {
+export class TokenItemResponseDto {
   @ApiProperty({
     example: 1,
     description: 'The unique identifier of the token.',

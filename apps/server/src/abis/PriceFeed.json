@@ -1,0 +1,150 @@
+[
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        {
+          "type": "address",
+          "name": "previousOwner",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "newOwner",
+          "indexed": true
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "PriceUpdated",
+      "inputs": [
+        {
+          "type": "address",
+          "name": "tokenA",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "tokenB",
+          "indexed": true
+        },
+        {
+          "type": "uint256",
+          "name": "price",
+          "indexed": false
+        },
+        {
+          "type": "uint256",
+          "name": "lastUpdated",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getLatestPrice",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "_tokenA"
+        },
+        {
+          "type": "address",
+          "name": "_tokenB"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        },
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "address",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setInitialPrice",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "_tokenA"
+        },
+        {
+          "type": "address",
+          "name": "_tokenB"
+        },
+        {
+          "type": "uint256",
+          "name": "_initialPrice"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPrice",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "_tokenA"
+        },
+        {
+          "type": "address",
+          "name": "_tokenB"
+        },
+        {
+          "type": "uint256",
+          "name": "_newPrice"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "newOwner"
+        }
+      ],
+      "outputs": []
+    }
+  ]

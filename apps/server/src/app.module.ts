@@ -3,9 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-// import { DataSource } from 'typeorm';
-// import { addTransactionalDataSource } from 'typeorm-transactional';
-
 import { ApiConfigService } from './shared/services/api-config.service';
 import { SharedModule } from './shared/shared.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
@@ -16,6 +13,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { BondModule } from 'modules/bond/bond.module';
 
 import { TokenModule } from 'modules/token/token.module';
+import { ContractModule } from 'modules/contract/contract.module';
+import { PriceFeedModule } from 'modules/price-feed/price-feed.module';
 
 @Module({
   imports: [
@@ -40,6 +39,8 @@ import { TokenModule } from 'modules/token/token.module';
     AuthModule,
     BondModule,
     TokenModule,
+    ContractModule,
+    PriceFeedModule,
   ],
   providers: [
     {

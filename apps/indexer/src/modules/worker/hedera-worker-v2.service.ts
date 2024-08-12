@@ -69,7 +69,7 @@ export class HederaWorkerV2Service {
       if (!latestBlockInDb) {
         latestBlockInDb = new LatestBlock();
         latestBlockInDb.currency = crawlName;
-        latestBlockInDb.blockNumber = Number(process.env.SYNC_BLOCK_NUMBER) || 34652403;
+        latestBlockInDb.blockNumber = Number(process.env.SYNC_BLOCK_NUMBER) || 1723278251;
         if (latestBlockInDb.blockNumber) {
           await manager.getRepository(LatestBlock).save(latestBlockInDb);
         }
@@ -129,7 +129,7 @@ export class HederaWorkerV2Service {
                 issuanceDate,
                 maturityDate,
               };
-              console.log({ bondCreatedEventData });
+              this.logger.debug({ bondCreatedEventData });
               await this.handleBondCreated(bondCreatedEventData, manager);
 
               break;
@@ -189,16 +189,16 @@ export class HederaWorkerV2Service {
 
     // const borrowerAccountId = convertToHederaAccountId(borrowerAddress);
 
-    const parseLoanAmount = parseFloat(
-      ethers.utils.formatUnits(loanAmount, 18)
-    ).toFixed(0);
-    const parsecollateralAmount = parseFloat(
-      ethers.utils.formatUnits(collateralAmount, 18)
-    ).toFixed(0);
+    // const parseLoanAmount = parseFloat(
+    //   ethers.utils.formatUnits(loanAmount, 18)
+    // ).toFixed(0);
+    // const parsecollateralAmount = parseFloat(
+    //   ethers.utils.formatUnits(collateralAmount, 18)
+    // ).toFixed(0);
 
-    this.logger.debug(`
-      ParseLoanAmount: ${parseLoanAmount} , ParseCollateralAmount: ${parsecollateralAmount}
-    `);
+    // this.logger.debug(`
+    //   ParseLoanAmount: ${parseLoanAmount} , ParseCollateralAmount: ${parsecollateralAmount}
+    // `);
 
     await manager
       .createQueryBuilder()
@@ -213,13 +213,13 @@ export class HederaWorkerV2Service {
         transactionHash,
         onchainStatus,
         loanToken,
-        loanAmount: parseLoanAmount,
+        loanAmount,
         volumeBond,
         loanTerm,
         borrowerInterestRate:  borrowerInterestRate/10,
         lenderInterestRate: lenderInterestRate/10,
         collateralToken,
-        collateralAmount: parsecollateralAmount,
+        collateralAmount,
         issuanceDate,
         maturityDate,
       })
