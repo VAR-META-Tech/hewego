@@ -30,3 +30,8 @@ export enum TokenTypeEnum {
   COLLATERAL = 'COLLATERAL',
   LOAN = 'LOAN',
 }
+
+export enum HoldingBondStatus {
+  DISABLE_CLAIM = 'DISABLE_CLAIM',
+  ENABLE_CLAIM = 'ENABLE_CLAIM',
+}

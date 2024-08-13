@@ -14,7 +14,7 @@ import { ActiveBondItemResponseDto } from './dto/activeBondItemResponse.dto';
 import { FindManyRequestBondsParamsDto } from './dto/findManyRequestBondParams.dto';
 import { RequestBondItemResponseDto } from './dto/requestBondItemResponse.dto';
 import { BorrowBondRequestSummaryDto } from './dto/borrowBondRequestSummary.dto';
-import { BondStatusEnum } from 'shared/enum';
+import { BondStatusEnum, HoldingBondStatus } from 'shared/enum';
 import { toUpperCaseHex } from 'utils';
 import { FindManyHoldingBondParamsDto } from './dto/findManyHoldingBond.params.dto';
 import { HoldingBondItemResponseDto } from './dto/holdingBondItemResponse.dto';
@@ -329,6 +329,7 @@ export class BondService {
     user: User,
   ): Promise<Pagination<HoldingBondItemResponseDto>> {
     try {
+      const currentTimestamp = Math.floor(Date.now() / 1000);
       const queryBuilder = this.bondCheckoutRepository
         .createQueryBuilder('bond_checkout')
         .leftJoinAndSelect(
@@ -357,14 +358,21 @@ export class BondService {
           'loanToken', bonds.loan_token,
           'bondId', bonds.bond_id,
           'interestRate', bonds.lender_interest_rate,
-          'loanTerm', bonds.loan_term
+          'loanTerm', bonds.loan_term,
+          'issuanceDate', bonds.issuance_date,
+          'maturityDate', bonds.maturity_date,
+          'status', CASE 
+              WHEN bonds.issuanceDate >${currentTimestamp} THEN '${BondStatusEnum.PENDING_ISSUANCE}'
+              WHEN bonds.issuanceDate <=${currentTimestamp} AND bonds.maturityDate >${currentTimestamp} THEN '${BondStatusEnum.ACTIVE}'
+            END
         ) AS "bondInfo"`,
         )
+
         .addSelect(
           `
         CASE 
-          WHEN bonds.repaid_at IS NOT NULL OR bond_checkout.claimed_at IS NOT NULL OR bonds.liquidated_at IS NOT NULL THEN 'ENABLE_CLAIM'
-          ELSE 'DISABLE_CLAIM'
+          WHEN bonds.repaid_at IS NOT NULL OR bond_checkout.claimed_at IS NOT NULL OR bonds.liquidated_at IS NOT NULL THEN '${HoldingBondStatus.ENABLE_CLAIM}'
+          ELSE '${HoldingBondStatus.DISABLE_CLAIM}'
         END as "status"`,
         )
         .where('LOWER(users.wallet_address) = LOWER(:walletAddress)', {
