@@ -15,7 +15,7 @@ const WalletPoppover = () => {
   const { accountId, handleDisconnect } = React.useContext(HederaWalletsContext);
 
   return (
-    <HStack noWrap className="bg-primary-900 rounded-md pr-2 pl-4">
+    <HStack noWrap className="bg-primary-700 rounded-md pr-2 pl-4">
       <span className="text-white">{accountId}</span>
 
       <Popover isOpen={isOpen} onOpenChange={(open) => setIsOpen(open)}>

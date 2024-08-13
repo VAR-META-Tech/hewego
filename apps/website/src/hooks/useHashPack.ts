@@ -31,7 +31,7 @@ const useHashPack = () => {
     },
     onError: (error) => {
       onMutateError(error);
-      // disconnectFromHashPack();
+      disconnectFromHashPack();
     },
   });
 

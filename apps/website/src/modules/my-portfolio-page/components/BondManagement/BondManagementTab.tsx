@@ -28,7 +28,7 @@ const BondManagementTab = <T extends string | number>({
           key={tabItem.value}
           onClick={() => onChange(tabItem.value)}
           className={cn(
-            'relative z-0 py-2 text-nowrap text-primary-900 flex min-w-[8rem] flex-1 items-center justify-center shadow-[0px_0px_20px_2px_rgba(185_185_185_0.25)] transition-all',
+            'relative z-0 py-2 text-nowrap text-primary-700 flex min-w-[8rem] flex-1 items-center justify-center shadow-[0px_0px_20px_2px_rgba(185_185_185_0.25)] transition-all',
             {
               'text-black': value !== tabItem.value,
             }
@@ -37,7 +37,7 @@ const BondManagementTab = <T extends string | number>({
           {tabItem.label}
 
           {value === tabItem.value && (
-            <motion.div layoutId={layoutId} className="absolute z-[-1] h-0.5 bottom-0 w-full bg-primary-900" />
+            <motion.div layoutId={layoutId} className="absolute z-[-1] h-0.5 bottom-0 w-full bg-primary-700" />
           )}
         </button>
       ))}

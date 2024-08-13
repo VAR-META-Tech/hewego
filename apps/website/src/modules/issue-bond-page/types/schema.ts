@@ -23,12 +23,17 @@ export const issueBondSchema = z.object({
       if (Number(data) < 1000) return false;
 
       return true;
-    }, 'This field must be greater than 1000 units')
+    }, 'This field must be greater than 1,000 units')
     .refine((data) => {
       if (Number(data) % 100 !== 0) return false;
 
       return true;
-    }, 'This field'),
+    }, 'The entered value must be divisible by 100.')
+    .refine((data) => {
+      if (Number(data) > 1000000) return false;
+
+      return true;
+    }, 'This field must be a maximum of 1,000,000 units'),
   volumeBond: z.any(),
   durationBond: z.string({
     required_error: validationMessages.required(),
@@ -45,10 +50,10 @@ export const issueBondSchema = z.object({
       return true;
     }, validationMessages.number())
     .refine((data) => {
-      if (Number(data) < 1) return false;
+      if (Number(data) < 3) return false;
 
       return true;
-    }, validationMessages.gte(1))
+    }, validationMessages.gte(3))
     .refine((data) => {
       if (Number(data) > 20) return false;
 
@@ -61,6 +66,7 @@ export const issueBondSchema = z.object({
     required_error: validationMessages.required(),
   }),
   matuityDate: z.any(),
+  totalRepaymentAmount: z.any(),
 });
 
 export type IssueBondFormType = z.infer<typeof issueBondSchema>;

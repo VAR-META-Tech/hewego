@@ -53,8 +53,8 @@ const BondRequestFilter: React.FC<Props> = ({ isOpenFilter, setIsOpenFilter }) =
       </HStack>
 
       <div
-        className={cn('grid grid-cols-4 gap-5 h-auto transition-all ease-linear duration-150', {
-          'h-0': !isOpenFilter,
+        className={cn('grid grid-cols-4 gap-5', {
+          hidden: !isOpenFilter,
         })}
       >
         <div className="col-span-1">

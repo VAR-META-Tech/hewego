@@ -12,7 +12,7 @@ const IssueBondAction = () => {
         className="bg-[#565E6C] text-white rounded-full py-4"
       />
 
-      <Button type="submit" size="lg" className="bg-primary-900 text-white text-lg">
+      <Button type="submit" size="lg" radius="md" className="bg-primary-700 text-white text-lg">
         Create Bond
       </Button>
     </VStack>

@@ -52,11 +52,11 @@ const WalletModal: React.FC<Props> = ({ isOpen, onOpenChange }) => {
                   />
                   <span>
                     By connecting your wallet, I agree with the{' '}
-                    <Link href={ROUTE.HOME} className="text-primary-900 hover:opacity-50">
+                    <Link href={ROUTE.HOME} className="text-primary-700 hover:opacity-50">
                       Terms of Use
                     </Link>{' '}
                     &{' '}
-                    <Link href={ROUTE.HOME} className="text-primary-900 hover:opacity-50">
+                    <Link href={ROUTE.HOME} className="text-primary-700 hover:opacity-50">
                       Privacy Policy
                     </Link>
                   </span>
@@ -66,7 +66,7 @@ const WalletModal: React.FC<Props> = ({ isOpen, onOpenChange }) => {
                   {/* HashPack */}
                   <Button
                     disabled={!isChecked}
-                    className={cn('py-2 bg-primary-900 text-white', {
+                    className={cn('py-2 bg-primary-700 text-white', {
                       'bg-[#F3F4F6] text-[#BCC1CA] pointer-events-none': !isChecked,
                     })}
                     startContent={
@@ -92,7 +92,7 @@ const WalletModal: React.FC<Props> = ({ isOpen, onOpenChange }) => {
 
                   {/* BladeWallet */}
                   {/* <Button
-                    className="py-2 bg-primary-900 text-white"
+                    className="py-2 bg-primary-700 text-white"
                     onClick={onConnectBladeWallet}
                     startContent={
                       <div className="rounded-full overflow-hidden">

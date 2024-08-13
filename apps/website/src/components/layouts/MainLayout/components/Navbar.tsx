@@ -34,7 +34,7 @@ const Navbar = () => {
             href={nav.route}
             key={nav.label}
             className={cn('hover:opacity-50 text-black font-medium', {
-              'text-primary-900': isActive,
+              'text-primary-700': isActive,
             })}
           >
             {nav.label}

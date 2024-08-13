@@ -3,8 +3,6 @@ import arrowDown from '@/assets/svg/arrow-down.svg';
 import bell from '@/assets/svg/bell.svg';
 import bookmark from '@/assets/svg/bookmark.svg';
 import checkCircleXs from '@/assets/svg/check-circle-xs.svg';
-import checkCircle from '@/assets/svg/check-circle.svg';
-import check from '@/assets/svg/check.svg';
 import closeCircle from '@/assets/svg/close-circle.svg';
 import close from '@/assets/svg/close.svg';
 import discord from '@/assets/svg/discord.svg';
@@ -39,6 +37,7 @@ import {
   ArrowLeft,
   Calendar,
   Camera,
+  CheckCircle,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -65,7 +64,7 @@ export type Icon = LucideIcon;
 const IconList = {
   user: User,
   edit,
-  check,
+  checkCircle: CheckCircle,
   playSolid,
   angleDown,
   warning,
@@ -81,7 +80,6 @@ const IconList = {
   search: Search,
   closeCircle,
   reload,
-  checkCircle,
   upload,
   metamask,
   trash,

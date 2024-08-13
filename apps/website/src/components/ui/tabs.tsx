@@ -13,7 +13,7 @@ interface TabsProps<T extends string | number> extends Omit<React.HTMLAttributes
 const Tabs = <T extends string | number>({ layoutId, data, value, onChange, ...props }: TabsProps<T>) => {
   return (
     <div
-      className="flex flex-1 gap-2 rounded-lg bg-primary-900 p-0.5 shadow-[0rem_0rem_1.25rem_.125rem_rgba(185_185_185_0.25)] md:flex-none overflow-x-auto md:overflow-hidden"
+      className="flex flex-1 gap-2 rounded-lg bg-primary-700 p-0.5 shadow-[0rem_0rem_1.25rem_.125rem_rgba(185_185_185_0.25)] md:flex-none overflow-x-auto md:overflow-hidden"
       {...props}
     >
       {data.map((tabItem) => (
@@ -21,7 +21,7 @@ const Tabs = <T extends string | number>({ layoutId, data, value, onChange, ...p
           key={tabItem.value}
           onClick={() => onChange(tabItem.value)}
           className={cn(
-            'relative z-0 py-2 text-nowrap text-primary-900 flex min-w-[8rem] flex-1 items-center justify-center shadow-[0px_0px_20px_2px_rgba(185_185_185_0.25)] transition-all',
+            'relative z-0 py-2 text-nowrap text-primary-700 flex min-w-[8rem] flex-1 items-center justify-center shadow-[0px_0px_20px_2px_rgba(185_185_185_0.25)] transition-all',
             {
               'text-white': value !== tabItem.value,
             }

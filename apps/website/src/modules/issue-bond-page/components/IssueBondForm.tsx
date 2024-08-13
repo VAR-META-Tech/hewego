@@ -65,7 +65,7 @@ const IssueBondForm = () => {
         disabled
         type="number"
         variant="bordered"
-        label="Volume Bond"
+        label="Bond Volume"
         name="volumeBond"
         control={control}
         required
@@ -120,7 +120,6 @@ const IssueBondForm = () => {
         label="Lender's Interest Rate (Yield)"
         name="lenderInterestRate"
         control={control}
-        note="On close 90% of the borrow side interest is paid to the lender, and 10% is paid to platform."
         className="pointer-events-none bg-[#F3F4F6]"
       />
 
@@ -172,6 +171,15 @@ const IssueBondForm = () => {
         control={control}
         className="pointer-events-none bg-[#F3F4F6]"
         note="The maturity date of a bond is calculated by adding the bond duration to the issuance date."
+      />
+
+      <TextFieldWithNote
+        disabled
+        variant="bordered"
+        label="Total Repayment Amount (For Lender) "
+        name="totalRepaymentAmount"
+        control={control}
+        className="pointer-events-none bg-[#F3F4F6]"
       />
     </VStack>
   );

@@ -2,22 +2,22 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 import { useGetDetailBondQuery } from '@/api/bonds/queries';
 
-export const useGetBondDetail = () => {
+export const useGetBondDetail = (bondIdValue?: number) => {
   const params = useParams();
   const bondId = params?.bondId || '';
 
   const { data, ...rest } = useGetDetailBondQuery({
     variables: {
-      id: Number(bondId),
+      id: bondIdValue || Number(bondId),
     },
-    enabled: !!bondId,
+    enabled: !!bondId || !!bondIdValue,
   });
 
-  const maxBondValue = React.useMemo(() => {
-    if (!data?.data) return 0;
+  const volumeLeft = React.useMemo(() => {
+    if (!data) return 0;
 
-    return Number(data?.data?.loanAmount) / 100;
-  }, [data?.data]);
+    return Number(data?.data?.volumeBond || 0) - Number(data?.data?.totalSold || 0);
+  }, [data]);
 
   const loanToken = React.useMemo(() => {
     if (!data?.data) return '';
@@ -42,7 +42,7 @@ export const useGetBondDetail = () => {
     bond: data?.data || null,
     loanToken,
     loanAmount,
-    maxBondValue,
+    volumeLeft,
     lenderInterestRate,
     ...rest,
   };

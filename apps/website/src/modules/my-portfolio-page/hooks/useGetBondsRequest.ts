@@ -1,3 +1,5 @@
+import { useGetBondRequestQuery } from '@/api/portfolio/queries';
+
 import usePaging from '@/hooks/usePaging';
 
 import { BondRequestFilterType } from '../types/schema';
@@ -8,7 +10,7 @@ export interface IGetBondsFilterType {
   borrows: string[];
   collaterals: string[];
 }
-export const useGetActiveBonds = () => {
+export const useGetBondsRequest = () => {
   const { paging, filter, onPageChange, handleFilterChange, onTotalItemsChange } = usePaging<BondRequestFilterType>(
     GET_BOND_REQUEST_LIMIT,
     {
@@ -17,6 +19,9 @@ export const useGetActiveBonds = () => {
       bondDuration: '',
     }
   );
+
+  const { data, ...rest } = useGetBondRequestQuery();
+  console.log('🚀 ~ useGetBondsRequest ~ data:', data);
   // React.useEffect(() => {
   //   if (!data?.data) return;
 
@@ -38,10 +43,12 @@ export const useGetActiveBonds = () => {
   // );
 
   return {
+    data,
     paging,
     filter,
     onPageChange,
     handleFilterChange,
     onTotalItemsChange,
+    ...rest,
   };
 };

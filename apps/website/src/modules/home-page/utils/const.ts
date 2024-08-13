@@ -35,20 +35,22 @@ export const BORROW_TOKEN_VALUE = {
 };
 
 export const HEADER_ACTIVE_BONDS_KEYS = {
+  ISSUANCE_DATE: 'issuanceDate',
   MATURITY_DATE: 'maturityDate',
   LOAN_TERM: 'loanTerm',
-  COLLATERAL_TOKEN: 'collateralTokenType',
   LOAN_TOKEN: 'loanTokenType',
   INTEREST_RATE: 'interestRate',
+  SOLD_AND_VOLUME: 'soldAndVolume',
   ACTION: 'action',
 };
 
 export const HEADER_ACTIVE_BONDS_COLUMNS = [
+  { key: HEADER_ACTIVE_BONDS_KEYS.ISSUANCE_DATE, label: 'Issuance Date' },
   { key: HEADER_ACTIVE_BONDS_KEYS.MATURITY_DATE, label: 'Maturity' },
   { key: HEADER_ACTIVE_BONDS_KEYS.LOAN_TERM, label: 'Loan Term' },
-  { key: HEADER_ACTIVE_BONDS_KEYS.COLLATERAL_TOKEN, label: 'Collateral' },
   { key: HEADER_ACTIVE_BONDS_KEYS.LOAN_TOKEN, label: 'Supply/Borrow' },
   { key: HEADER_ACTIVE_BONDS_KEYS.INTEREST_RATE, label: 'Interest Rate' },
+  { key: HEADER_ACTIVE_BONDS_KEYS.SOLD_AND_VOLUME, label: 'Sold/Volume' },
   { key: 'action', label: '' },
 ];
 

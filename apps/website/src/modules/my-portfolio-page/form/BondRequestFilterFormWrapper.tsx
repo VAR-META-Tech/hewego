@@ -16,7 +16,7 @@ const BondRequestFilterFormWrapper: FCC = ({ children }) => {
   const handleSubmit: SubmitHandler<BondRequestFilterType> = () => {};
 
   return (
-    <FormWrapper form={form} onSubmit={handleSubmit} className="flex flex-col gap-3">
+    <FormWrapper form={form} onSubmit={handleSubmit} className="flex flex-col gap-10">
       {children}
     </FormWrapper>
   );
