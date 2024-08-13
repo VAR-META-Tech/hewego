@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { BondService } from './bond.service';
-import { FindManyActiveBondsParams } from './dto/FindManyActiveBondParams.dto';
+import { FindManyActiveBondsParams } from './dto/findManyActiveBondParams.dto';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ActiveBondResponseDto } from './dto/activeBondResponse.dto';
 import { ActiveBondItemResponseDto } from './dto/activeBondItemResponse.dto';
@@ -26,7 +26,7 @@ export class BondController {
   async getActiveBondById(
     @Param('id') id: string,
   ): Promise<ActiveBondItemResponseDto> {
-    console.log({ id });
+   
     return await this.bondService.getActiveBondById(+id);
   }
 }
