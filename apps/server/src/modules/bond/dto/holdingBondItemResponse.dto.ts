@@ -26,6 +26,24 @@ export class HoldingBondItemResponseDto {
 
   @ApiProperty({ description: 'The identifier for the bond checkout' })
   id: number;
+
+  @ApiProperty({ example: 12, required: false })
+  loanTerm: number;
+
   @ApiProperty({ description: 'The account ID of the lender' })
   lenderAccountId: string;
+
+  @ApiProperty({
+    description: '',
+    type: Date,
+  })
+  claimedAt: Date;
+
+  @ApiProperty({
+    type: String,
+  })
+  status: string;
+
+  @ApiProperty({ example: 5.12345678, required: false })
+  interestRate: number;
 }

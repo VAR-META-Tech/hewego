@@ -6,6 +6,7 @@ import {
   Unique,
   PrimaryColumn,
 } from "typeorm";
+import { BondStatusEnum } from "../../shared/enums";
 
 @Entity("bonds")
 @Unique(["bondId", "contractAddress"])
@@ -94,17 +95,9 @@ export class Bond {
   onchainStatus: string;
 
   @Column({
-    type: "enum",
+    type: "varchar",
     name: "status",
-    enum: [
-      "pending_issuance",
-      "active",
-      "repaid",
-      "grace_period",
-      "automated_liquidation",
-      "cancelled",
-    ],
-    default: "pending_issuance",
+    default: BondStatusEnum.PENDING_ISSUANCE,
   })
   status: string;
 
@@ -114,11 +107,17 @@ export class Bond {
   @Column({ name: "repaid_at", type: "timestamp", nullable: true })
   repaidAt: Date;
 
+  @Column({ name: "repaid_amount", type: "bigint", nullable: true })
+  repaidAmount: number;
+
   @Column({ name: "grace_period_ends_at", type: "timestamp", nullable: true })
   gracePeriodEndsAt: Date;
 
   @Column({ name: "liquidated_at", type: "timestamp", nullable: true })
   liquidatedAt: Date;
+
+  @Column({ name: "canceled_at", type: "timestamp", nullable: true })
+  canceledAt: Date;
 
   @Column({ name: "block_number", type: "bigint", nullable: true })
   blockNumber: number;

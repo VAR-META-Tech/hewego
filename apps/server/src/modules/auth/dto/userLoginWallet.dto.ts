@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UserLoginWalletDto {
   @ApiProperty({ minLength: 6, required: true })
@@ -7,8 +7,8 @@ export class UserLoginWalletDto {
   @IsString()
   wallet: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
+  @ApiProperty({ required: true })
   @IsString()
+  @IsNotEmpty()
   accountId?: string;
 }
