@@ -1,11 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import * as _ from "lodash";
 import { InjectDataSource } from "@nestjs/typeorm";
-import { getLogger } from "../../shared/logger";
 import { DataSource } from "typeorm";
 import { HederaWorkerService } from "./hedera-worker.service";
 
-const logger = getLogger("WorkerManagerService");
+const logger = new Logger("WorkerManagerService");
 
 @Injectable()
 export class WorkerManagerService {

@@ -28,7 +28,7 @@ export class Token {
   })
   type: TokenTypeEnum;
 
-  @Column({ name: 'address', type: 'varchar', nullable: true })
+  @Column({ name: 'address', type: 'varchar', nullable: true, unique: true })
   address: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
