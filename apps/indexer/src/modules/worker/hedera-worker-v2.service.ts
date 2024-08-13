@@ -82,9 +82,6 @@ export class HederaWorkerV2Service {
         latestBlockInDb ? latestBlockInDb.blockNumber : toBlock,
         toBlock
       );
-      this.logger.debug({
-        events,
-      });
       await Promise.all(
         events.map((eventItem) => this.handleEvents(eventItem, manager))
       );
@@ -102,7 +99,6 @@ export class HederaWorkerV2Service {
     event: Record<string, Record<string, any>>,
     manager: EntityManager
   ) {
-    console.log({ event });
     switch (event?.event?.name) {
       case EventType.BondCreated:
         await this.handleBondCreated(event, manager);

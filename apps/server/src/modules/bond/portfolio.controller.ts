@@ -9,6 +9,9 @@ import { User } from 'database/entities';
 import { UserDecorator } from 'decorators/user.decorator';
 import { BorrowBondRequestSummaryDto } from './dto/borrowBondRequestSummary.dto';
 import { BorrowBondRequestSummaryResponseDto } from './dto/borrowBondRequestSummaryResponse.dto';
+import { FindManyHoldingBondParamsDto } from './dto/findManyHoldingBond.params.dto';
+import { HoldingBondResponseDto } from './dto/holdingBondResponse.dto';
+import { HoldingBondItemResponseDto } from './dto/holdingBondItemResponse.dto';
 @Controller('portfolio')
 @ApiTags('portfolio')
 @ApiBearerAuth()
@@ -36,5 +39,17 @@ export class PortfolioController {
     @UserDecorator() user: User,
   ): Promise<BorrowBondRequestSummaryDto> {
     return await this.bondService.getBorrowBondRequestSummary(user);
+  }
+
+  @Get('/bond-holding')
+  @ApiResponse({
+    status: 200,
+    type: HoldingBondResponseDto,
+  })
+  async getHoldingBonds(
+    @Query() queries: FindManyHoldingBondParamsDto,
+    @UserDecorator() user: User,
+  ): Promise<Pagination<HoldingBondItemResponseDto>> {
+    return await this.bondService.getHoldingBondsWithPageble(queries, user);
   }
 }
