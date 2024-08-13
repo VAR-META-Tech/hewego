@@ -26,7 +26,6 @@ export class BondController {
   async getActiveBondById(
     @Param('id') id: string,
   ): Promise<ActiveBondItemResponseDto> {
-   
     return await this.bondService.getActiveBondById(+id);
   }
 }
