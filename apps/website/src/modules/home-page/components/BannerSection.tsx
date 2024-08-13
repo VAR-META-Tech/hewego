@@ -12,7 +12,7 @@ const BannerSection = () => {
     <HStack spacing={20} align={'default'} className="container py-10 h-[35rem]">
       <VStack className="flex-1" justify={'center'}>
         <VStack className="text-5xl font-semibold">
-          <span className="text-primary-900">Issue and buy </span>
+          <span className="text-primary-700">Issue and buy </span>
           <span>potential bonds </span>
         </VStack>
 
@@ -23,11 +23,11 @@ const BannerSection = () => {
             onPress={() => router.push(ROUTE.ISSUE_BOND)}
             size="lg"
             radius="sm"
-            className="text-lg bg-primary-900 text-white"
+            className="text-lg bg-primary-700 text-white"
           >
             Issue Bond
           </Button>
-          <Button size="lg" radius="sm" className="text-lg bg-primary-300 text-[#006D7C]">
+          <Button size="lg" radius="sm" className="text-lg bg-primary-300 text-primary-700">
             Buy Bond
           </Button>
         </HStack>

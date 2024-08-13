@@ -20,6 +20,7 @@ export const HASHCONNECT_DEBUG_MODE = false;
 export const DATE_FORMAT = {
   DD_MM_YYYY: 'dd/MM/yyyy',
   YYYY_MM_DD: 'YYYY-MM-dd',
+  MMM_DD_YYYY: 'MMM dd, yyyy',
 };
 
 export const COOKIES_KEY = {

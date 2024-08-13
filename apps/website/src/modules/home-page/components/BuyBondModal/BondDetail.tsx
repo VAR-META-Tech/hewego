@@ -1,17 +1,20 @@
 import React from 'react';
 import Image from 'next/image';
-import { DATE_FORMAT, TOKEN_UNIT } from '@/utils/constants';
+import { DATE_FORMAT } from '@/utils/constants';
 import { format } from 'date-fns';
-import { formatUnits } from 'viem';
 
 import { useGetMetaToken } from '@/hooks/useGetMetaToken';
 import PreviewRow from '@/components/PreviewRow';
 import { HStack, VStack } from '@/components/Utilities';
 
-import { useGetBondDetail } from '../hooks/useGetDetailBond';
+import { useGetBondDetail } from '../../hooks/useGetDetailBond';
 
-const BondDetail = () => {
-  const { bond, maxBondValue } = useGetBondDetail();
+interface Props {
+  bondId: number;
+}
+
+const BondDetail: React.FC<Props> = ({ bondId }) => {
+  const { bond, refetch } = useGetBondDetail(bondId);
   const { getCollateralTokenLabel, getLoanTokenLabel } = useGetMetaToken();
 
   const loanTokenLabel = React.useMemo(() => {
@@ -26,11 +29,19 @@ const BondDetail = () => {
     return getCollateralTokenLabel(bond?.collateralToken);
   }, [bond, getCollateralTokenLabel]);
 
+  React.useEffect(() => {
+    refetch();
+
+    return () => {
+      refetch();
+    };
+  }, [refetch]);
+
   return (
     <VStack align={'center'} className="flex-1">
       <VStack className="shadow-lg p-8 rounded-md w-96">
         <HStack pos={'right'} className="w-full">
-          <span className="text-white bg-[#555c69] px-2 py-1 rounded-full text-sm">{`${bond?.totalSales}/${formatUnits(BigInt(maxBondValue || 0), TOKEN_UNIT)}`}</span>
+          <span className="text-white bg-[#555c69] px-2 py-1 rounded-full text-sm">{`${bond?.totalSold || 0}/${bond?.volumeBond || 0}`}</span>
         </HStack>
         <VStack align={'center'}>
           <div className="relative w-52 h-52">

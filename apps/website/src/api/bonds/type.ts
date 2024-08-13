@@ -18,6 +18,8 @@ export interface IGetBondActiveData {
   loanTerm: number;
   loanAmount: string;
   loanToken: string;
+  collateralAmount: string;
+  collateralToken: string;
   interestRate: string;
   volumeBond: string;
   issuanceDate: string;
@@ -28,6 +30,7 @@ export interface IGetBondActiveData {
   updatedAt: string;
   loanTokenType: string;
   collateralTokenType: string;
+  totalSold: number;
 }
 
 export interface IGetBondDetailParams {
@@ -54,5 +57,5 @@ export interface IGetBondDetailData {
   bondId: string | null;
   createdAt: string;
   updatedAt: string;
-  totalSales: number;
+  totalSold: number;
 }

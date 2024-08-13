@@ -19,7 +19,7 @@ const ConnectWallet = () => {
   const renderWallet = React.useMemo(() => {
     if (!isConnected) {
       return (
-        <Button onPress={onOpen} startContent={<Icons.wallet />} className="bg-primary-900 text-white text-base">
+        <Button onPress={onOpen} startContent={<Icons.wallet />} className="bg-primary-700 text-white text-base">
           Connect Wallet
         </Button>
       );

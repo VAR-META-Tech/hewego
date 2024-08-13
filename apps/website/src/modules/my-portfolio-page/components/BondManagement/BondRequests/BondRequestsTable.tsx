@@ -13,8 +13,8 @@ const ActionButton = ({ status }: { status: string }) => {
       size="md"
       radius="sm"
       disabled={isClaimed}
-      className={cn('bg-primary-900 text-white', {
-        'bg-primary-100 text-primary-900 pointer-events-none': isClaimed,
+      className={cn('bg-primary-700 text-white', {
+        'bg-primary-100 text-primary-700 pointer-events-none': isClaimed,
       })}
     >
       Claim

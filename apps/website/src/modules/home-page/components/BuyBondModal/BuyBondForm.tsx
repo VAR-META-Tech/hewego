@@ -1,18 +1,21 @@
 import React from 'react';
 import { cn } from '@/utils/common';
-import { TOKEN_UNIT } from '@/utils/constants';
 import { Button } from '@nextui-org/react';
 import { useFormContext } from 'react-hook-form';
-import { formatUnits } from 'viem';
 
 import { useGetMetaToken } from '@/hooks/useGetMetaToken';
 import { TextField } from '@/components/ui/FormField/TextField';
 import { HStack, VStack } from '@/components/Utilities';
 
-import { useGetBondDetail } from '../hooks/useGetDetailBond';
-import { BuyBondFormType } from '../types/schema';
+import { useGetBondDetail } from '../../hooks/useGetDetailBond';
+import { useBuyBondStore } from '../../store/useBuyBondStore';
+import { BuyBondFormType } from '../../types/schema';
 
-const BuyBondForm = () => {
+interface Props {
+  bondId: number;
+}
+
+const BuyBondForm: React.FC<Props> = ({ bondId }) => {
   const {
     watch,
     control,
@@ -20,7 +23,17 @@ const BuyBondForm = () => {
     formState: { errors },
   } = useFormContext<BuyBondFormType>();
   const { getLoanTokenLabel } = useGetMetaToken();
-  const { maxBondValue, lenderInterestRate, bond } = useGetBondDetail();
+  const { volumeLeft, lenderInterestRate, bond, refetch } = useGetBondDetail(bondId);
+  const isLoadingCheckBalance = useBuyBondStore.use.isLoadingCheckBalance();
+  const isLoadingTransaction = useBuyBondStore.use.isLoadingTransaction();
+
+  React.useEffect(() => {
+    refetch();
+
+    return () => {
+      refetch();
+    };
+  }, [refetch]);
 
   const loanTokenLabel = React.useMemo(() => {
     if (!bond) return '';
@@ -29,7 +42,7 @@ const BuyBondForm = () => {
   }, [bond, getLoanTokenLabel]);
 
   const handleClickMax = () => {
-    setValue('numberOfBond', Number(formatUnits(BigInt(maxBondValue || 0), TOKEN_UNIT)));
+    setValue('numberOfBond', Number(volumeLeft));
   };
 
   const [numberOfBond] = watch(['numberOfBond']);
@@ -53,7 +66,7 @@ const BuyBondForm = () => {
   }, [interestPaymentValue, numberOfBond, priceValue]);
 
   return (
-    <HStack pos={'center'} className="flex-1">
+    <HStack pos={'center'} className="flex-1 py-10">
       <VStack className="w-[25rem]">
         <span className="text-xl font-semibold">Summary</span>
 
@@ -64,7 +77,7 @@ const BuyBondForm = () => {
             <TextField
               control={control}
               name="numberOfBond"
-              placeholder={String(formatUnits(BigInt(maxBondValue), TOKEN_UNIT))}
+              placeholder={String(volumeLeft)}
               variant="underlined"
               classNames={{
                 input: ['placeholder:text-default-700/50'],
@@ -73,7 +86,7 @@ const BuyBondForm = () => {
             />
           </VStack>
 
-          <Button onClick={handleClickMax} className="bg-primary-100 text-primary-900 h-full">
+          <Button onClick={handleClickMax} className="bg-primary-100 text-primary-700 h-full">
             MAX
           </Button>
         </HStack>
@@ -87,8 +100,14 @@ const BuyBondForm = () => {
 
         <BuyDetailRow titleClassName="font-bold" title="Total" value={`${priceValue} ${loanTokenLabel}`} />
 
-        <Button type="submit" radius="sm" size="lg" className="bg-primary-900 text-white text-lg">
-          Submit Supply
+        <Button
+          isLoading={isLoadingCheckBalance || isLoadingTransaction}
+          type="submit"
+          radius="sm"
+          size="lg"
+          className="bg-primary-700 text-white text-lg"
+        >
+          Supply
         </Button>
       </VStack>
     </HStack>

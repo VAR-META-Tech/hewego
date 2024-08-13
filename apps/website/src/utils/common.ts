@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
+import { AccountAllowanceApproveTransaction, TokenAssociateTransaction } from '@hashgraph/sdk';
+import { Signer } from '@hashgraph/sdk/lib/Signer';
 import axios from 'axios';
 import { clsx, type ClassValue } from 'clsx';
 import { format } from 'date-fns';
@@ -8,13 +10,13 @@ import { RoundingModes } from 'js-big-decimal/dist/node/roundingModes';
 import Long from 'long';
 import { toast } from 'sonner';
 import { extendTailwindMerge } from 'tailwind-merge';
-import { parseUnits as ethersParseUnits } from 'viem';
+import { parseUnits as ethersParseUnits, formatUnits } from 'viem';
 
 import { DateRange } from '@/components/ui/date-picker';
 import { TimeRange } from '@/components/ui/date-picker/date-range-picker';
 
 import { getMutateError } from '../lib/getMutateError';
-import { AMOUNT_PREVENT_KEYS, DATETIME_FORMAT, env, NUMBER_PREVENT_KEYS } from './constants';
+import { AMOUNT_PREVENT_KEYS, DATETIME_FORMAT, env, NUMBER_PREVENT_KEYS, TOKEN_UNIT } from './constants';
 import * as util from './util';
 
 const twMerge = extendTailwindMerge({});
@@ -169,4 +171,100 @@ export const formatTime = (date: string | Date, formatString?: string): string =
   const formattedTime = format(new Date(date), formatString || 'HH:mm');
 
   return formattedTime;
+};
+
+export const getTokensAssociated = async (accountId: string) => {
+  try {
+    const response = await axios.get(`${env.HEDERA_URL}/api/v1/accounts/${accountId}/tokens`);
+
+    return response?.data?.tokens;
+  } catch (error) {
+    throw new Error(error as string);
+  }
+};
+
+export const checkAssociate = async (tokenId: string, accountId: string) => {
+  if (!accountId) return;
+
+  try {
+    const tokens = await getTokensAssociated(accountId);
+
+    const token = tokens?.find((token: any) => token?.token_id === tokenId);
+
+    if (token) return true;
+
+    return false;
+  } catch (error) {
+    throw new Error(error as string);
+  }
+};
+
+export const associateToken = async (tokenId: string, accountId: string, signer: Signer) => {
+  try {
+    const transaction = await new TokenAssociateTransaction()
+      .setAccountId(accountId)
+      .setTokenIds([tokenId])
+      .freezeWithSigner(signer);
+
+    const signTx = await transaction.signWithSigner(signer);
+    const txResponse = await signTx.executeWithSigner(signer);
+
+    return txResponse?.transactionId;
+  } catch (error) {
+    throw new Error(error as string);
+  }
+};
+
+export const convertEvmAddressToAccountId = (address: string) => {
+  const [shard, realm, num] = convertEvmAddressToHederaAccountId(address);
+  const accountId = `${shard.toString()}.${realm.toString()}.${num.toString()}`;
+
+  return accountId;
+};
+
+export const approveToken = async ({
+  provider,
+  signer,
+  accountId,
+  tokenId,
+  contractId,
+  tokenUnit,
+}: {
+  provider: any;
+  signer: Signer;
+  accountId: string;
+  tokenId: string;
+  contractId: string;
+  tokenUnit: number;
+}) => {
+  try {
+    if (!provider) return;
+
+    const contractApproveTx = await new AccountAllowanceApproveTransaction()
+      .approveTokenAllowance(tokenId, accountId, contractId, Number(parseUnits(Number('99999999999999'), tokenUnit)))
+      .freezeWithSigner(signer);
+
+    const contractApproveSign = await contractApproveTx?.signWithSigner(signer);
+
+    const contractApproveSubmit = await contractApproveSign?.executeWithSigner(signer).catch((e) => toast.error(e));
+
+    return (contractApproveSubmit as any)?.transactionId;
+  } catch (error) {
+    throw new Error(error as string);
+  }
+};
+
+export const getBalance = async (tokenId: string, accountId: string) => {
+  const tokens = await getTokensAssociated(accountId);
+
+  if (tokens?.length) {
+    const balance = formatUnits(
+      BigInt(tokens?.find((token: any) => token?.token_id === tokenId)?.balance || 0),
+      TOKEN_UNIT
+    );
+
+    return balance || 0;
+  }
+
+  return 0;
 };

@@ -1,13 +1,15 @@
 import React from 'react';
+import { useGetPriceFeedQuery } from '@/api/price-feed/queries';
 import { useIssueBondStore } from '@/store/useIssueBondStore';
 import { FCC } from '@/types';
-import { convertMarutiryDateToISO } from '@/utils/common';
-import { DATE_FORMAT, PLATFORM_FEE } from '@/utils/constants';
+import { convertMarutiryDateToISO, parseUnits, prettyNumber } from '@/utils/common';
+import { DATE_FORMAT, PLATFORM_FEE, TOKEN_UNIT } from '@/utils/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebouncedValue } from '@mantine/hooks';
 import { format } from 'date-fns';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { toast } from 'sonner';
+import { formatUnits } from 'viem';
 
 import { FormWrapper } from '@/components/ui/form';
 
@@ -21,12 +23,13 @@ const IssueBondFormWrapper: FCC = ({ children }) => {
     mode: 'onTouched',
   });
 
-  const [durationBond, borrowInterestRate, loanToken, collateralToken, loanAmount] = form.watch([
+  const [durationBond, borrowInterestRate, loanToken, collateralToken, loanAmount, lenderInterestRate] = form.watch([
     'durationBond',
     'borrowInterestRate',
     'loanToken',
     'collateralToken',
     'loanAmount',
+    'lenderInterestRate',
   ]);
 
   const [borrowInterestRateDebounced] = useDebouncedValue(borrowInterestRate, 300);
@@ -60,6 +63,36 @@ const IssueBondFormWrapper: FCC = ({ children }) => {
 
     form.setValue('volumeBond', Math.round(loanAmountDebounced / 100));
   }, [form, loanAmountDebounced]);
+
+  React.useEffect(() => {
+    if (!loanAmountDebounced || !durationBond || !lenderInterestRate) return;
+
+    const duration = Number(durationBond.split(' ')[0]);
+    const loanAmount = Number(loanAmountDebounced);
+    const interestRate = Number(lenderInterestRate);
+    const loanAmountWithInterest = loanAmount + (loanAmount * interestRate) / 100;
+    const totalValue = loanAmountWithInterest * (duration / 52);
+
+    form.setValue('totalRepaymentAmount', prettyNumber(totalValue));
+  }, [durationBond, form, lenderInterestRate, loanAmountDebounced]);
+
+  const { data: priceFeedData } = useGetPriceFeedQuery({
+    variables: {
+      loanAmount: String(parseUnits(loanAmountDebounced, TOKEN_UNIT)),
+      collateralToken: collateralToken,
+      loanToken: loanToken,
+    },
+    enabled: !!(loanAmountDebounced && collateralToken && loanToken),
+  });
+
+  React.useEffect(() => {
+    if (!priceFeedData) return;
+    console.log(String(prettyNumber(formatUnits(BigInt(priceFeedData?.data?.collateralPrice || 0), TOKEN_UNIT))));
+    form.setValue(
+      'minimumCollateralAmount',
+      String(formatUnits(BigInt(priceFeedData?.data?.collateralPrice || 0), TOKEN_UNIT))
+    );
+  }, [form, priceFeedData]);
 
   const handleSubmit: SubmitHandler<IssueBondFormType> = () => {
     if (!loanToken || !collateralToken) {
