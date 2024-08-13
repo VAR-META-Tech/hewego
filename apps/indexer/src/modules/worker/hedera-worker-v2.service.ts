@@ -124,7 +124,8 @@ export class HederaWorkerV2Service {
     newBoundCheckout.purchasedAmount = BigNumber.from(amountLend).toNumber();
     newBoundCheckout.bondAmount = BigNumber.from(amountBond).toNumber();
     newBoundCheckout.purchaseDate = new Date();
-    console.log(newBoundCheckout);
+
+    this.logger.debug(`newBoundCheckout: ${JSON.stringify(newBoundCheckout)}`);
 
     await manager
       .createQueryBuilder()

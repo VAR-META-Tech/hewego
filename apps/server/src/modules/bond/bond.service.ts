@@ -308,8 +308,8 @@ export class BondService {
           'CAST(SUM(bonds.volumeBond) AS BIGINT) AS "totalBondsIssued"',
           'CAST(SUM(bonds.totalSold) AS BIGINT) AS "totalBondsSold"',
         ])
-        .where({
-          borrowerAddress: walletAddressUpperCase,
+        .where('LOWER(bonds.borrower_address) = LOWER(:walletAddress)', {
+          walletAddress: user?.walletAddress,
         });
       const result = await queryBuilder.getRawOne();
       return new BorrowBondRequestSummaryDto(
@@ -342,26 +342,36 @@ export class BondService {
           'LOWER(bond_checkout.lender_address) = LOWER(users.wallet_address)',
         )
         .select([
-          'bonds.name as name',
-          'bonds.maturity_date as "maturityDate"',
-          'bonds.loan_token as "loanToken"',
-          'bonds.bond_id as "bondId"',
           'bond_checkout.bond_amount AS "bondAmount"',
           'bond_checkout.purchased_amount AS "purchasedAmount"',
           'bond_checkout.purchase_date AS "purchaseDate"',
+          'bond_checkout.claimed_at AS "claimedAt"',
           'users.wallet_address AS "lenderWalletAddress"',
           'bond_checkout.id AS "id"',
           'users.account_id AS "lenderAccountId"',
         ])
-        // .addSelect(`
-        //   CASE 
-        //     WHEN bonds.repaid_at IS NOT NULL THEN 'ENABLE_CLAIM'
-        //     WHEN bond_checkout.liquidated_at IS NOT NULL THEN 'AUTOMATED_LIQUIDATION'
-        //     ELSE 'ACTIVE'`)
-        .where('users.wallet_address = LOWER(:walletAddress)', {
+        .addSelect(
+          `JSON_BUILD_OBJECT(
+          'name', bonds.name,
+          'maturityDate', bonds.maturity_date,
+          'loanToken', bonds.loan_token,
+          'bondId', bonds.bond_id,
+          'interestRate', bonds.lender_interest_rate,
+          'loanTerm', bonds.loan_term
+        ) AS "bondInfo"`,
+        )
+        .addSelect(
+          `
+        CASE 
+          WHEN bonds.repaid_at IS NOT NULL AND bond_checkout.claimed_at IS NOT NULL AND bond_checkout.liquidated_at IS NOT NULL THEN 'ENABLE_CLAIM'
+          ELSE 'DISABLE_CLAIM'
+        END as "status"`,
+        )
+        .where('LOWER(users.wallet_address) = LOWER(:walletAddress)', {
           walletAddress: user.walletAddress,
         })
         .orderBy('bond_checkout.created_at', 'DESC');
+
       if (params?.name) {
         queryBuilder.andWhere('bonds.name ILIKE :name', {
           name: `%${params.name}%`,

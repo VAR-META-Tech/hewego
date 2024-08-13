@@ -3,3 +3,4 @@ export * from "./Bond.entity";
 export * from "./BondCheckout.entity";
 export * from "./User.entity";
 export * from "./Token.entity";
+export * from "./BondHoldingTransaction.entity";

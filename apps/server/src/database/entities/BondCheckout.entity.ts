@@ -28,6 +28,9 @@ export class BondCheckout {
   })
   purchasedAmount: number;
 
+  @Column({ name: 'claimed_at', type: 'timestamp', nullable: true })
+  claimedAt: Date;
+
   @Column({ name: 'bond_amount', type: 'int', nullable: true })
   bondAmount: number;
 
