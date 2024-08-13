@@ -15,6 +15,7 @@ import { BondModule } from 'modules/bond/bond.module';
 import { TokenModule } from 'modules/token/token.module';
 import { ContractModule } from 'modules/contract/contract.module';
 import { PriceFeedModule } from 'modules/price-feed/price-feed.module';
+import { TransactionModule } from 'modules/transaction/transaction.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { PriceFeedModule } from 'modules/price-feed/price-feed.module';
     TokenModule,
     ContractModule,
     PriceFeedModule,
+    TransactionModule,
   ],
   providers: [
     {

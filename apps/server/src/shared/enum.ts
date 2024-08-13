@@ -35,3 +35,10 @@ export enum HoldingBondStatus {
   DISABLE_CLAIM = 'DISABLE_CLAIM',
   ENABLE_CLAIM = 'ENABLE_CLAIM',
 }
+
+export enum LenderTransactionType {
+  RECEIVED = 'RECEIVED',
+}
+export enum LenderTransactionStatus {
+  COMPLETED = 'COMPLETED',
+}

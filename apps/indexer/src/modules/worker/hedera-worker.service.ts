@@ -1,5 +1,14 @@
-import { EventType, OnchainStatus } from "../../shared/enums";
-import { Bond, BondCheckout, LatestBlock } from "../../database/entities";
+import {
+  EventType,
+  LenderTransactionStatus,
+  OnchainStatus,
+} from "../../shared/enums";
+import {
+  Bond,
+  BondCheckout,
+  LatestBlock,
+  LenderTransaction,
+} from "../../database/entities";
 import { DataSource, EntityManager } from "typeorm";
 import { Logger } from "@nestjs/common";
 import axios from "axios";
@@ -177,7 +186,7 @@ export class HederaWorkerService {
     newBond.onchainStatus = OnchainStatus.CONFIRMED;
     newBond.loanToken = loanToken;
     newBond.loanAmount = BigNumber.from(loanAmount).toNumber();
-    newBond.volumeBond = BigNumber.from(volumeBond).toNumber()/10;
+    newBond.volumeBond = BigNumber.from(volumeBond).toNumber();
     newBond.loanTerm = BigNumber.from(bondDuration).toNumber();
     newBond.borrowerInterestRate =
       BigNumber.from(borrowerInterestRate).toNumber() / 10;
@@ -211,6 +220,38 @@ export class HederaWorkerService {
           "maturity_date",
         ],
         ["bond_id", "contract_address"]
+      )
+      .execute();
+  }
+  async handleLenderClaimed(eventLenderClaimedPayload, manager: EntityManager) {
+    const [
+      bondId,
+      lender,
+      bondTokenAmount,
+      loanTokenAmount,
+      interestLoanTokenAmount,
+      repaymentAmount,
+    ] = eventLenderClaimedPayload?.event?.args;
+
+    const metaData = eventLenderClaimedPayload?.meta;
+
+    const newLenderTransaction = new LenderTransaction();
+    newLenderTransaction.bondId = BigNumber.from(bondId).toNumber();
+    newLenderTransaction.lenderAddress = lender;
+    newLenderTransaction.loanAmount = BigNumber.from(loanTokenAmount).toNumber();
+    newLenderTransaction.interestPayment = BigNumber.from(interestLoanTokenAmount).toNumber();
+    newLenderTransaction.receivedAmount = BigNumber.from(repaymentAmount).toNumber();
+    newLenderTransaction.transactionHash = metaData?.transaction_hash;
+    newLenderTransaction.status = LenderTransactionStatus.COMPLETED;
+
+    await manager
+      .createQueryBuilder()
+      .insert()
+      .into(LenderTransaction)
+      .values(newLenderTransaction)
+      .orUpdate(
+        ["transaction_hash", "status"],
+        ["transactionHash", "lenderAddress", "bondId"]
       )
       .execute();
   }

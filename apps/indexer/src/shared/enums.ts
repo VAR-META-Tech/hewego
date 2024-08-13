@@ -334,9 +334,13 @@ export enum BondRequestTransactionType {
   REFUND_COLLATERAL = "REFUND_COLLATERAL",
 }
 
-export enum HoldingBondTransactionType {
+export enum LenderTransactionType {
   RECEIVED = "RECEIVED",
 }
+export enum LenderTransactionStatus {
+  COMPLETED = "COMPLETED",
+}
+
 export enum BondStatusEnum {
   ACTIVE = "ACTIVE",
   CLOSED = "CLOSED",
