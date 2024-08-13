@@ -6,7 +6,13 @@ import {
 } from '@nestjs/common';
 import { FindManyActiveBondsParams } from './dto/findManyActiveBondParams.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { Bond, BondCheckout, Token, User } from 'database/entities';
+import {
+  Bond,
+  BondCheckout,
+  LenderTransaction,
+  Token,
+  User,
+} from 'database/entities';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { getArrayPaginationBuildTotal, getOffset } from 'utils/pagination';
@@ -27,6 +33,8 @@ export class BondService {
     private bondRepository: Repository<Bond>,
     @InjectRepository(BondCheckout)
     private bondCheckoutRepository: Repository<BondCheckout>,
+    @InjectRepository(LenderTransaction)
+    private lenderTransactionRepository: Repository<LenderTransaction>,
   ) {}
   async findActiveBondsWithPageable(
     params: FindManyActiveBondsParams,
@@ -411,7 +419,7 @@ export class BondService {
   async getHoldingBondSummary(
     user: User,
   ): Promise<HoldingBondSummaryItemResponseDto> {
-    const queryBuilder = this.bondCheckoutRepository
+    const bondCheckoutQueryBuilder = this.bondCheckoutRepository
       .createQueryBuilder('bond_checkout')
       .select([
         'SUM(bond_checkout.purchased_amount) AS "totalAmountBondPurchased"',
@@ -421,11 +429,24 @@ export class BondService {
         walletAddress: user.walletAddress,
       });
 
-    const result = await queryBuilder.getRawOne();
+    const bondCheckout = await bondCheckoutQueryBuilder.getRawOne();
+
+    const lenderTransactionQueryBuilder = this.lenderTransactionRepository
+      .createQueryBuilder('lender_transaction')
+      .select([
+        'SUM(lender_transaction.received_amount) AS "totalCapitalAndInterestRecieved"',
+      ])
+      .where(
+        'LOWER(lender_transaction.lenderAddress) = LOWER(:walletAddress)',
+        {
+          walletAddress: user.walletAddress,
+        },
+      );
+    const lenderTransaction = await lenderTransactionQueryBuilder.getRawOne();
     return new HoldingBondSummaryItemResponseDto(
-      '1500000',
-      result.totalAmountBondPurchased,
-      Number(result.totalBondPurchased),
+      lenderTransaction.totalCapitalAndInterestRecieved,
+      bondCheckout.totalAmountBondPurchased,
+      Number(bondCheckout.totalBondPurchased),
     );
   }
 }
