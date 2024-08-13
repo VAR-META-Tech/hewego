@@ -19,6 +19,7 @@ import { BondStatusEnum } from 'shared/enum';
 import { toUpperCaseHex } from 'utils';
 import { FindManyHoldingBondParamsDto } from './dto/findManyHoldingBond.params.dto';
 import { HoldingBondItemResponseDto } from './dto/holdingBondItemResponse.dto';
+import { HoldingBondSummaryItemResponseDto } from './dto/holdingBondSummaryItemResponse.dto';
 
 @Injectable()
 export class BondService {
@@ -203,16 +204,56 @@ export class BondService {
           'loanToken.symbol AS "loanTokenType"',
           'collateralToken.symbol AS "collateralTokenType"',
           `'${params.status}' as status`,
-          'bonds.canceledAt as canceledAt',
-          'bonds.repaidAt as repaidAt',
-          'bonds.claimedLoanAt as claimedLoanAt',
-          'bonds.liquidatedAt as liquidatedAt',
-          'bonds.gracePeriodEndsAt as gracePeriodEndsAt',
+          'bonds.canceledAt as "canceledAt"',
+          'bonds.repaidAt as "repaidAt"',
+          'bonds.claimedLoanAt AS "claimedLoanAt"',
+          'bonds.liquidatedAt AS "liquidatedAt"',
+          'bonds.gracePeriodEndsAt AS "gracePeriodEndsAt"',
         ])
         .where('LOWER(bonds.borrowerAddress) = LOWER(:walletAddress)', {
           walletAddress: user.walletAddress,
         })
         .orderBy('bonds.createdAt', 'DESC');
+
+      if (params?.bondDuration) {
+        const loanTerms = params.bondDuration;
+        queryBuilder.andWhere('bonds.loanTerm IN (:...loanTerms)', {
+          loanTerms,
+        });
+      }
+
+      if (params?.issuanceStartDate && params?.issuanceEndDate) {
+        queryBuilder.andWhere(
+          'bonds.issuance_date BETWEEN :issuanceStartDate AND :issuanceEndDate',
+          {
+            issuanceStartDate: Math.floor(
+              new Date(params.issuanceStartDate).getTime() / 1000,
+            ),
+            issuanceEndDate: Math.floor(
+              new Date(params.issuanceEndDate).getTime() / 1000 + 86400,
+            ),
+          },
+        );
+      }
+
+      if (params?.maturityStartDate && params?.maturityeEndDate) {
+        queryBuilder.andWhere(
+          'bonds.maturity_date BETWEEN :maturityStartDate AND :maturityeEndDate',
+          {
+            maturityStartDate: Math.floor(
+              new Date(params.maturityStartDate).getTime() / 1000,
+            ),
+            maturityeEndDate: Math.floor(
+              new Date(params.maturityeEndDate).getTime() / 1000 + 86400,
+            ),
+          },
+        );
+      }
+      if (params?.name) {
+        queryBuilder.andWhere('bonds.name LIKE :name', {
+          name: `%${params.name}%`,
+        });
+      }
 
       const statusConditions: any = {
         [BondStatusEnum.PENDING_ISSUANCE]:
@@ -341,5 +382,26 @@ export class BondService {
       }
       throw new InternalServerErrorException(error.message);
     }
+  }
+
+  async getHoldingBondSummary(
+    user: User,
+  ): Promise<HoldingBondSummaryItemResponseDto> {
+    const queryBuilder = this.bondCheckoutRepository
+      .createQueryBuilder('bond_checkout')
+      .select([
+        'SUM(bond_checkout.purchased_amount) AS "totalAmountBondPurchased"',
+        'SUM(bond_checkout.bond_amount) AS "totalBondPurchased"',
+      ])
+      .where('LOWER(bond_checkout.lender_address) = LOWER(:walletAddress)', {
+        walletAddress: user.walletAddress,
+      });
+
+    const result = await queryBuilder.getRawOne();
+    return new HoldingBondSummaryItemResponseDto(
+      '1500000',
+      result.totalAmountBondPurchased,
+      Number(result.totalBondPurchased),
+    );
   }
 }

@@ -335,3 +335,11 @@ export enum BondStatusEnum {
     LenderParticipated = "LenderParticipated",
   }
   
+
+  export enum BondRequestTransactionType {
+    LOAND_CLAIM = "LOAND_CLAIM",
+    COLLATERAL_DEPOSIT = "COLLATERAL_DEPOSIT",
+    LOAN_REPAYMENT = "LOAN_REPAYMENT",
+    COLLATERAL_WITHDRAWAL = "COLLATERAL_WITHDRAWAL",
+    REFUND_COLLATERAL = "REFUND_COLLATERAL",
+  }
