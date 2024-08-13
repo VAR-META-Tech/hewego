@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity('users')
+@Unique(['walletAddress', 'accountId'])
 export class User {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;

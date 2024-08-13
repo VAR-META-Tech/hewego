@@ -17,12 +17,16 @@ import { RequestBondItemResponseDto } from './dto/requestBondItemResponse.dto';
 import { BorrowBondRequestSummaryDto } from './dto/borrowBondRequestSummary.dto';
 import { BondStatusEnum } from 'shared/enum';
 import { toUpperCaseHex } from 'utils';
+import { FindManyHoldingBondParamsDto } from './dto/findManyHoldingBond.params.dto';
+import { HoldingBondItemResponseDto } from './dto/holdingBondItemResponse.dto';
 
 @Injectable()
 export class BondService {
   constructor(
     @InjectRepository(Bond)
     private bondRepository: Repository<Bond>,
+    @InjectRepository(BondCheckout)
+    private bondCheckoutRepository: Repository<BondCheckout>,
   ) {}
   async findActiveBondsWithPageable(
     params: FindManyActiveBondsParams,
@@ -58,7 +62,7 @@ export class BondService {
           'bonds.updatedAt AS "updatedAt"',
           'loanToken.symbol AS "loanTokenType"',
           'collateralToken.symbol AS "collateralTokenType"',
-	  'bonds.totalSold AS "totalSold"'
+          'bonds.totalSold AS "totalSold"',
         ])
         .where('bonds.issuanceDate >=:currentTimestamp', {
           currentTimestamp,
@@ -135,7 +139,7 @@ export class BondService {
           'bond.bond_id AS "bondId"',
           'bond.createdAt AS "createdAt"',
           'bond.updatedAt AS "updatedAt"',
-          'bond.totalSold AS "totalSales"',
+          'bond.totalSold AS "totalSold"',
           'loanToken.symbol AS "loanTokenType"',
           'collateralToken.symbol AS "collateralTokenType"',
         ])
@@ -165,11 +169,7 @@ export class BondService {
     params: FindManyRequestBondsParamsDto,
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     try {
-      if (!params.status) {
-        throw new BadRequestException('Status is required');
-      }
-
-      const walletAddressUpperCase = toUpperCaseHex(user.walletAddress);
+      // const walletAddressUpperCase = toUpperCaseHex(user.walletAddress);
       const currentTimestamp = Math.floor(Date.now() / 1000);
       const gracePeriodInSeconds = 3 * 24 * 60 * 60; // 3 days in seconds
 
@@ -199,7 +199,7 @@ export class BondService {
           'bonds.borrowerAddress as borrowerAddress',
           'bonds.createdAt as createdAt',
           'bonds.updatedAt as updatedAt',
-          'bonds.totalSold as totalSales',
+          'bonds.totalSold as totalSold',
           'loanToken.symbol AS "loanTokenType"',
           'collateralToken.symbol AS "collateralTokenType"',
           `'${params.status}' as status`,
@@ -209,17 +209,21 @@ export class BondService {
           'bonds.liquidatedAt as liquidatedAt',
           'bonds.gracePeriodEndsAt as gracePeriodEndsAt',
         ])
-        .where({
-          borrowerAddress: walletAddressUpperCase,
+        .where('LOWER(bonds.borrowerAddress) = LOWER(:walletAddress)', {
+          walletAddress: user.walletAddress,
         })
         .orderBy('bonds.createdAt', 'DESC');
 
       const statusConditions: any = {
-        [BondStatusEnum.PENDING_ISSUANCE]: 'bonds.issuanceDate > :currentTimestamp',
-        [BondStatusEnum.ACTIVE]: 'bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp',
-        [BondStatusEnum.GRACE_PERIOD]: 'bonds.repaidAt IS NULL AND bonds.maturityDate <= :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp',
+        [BondStatusEnum.PENDING_ISSUANCE]:
+          'bonds.issuanceDate > :currentTimestamp',
+        [BondStatusEnum.ACTIVE]:
+          'bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp',
+        [BondStatusEnum.GRACE_PERIOD]:
+          'bonds.repaidAt IS NULL AND bonds.maturityDate <= :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp',
         [BondStatusEnum.REPAID]: 'bonds.repaidAt IS NOT NULL',
-        [BondStatusEnum.AUTOMATED_LIQUIDATION]: 'bonds.liquidatedAt IS NOT NULL',
+        [BondStatusEnum.AUTOMATED_LIQUIDATION]:
+          'bonds.liquidatedAt IS NOT NULL',
       };
 
       const statusCondition = statusConditions[params.status];
@@ -277,6 +281,64 @@ export class BondService {
         Number(result.totalBondsIssued),
       );
     } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+  async getHoldingBondsWithPageble(
+    params: FindManyHoldingBondParamsDto,
+    user: User,
+  ): Promise<Pagination<HoldingBondItemResponseDto>> {
+    try {
+      const queryBuilder = this.bondCheckoutRepository
+        .createQueryBuilder('bond_checkout')
+        .leftJoinAndSelect(
+          Bond,
+          'bonds',
+          'bond_checkout.bond_id = bonds.bond_id',
+        )
+        .leftJoinAndSelect(
+          User,
+          'users',
+          'LOWER(bond_checkout.lender_address) = LOWER(users.wallet_address)',
+        )
+        .select([
+          'bonds.name as name',
+          'bonds.maturity_date as "maturityDate"',
+          'bond_checkout.bond_amount AS "bondAmount"',
+          'bond_checkout.purchased_amount AS "purchasedAmount"',
+          'bond_checkout.purchase_date AS "purchaseDate"',
+          'users.wallet_address AS "lenderWalletAddress"',
+          'bond_checkout.id AS "id"',
+          'users.account_id AS "lenderAccountId"',
+        ])
+        .where('users.wallet_address = LOWER(:walletAddress)', {
+          walletAddress: user.walletAddress,
+        })
+        .orderBy('bond_checkout.created_at', 'DESC');
+      if (params?.name) {
+        queryBuilder.andWhere('bonds.name ILIKE :name', {
+          name: `%${params.name}%`,
+        });
+      }
+      const totalHoldingBonds = await queryBuilder.getCount();
+
+      const limit = Number(params?.limit || 10);
+      const page = Number(params?.page || 1);
+      const offset = getOffset({ page, limit });
+      queryBuilder.limit(limit).offset(offset);
+
+      const selectedHoldingBonds = await queryBuilder.execute();
+
+      return getArrayPaginationBuildTotal<HoldingBondItemResponseDto>(
+        selectedHoldingBonds,
+        totalHoldingBonds,
+        { page, limit },
+      );
+    } catch (error) {
+      console.log({ error });
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new InternalServerErrorException(error.message);
     }
   }

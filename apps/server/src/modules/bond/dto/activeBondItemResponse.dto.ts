@@ -44,7 +44,7 @@ export class ActiveBondItemResponseDto {
   updatedAt: Date;
 
   @ApiProperty({ example: 100 })
-  totalSales: number;
+  totalSold: number;
 
   @ApiProperty({ example: '', required: false })
   status: string;
