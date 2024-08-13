@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  BadRequestException,
   HttpException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { FindManyActiveBondsParams } from './dto/FindManyActiveBondParams.dto';
+import { FindManyActiveBondsParams } from './dto/findManyActiveBondParams.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { Bond, BondCheckout, Token, User } from 'database/entities';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -345,6 +344,8 @@ export class BondService {
         .select([
           'bonds.name as name',
           'bonds.maturity_date as "maturityDate"',
+          'bonds.loan_token as "loanToken"',
+          'bonds.bond_id as "bondId"',
           'bond_checkout.bond_amount AS "bondAmount"',
           'bond_checkout.purchased_amount AS "purchasedAmount"',
           'bond_checkout.purchase_date AS "purchaseDate"',
@@ -352,6 +353,11 @@ export class BondService {
           'bond_checkout.id AS "id"',
           'users.account_id AS "lenderAccountId"',
         ])
+        // .addSelect(`
+        //   CASE 
+        //     WHEN bonds.repaid_at IS NOT NULL THEN 'ENABLE_CLAIM'
+        //     WHEN bond_checkout.liquidated_at IS NOT NULL THEN 'AUTOMATED_LIQUIDATION'
+        //     ELSE 'ACTIVE'`)
         .where('users.wallet_address = LOWER(:walletAddress)', {
           walletAddress: user.walletAddress,
         })
