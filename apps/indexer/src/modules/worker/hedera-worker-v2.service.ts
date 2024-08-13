@@ -178,7 +178,7 @@ export class HederaWorkerV2Service {
     newBond.onchainStatus = OnchainStatus.CONFIRMED;
     newBond.loanToken = loanToken;
     newBond.loanAmount = BigNumber.from(loanAmount).toNumber();
-    newBond.volumeBond = BigNumber.from(volumeBond).toNumber();
+    newBond.volumeBond = BigNumber.from(volumeBond).toNumber()/10;
     newBond.loanTerm = BigNumber.from(bondDuration).toNumber();
     newBond.borrowerInterestRate =
       BigNumber.from(borrowerInterestRate).toNumber() / 10;
