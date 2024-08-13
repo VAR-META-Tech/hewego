@@ -4,7 +4,7 @@ import { InjectDataSource } from "@nestjs/typeorm";
 import { getLogger } from "../../shared/logger";
 import { DataSource } from "typeorm";
 import { HederaWorkerService } from "./hedera-worker.service";
-import { HederaWorkerV2Service } from "./hedera-worker-v2.service";
+
 const logger = getLogger("WorkerManagerService");
 
 @Injectable()
@@ -17,8 +17,7 @@ export class WorkerManagerService {
   }
 
   async init() {
-    // new HederaWorkerService(this.dataSource);
-    new HederaWorkerV2Service(this.dataSource);
+    new HederaWorkerService(this.dataSource);
   }
 
   runWorker(_cb: () => void) {
