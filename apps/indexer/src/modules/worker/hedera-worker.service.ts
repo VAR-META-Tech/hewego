@@ -84,7 +84,7 @@ export class HederaWorkerService {
       }
 
       const events = await this.getEventsFromMirror(
-        [EventType.BondCreated, EventType.LenderParticipated],
+        [EventType.BondCreated, EventType.LenderParticipated, EventType.LenderClaimed],
         this.contractId,
         latestBlockInDb ? latestBlockInDb.blockNumber : toBlock,
         toBlock
@@ -112,6 +112,9 @@ export class HederaWorkerService {
         break;
       case EventType.LenderParticipated:
         await this.handleBondCheckout(event, manager);
+        break;
+      case EventType.LenderClaimed:
+        await this.handleLenderClaimed(event, manager);
         break;
       default:
         this.logger.debug(

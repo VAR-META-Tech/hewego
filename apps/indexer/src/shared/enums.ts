@@ -324,6 +324,7 @@ export enum TokenTypeEnum {
 export enum EventType {
   BondCreated = "BondCreated",
   LenderParticipated = "LenderParticipated",
+  LenderClaimed = "LenderClaimed",
 }
 
 export enum BondRequestTransactionType {
