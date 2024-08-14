@@ -6,6 +6,7 @@ import {
   getBondHoldingsSummaryRequest,
   getBondRequestRequest,
   getBondRequestSummaryRequest,
+  getTransactionHistoryRequest,
 } from './request';
 import {
   IGetBondHoldingsParams,
@@ -14,6 +15,7 @@ import {
   IGetBondRequestSummaryResponse,
   IGetBorrowRequestParams,
   IGetBorrowRequestResponse,
+  IGetTransactionHistoryParams,
 } from './type';
 
 export const useGetBondRequestSummaryQuery = createQuery<IGetBondRequestSummaryResponse>({
@@ -34,4 +36,9 @@ export const useGetBondHoldingsQuery = createQuery<IGetBondHoldingsResponse, IGe
 export const useGetBondHoldingsSummaryQuery = createQuery<IGetBondHoldingsSummaryResponse>({
   queryKey: ['/api/portfolio/bond-holding/summary'],
   fetcher: getBondHoldingsSummaryRequest,
+});
+
+export const useGetTransactionHistoryQuery = createQuery<any, IGetTransactionHistoryParams>({
+  queryKey: ['/api/lender-transactions'],
+  fetcher: getTransactionHistoryRequest,
 });

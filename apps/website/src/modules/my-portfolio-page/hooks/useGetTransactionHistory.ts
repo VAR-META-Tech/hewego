@@ -1,27 +1,27 @@
 import React from 'react';
-import { useGetBondHoldingsQuery } from '@/api/portfolio/queries';
+import { useGetTransactionHistoryQuery } from '@/api/portfolio/queries';
 import { HederaWalletsContext } from '@/context/HederaContext';
 
 import usePaging from '@/hooks/usePaging';
 
-import { BondHoldingsFilterType } from '../types/schema';
-import { GET_BOND_HOLDING_LIMIT } from '../utils/const';
+import { TransactionHistoryFilterType } from '../types/schema';
+import { GET_BOND_TRANSACTION_HISTORY_LIMIT } from '../utils/const';
 
-export const useGetBondHoldings = () => {
+export const useGetTransactionHistory = () => {
   const { isConnected, loginData } = React.useContext(HederaWalletsContext);
 
-  const { paging, filter, onPageChange, handleFilterChange, onTotalItemsChange } = usePaging<BondHoldingsFilterType>(
-    GET_BOND_HOLDING_LIMIT,
-    {
+  const { paging, filter, onPageChange, handleFilterChange, onTotalItemsChange } =
+    usePaging<TransactionHistoryFilterType>(GET_BOND_TRANSACTION_HISTORY_LIMIT, {
       search: '',
-    }
-  );
+      supply: '',
+    });
 
-  const { data, ...rest } = useGetBondHoldingsQuery({
+  const { data, ...rest } = useGetTransactionHistoryQuery({
     variables: {
       page: String(paging.page),
       limit: String(paging.limit),
-      name: filter?.search || '',
+      searchTransactionHash: filter?.search || '',
+      supplies: filter?.supply || '',
     },
     enabled: !!isConnected && !!loginData,
   });
@@ -37,7 +37,7 @@ export const useGetBondHoldings = () => {
   }, [data?.data, data?.meta?.pagination?.totalItems, onPageChange, onTotalItemsChange, paging.page]);
 
   const handleSearchChange = React.useCallback(
-    (values: BondHoldingsFilterType) => {
+    (values: TransactionHistoryFilterType) => {
       (Object.keys(values) as (keyof typeof values)[]).forEach((key) => {
         handleFilterChange(key, values[key]);
       });

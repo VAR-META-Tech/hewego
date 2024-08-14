@@ -1,26 +1,60 @@
 import React from 'react';
-import BondRequestFilterFormWrapper from '@/modules/my-portfolio-page/form/BondRequestFilterFormWrapper';
-import { useGetBondRequests } from '@/modules/my-portfolio-page/hooks/useGetBondRequests';
+import BondRequestActiveFilterFormWrapper from '@/modules/my-portfolio-page/form/BondRequestActiveFilterFormWrapper';
+import BondRequestPendingFilterFormWrapper from '@/modules/my-portfolio-page/form/BondRequestPendingFilterFormWrapper';
+import { useGetBondRequestsActive } from '@/modules/my-portfolio-page/hooks/useGetBondRequestsActive';
+import { useGetBondRequestsPending } from '@/modules/my-portfolio-page/hooks/useGetBondRequestsPending';
 
-import BondRequestFilter from './BondRequestFilter';
+import { VStack } from '@/components/Utilities';
+
+import BondRequestsActiveFilter from './BondRequestActive.tsx/BondRequestsActiveFilter';
+import BondRequestsActiveTable from './BondRequestActive.tsx/BondRequestsActiveTable';
+import BondRequestsPendingFilter from './BondRequestPending.tsx/BondRequestsPendingFilter';
+import BondRequestsPendingTable from './BondRequestPending.tsx/BondRequestsPendingTable';
 import BondRequestsSummary from './BondRequestsSummary';
-import BondRequestsTable from './BondRequestsTable';
 
 const BondRequests = () => {
-  const [isOpenFilter, setIsOpenFilter] = React.useState<boolean>(true);
-  const { data } = useGetBondRequests();
-  console.log('🚀 ~ BondRequests ~ data:', data);
+  const { bonds, refetch, handleSearchChange } = useGetBondRequestsPending();
+  const {
+    bonds: bondsActive,
+    refetch: refetchAtive,
+    handleSearchChange: handleSearchChangeActive,
+  } = useGetBondRequestsActive();
+
+  React.useEffect(() => {
+    refetch();
+    refetchAtive();
+
+    return () => {
+      refetch();
+      refetchAtive();
+    };
+  }, [refetch, refetchAtive]);
 
   return (
-    <BondRequestFilterFormWrapper>
+    <div className="space-y-10">
       <BondRequestsSummary />
 
       <div className="container space-y-10">
-        <BondRequestFilter isOpenFilter={isOpenFilter} setIsOpenFilter={setIsOpenFilter} />
+        <VStack>
+          <span className="text-3xl font-bold">My Bond Requests</span>
+          <span>
+            <span className="underline">Note:</span> Confirmed requests will be opened for the lender to supply.
+          </span>
+        </VStack>
 
-        <BondRequestsTable />
+        <BondRequestPendingFilterFormWrapper>
+          <BondRequestsPendingFilter handleSearchChange={handleSearchChange} />
+
+          <BondRequestsPendingTable bonds={bonds} />
+        </BondRequestPendingFilterFormWrapper>
+
+        <BondRequestActiveFilterFormWrapper>
+          <BondRequestsActiveFilter handleSearchChange={handleSearchChangeActive} />
+
+          <BondRequestsActiveTable bonds={bondsActive} />
+        </BondRequestActiveFilterFormWrapper>
       </div>
-    </BondRequestFilterFormWrapper>
+    </div>
   );
 };
 

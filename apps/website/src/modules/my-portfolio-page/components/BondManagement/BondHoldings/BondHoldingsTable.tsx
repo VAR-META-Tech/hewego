@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback } from 'react';
+import React from 'react';
 import { IGetBondHoldingsData } from '@/api/portfolio/type';
 import { HederaWalletsContext } from '@/context/HederaContext';
 import { useBondHoldingsStore } from '@/modules/my-portfolio-page/store/useBondHoldingsStore';
@@ -68,7 +68,7 @@ const BondHoldingsTable: React.FC<Props> = ({ paging, onPageChange, bonds, pagin
     [signer]
   );
 
-  const renderCell = useCallback(
+  const renderCell = React.useCallback(
     (item: IGetBondHoldingsData, columnKey: string, index: number) => {
       const loanAmount = Number(formatUnits(BigInt(item?.purchasedAmount || 0), TOKEN_UNIT));
       const interestRate = Number(item?.bondInfo?.interestRate || 0);

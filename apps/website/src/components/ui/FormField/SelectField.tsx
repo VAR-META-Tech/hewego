@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from 'react';
 import { cn } from '@/utils/common';
 import { Select, SelectItem, SelectProps } from '@nextui-org/react';
@@ -63,12 +64,13 @@ const SelectField = <T extends FieldValues>({
                     </label>
                   </Show>
                   <Select
-                    {...props}
-                    {...field}
                     placeholder={placeholder}
+                    // @ts-expect-error
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => field.onChange(e.target.value)}
                     selectedKeys={[field.value]}
                     disabled={props.disabled}
+                    {...props}
+                    {...field}
                     className={cn('placeholder:text-red-700', props.className)}
                   >
                     {data?.map((x) => <SelectItem key={x.value}>{x.label}</SelectItem>)}

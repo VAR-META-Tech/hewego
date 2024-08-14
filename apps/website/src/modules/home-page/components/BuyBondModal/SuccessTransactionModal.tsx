@@ -47,7 +47,7 @@ const SuccessTransactionModal: React.FC<Props> = ({ bondId, opened, onClose, ref
       <VStack className="px-8" spacing={24}>
         <HStack pos="center" align="center">
           <HStack pos="center" align="center" className="rounded-full border border-primary-500 p-4 w-fit">
-            <Icons.checkCircle color="#8259EF" />
+            <Icons.check color="#8259EF" />
           </HStack>
         </HStack>
 

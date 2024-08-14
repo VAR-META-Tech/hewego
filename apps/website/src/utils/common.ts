@@ -12,9 +12,6 @@ import { toast } from 'sonner';
 import { extendTailwindMerge } from 'tailwind-merge';
 import { parseUnits as ethersParseUnits, formatUnits } from 'viem';
 
-import { DateRange } from '@/components/ui/date-picker';
-import { TimeRange } from '@/components/ui/date-picker/date-range-picker';
-
 import { getMutateError } from '../lib/getMutateError';
 import { AMOUNT_PREVENT_KEYS, DATETIME_FORMAT, env, NUMBER_PREVENT_KEYS, TOKEN_UNIT } from './constants';
 import * as util from './util';
@@ -147,21 +144,6 @@ export const formatDateRange = (date: Date, time: string) => {
   return {
     formatRange,
     formatTimeRange,
-  };
-};
-
-export const formatDateTimeRange = (dateRange: DateRange, timeRange: TimeRange) => {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  const formatDateFrom = formatDateRange(dateRange?.from!, timeRange?.from!);
-
-  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  const formatDateTo = formatDateRange(dateRange?.to!, timeRange?.to!);
-
-  return {
-    formatRangeFrom: formatDateFrom.formatRange,
-    formatRangeTo: formatDateTo.formatRange,
-    formatTimeRangeFrom: formatDateFrom.formatTimeRange,
-    formatTimeRangeTo: formatDateTo.formatTimeRange,
   };
 };
 

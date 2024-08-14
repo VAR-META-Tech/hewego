@@ -1,29 +1,37 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { useGetBondRequestQuery } from '@/api/portfolio/queries';
 import { HederaWalletsContext } from '@/context/HederaContext';
 
 import usePaging from '@/hooks/usePaging';
 
-import { BondRequestFilterType } from '../types/schema';
-import { GET_BOND_REQUEST_LIMIT } from '../utils/const';
+import { useBondRequestStore } from '../store/useBondRequestStore';
+import { BondRequestPendingFilterType } from '../types/schema';
+import { BOND_REQUEST_STATUS, GET_BOND_REQUEST_LIMIT } from '../utils/const';
 
-export const useGetBondRequests = () => {
+export const useGetBondRequestsPending = () => {
   const { isConnected } = React.useContext(HederaWalletsContext);
+  const pendingIssuanceDateRange = useBondRequestStore.use.pendingIssuanceDateRange();
 
-  const { paging, filter, onPageChange, handleFilterChange, onTotalItemsChange } = usePaging<BondRequestFilterType>(
-    GET_BOND_REQUEST_LIMIT,
-    {
+  const { paging, filter, onPageChange, handleFilterChange, onTotalItemsChange } =
+    usePaging<BondRequestPendingFilterType>(GET_BOND_REQUEST_LIMIT, {
       search: '',
-      status: '',
       bondDuration: '',
-    }
-  );
+    });
 
   const { data, ...rest } = useGetBondRequestQuery({
     variables: {
       page: String(paging.page),
       limit: String(paging.limit),
-      status: 'ACTIVE',
+      status: BOND_REQUEST_STATUS.PENDING_ISSUANCE,
+      name: filter?.search || undefined,
+      issuanceStartDate: pendingIssuanceDateRange?.start
+        ? new Date(pendingIssuanceDateRange?.start as any)?.toISOString()
+        : undefined,
+      issuanceEndDate: pendingIssuanceDateRange?.end
+        ? new Date(pendingIssuanceDateRange?.end as any)?.toISOString()
+        : undefined,
+      bondDuration: filter.bondDuration || undefined,
     },
     enabled: !!isConnected,
   });
@@ -39,7 +47,7 @@ export const useGetBondRequests = () => {
   }, [data?.data, data?.meta?.pagination?.totalItems, onPageChange, onTotalItemsChange, paging.page]);
 
   const handleSearchChange = React.useCallback(
-    (values: BondRequestFilterType) => {
+    (values: BondRequestPendingFilterType) => {
       (Object.keys(values) as (keyof typeof values)[]).forEach((key) => {
         handleFilterChange(key, values[key]);
       });
@@ -50,6 +58,8 @@ export const useGetBondRequests = () => {
 
   return {
     data,
+    bonds: data?.data ?? [],
+    pagination: data?.meta?.pagination,
     paging,
     filter,
     onPageChange,

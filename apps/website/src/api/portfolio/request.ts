@@ -7,6 +7,7 @@ import {
   IGetBondRequestSummaryResponse,
   IGetBorrowRequestParams,
   IGetBorrowRequestResponse,
+  IGetTransactionHistoryParams,
 } from './type';
 
 export const getBondRequestSummaryRequest = async (): Promise<IGetBondRequestSummaryResponse> => {
@@ -42,6 +43,16 @@ export const getBondHoldingsSummaryRequest = async (): Promise<IGetBondHoldingsS
   const { data } = await request({
     url: `/api/portfolio/bond-holding/summary`,
     method: 'GET',
+  });
+
+  return data;
+};
+
+export const getTransactionHistoryRequest = async (params: IGetTransactionHistoryParams): Promise<any> => {
+  const { data } = await request({
+    url: `/api/lender-transactions`,
+    method: 'GET',
+    params,
   });
 
   return data;

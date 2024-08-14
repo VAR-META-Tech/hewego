@@ -53,7 +53,7 @@ export const issueBondSchema = z.object({
       if (Number(data) < 5) return false;
 
       return true;
-    }, validationMessages.gte(3))
+    }, validationMessages.gte(5))
     .refine((data) => {
       if (Number(data) > 20) return false;
 
