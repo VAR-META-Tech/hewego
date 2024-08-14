@@ -13,7 +13,7 @@ import { ActiveBondItemResponseDto } from './dto/activeBondItemResponse.dto';
 import { FindManyRequestBondsParamsDto } from './dto/findManyRequestBondParams.dto';
 import { RequestBondItemResponseDto } from './dto/requestBondItemResponse.dto';
 import { BorrowBondRequestSummaryDto } from './dto/borrowBondRequestSummary.dto';
-import { BondStatusEnum, HoldingBondStatus } from 'shared/enum';
+import { BondStatusEnum, HoldingBondStatus, RequestBondAction } from 'shared/enum';
 import { FindManyHoldingBondParamsDto } from './dto/findManyHoldingBond.params.dto';
 import { HoldingBondItemResponseDto } from './dto/holdingBondItemResponse.dto';
 import { HoldingBondSummaryItemResponseDto } from './dto/holdingBondSummaryItemResponse.dto';
@@ -228,7 +228,7 @@ export class BondService {
         );
       }
 
-      if (params?.maturityStartDate && params?.maturityeEndDate) {
+      if (params?.maturityStartDate && params?.maturityEndDate) {
         queryBuilder.andWhere(
           'bonds.maturity_date BETWEEN :maturityStartDate AND :maturityeEndDate',
           {
@@ -236,7 +236,7 @@ export class BondService {
               new Date(params.maturityStartDate).getTime() / 1000,
             ),
             maturityeEndDate: Math.floor(
-              new Date(params.maturityeEndDate).getTime() / 1000 + 86400,
+              new Date(params.maturityEndDate).getTime() / 1000 + 86400,
             ),
           },
         );
@@ -262,7 +262,7 @@ export class BondService {
                 currentTimestamp,
               },
             ).orWhere(
-              'bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp',
+              'bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp AND bonds.repaidAt IS NULL',
               {
                 currentTimestamp,
                 gracePeriodInSeconds,
@@ -272,11 +272,10 @@ export class BondService {
         );
         const statusCase = `
           CASE
-            WHEN bonds.claimedLoanAt IS NOT NULL AND bonds.repaidAt IS NULL AND bonds.maturityDate <= ${currentTimestamp} AND bonds.maturityDate + ${gracePeriodInSeconds} >= ${currentTimestamp} THEN '${BondStatusEnum.GRACE_PERIOD}'
+            WHEN bonds.claimedLoanAt IS NOT NULL AND bonds.repaidAt IS NULL AND bonds.maturityDate <= ${currentTimestamp} AND bonds.maturityDate + ${gracePeriodInSeconds} >= ${currentTimestamp} THEN '${RequestBondAction.REPAY}'
             WHEN bonds.claimedLoanAt IS NULL AND bonds.repaidAt IS NULL THEN '${BondStatusEnum.CLAIM}'
-            WHEN bonds.repaidAt IS NULL THEN '${BondStatusEnum.REPAY}'
-            WHEN bonds.liquidatedAt IS NOT NULL THEN '${BondStatusEnum.AUTOMATED_LIQUIDATION}'
-            ELSE '${BondStatusEnum.CLOSED}'
+            WHEN bonds.repaidAt IS NULL THEN '${RequestBondAction.REPAY}'
+            ELSE '${RequestBondAction.CLOSED}'
           END
         `;
 

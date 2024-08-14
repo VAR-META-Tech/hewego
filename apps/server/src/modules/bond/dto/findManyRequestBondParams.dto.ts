@@ -96,7 +96,7 @@ export class FindManyRequestBondsParamsDto {
   })
   @IsOptional()
   @IsDateString()
-  maturityeEndDate?: string;
+  maturityEndDate?: string;
 
   @ApiProperty({
     type: String,
