@@ -1,8 +1,8 @@
 include:
-  - project: foundation/templates/ci-template
-    file: backend-ci.yml
-    inputs:
-      branch: dev
+#  - project: foundation/templates/ci-template
+#    file: backend-ci.yml
+#    inputs:
+#      branch: dev
   - project: foundation/templates/ci-template
     file: update-manifest.yml
 
