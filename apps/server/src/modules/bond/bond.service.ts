@@ -167,6 +167,7 @@ export class BondService {
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     try {
       const currentTimestamp = Math.floor(Date.now() / 1000);
+      console.log('currentTimestamp', currentTimestamp);
       const gracePeriodInSeconds = 3 * 24 * 60 * 60; // 3 days in seconds
 
       const queryBuilder = this.bondRepository
@@ -266,7 +267,7 @@ export class BondService {
                 currentTimestamp,
               },
             ).orWhere(
-              'bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp AND bonds.repaidAt IS NULL',
+              '(bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp AND bonds.repaidAt IS NULL)',
               {
                 currentTimestamp,
                 gracePeriodInSeconds,
