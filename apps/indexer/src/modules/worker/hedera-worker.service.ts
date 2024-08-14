@@ -1,4 +1,6 @@
 import {
+  BorrowerTransactionStatus,
+  BorrowerTransactionType,
   EventType,
   LenderTransactionStatus,
   OnchainStatus,
@@ -6,6 +8,7 @@ import {
 import {
   Bond,
   BondCheckout,
+  BorrowerTransaction,
   LatestBlock,
   LenderTransaction,
 } from "../../database/entities";
@@ -14,6 +17,7 @@ import { Logger } from "@nestjs/common";
 import axios from "axios";
 import { BigNumber, ethers } from "ethers";
 import abi from "../contract/BondIssuance.json";
+import { caculatePercentage } from "utils";
 
 export class HederaWorkerService {
   private logger = new Logger(HederaWorkerService.name);
@@ -84,7 +88,13 @@ export class HederaWorkerService {
       }
 
       const events = await this.getEventsFromMirror(
-        [EventType.BondCreated, EventType.LenderParticipated, EventType.LenderClaimed],
+        [
+          EventType.BondCreated,
+          EventType.LenderParticipated,
+          EventType.LenderClaimed,
+          EventType.BorrowerClaimLoanToken,
+          EventType.BondRepaid,
+        ],
         this.contractId,
         latestBlockInDb ? latestBlockInDb.blockNumber : toBlock,
         toBlock
@@ -115,6 +125,12 @@ export class HederaWorkerService {
         break;
       case EventType.LenderClaimed:
         await this.handleLenderClaimed(event, manager);
+        break;
+      case EventType.BorrowerClaimLoanToken:
+        await this.handleBorrowerClaimedLoan(event, manager);
+        break;
+      case EventType.BondRepaid:
+        await this.handleBondRepaid(event, manager);
         break;
       default:
         this.logger.debug(
@@ -242,8 +258,9 @@ export class HederaWorkerService {
     newLenderTransaction.bondId = BigNumber.from(bondId).toNumber();
     newLenderTransaction.lenderAddress = lender;
     newLenderTransaction.loanAmount = BigNumber.from(loanTokenAmount).toNumber();
-    newLenderTransaction.interestPayment = BigNumber.from(interestLoanTokenAmount).toNumber();
-    newLenderTransaction.receivedAmount = BigNumber.from(repaymentAmount).toNumber();
+    newLenderTransaction.interestPayment = BigNumber.from( interestLoanTokenAmount).toNumber();
+    newLenderTransaction.receivedAmount =
+      BigNumber.from(repaymentAmount).toNumber();
     newLenderTransaction.transactionHash = metaData?.transaction_hash;
     newLenderTransaction.status = LenderTransactionStatus.COMPLETED;
 
@@ -255,6 +272,95 @@ export class HederaWorkerService {
       .orUpdate(
         ["transaction_hash", "status"],
         ["transactionHash", "lenderAddress", "bondId"]
+      )
+      .execute();
+  }
+  async handleBorrowerClaimedLoan(
+    eventBorrowerClaimedPayload,
+    manager: EntityManager
+  ) {
+    const [bondId, borrower, loanToken, loanAmount] =
+      eventBorrowerClaimedPayload?.event?.args;
+
+    const metaData = eventBorrowerClaimedPayload?.meta;
+
+    const bond = await manager
+      .createQueryBuilder(Bond, "bond")
+      .where("bond.bond_id = :bondId", {
+        bondId: BigNumber.from(bondId).toNumber(),
+      })
+      .getOne();
+
+    const newBorrowerTransaction = new BorrowerTransaction();
+    newBorrowerTransaction.bondId = BigNumber.from(bondId).toNumber();
+    newBorrowerTransaction.borrowerAddress = borrower;
+    newBorrowerTransaction.loanAmount = BigNumber.from(loanAmount).toNumber();
+    newBorrowerTransaction.interestPayment = caculatePercentage(bond?.lenderInterestRate,BigNumber.from(loanAmount).toNumber() );
+    newBorrowerTransaction.paymentAmount = BigNumber.from(loanAmount).toNumber();
+    newBorrowerTransaction.transactionHash = metaData?.transaction_hash;
+    newBorrowerTransaction.status = BorrowerTransactionStatus.COMPLETED;
+    newBorrowerTransaction.transactionType = BorrowerTransactionType.LOAN_CLAIMED;
+
+    const claimedLoanAt = new Date();
+
+    await manager
+      .createQueryBuilder()
+      .update(Bond)
+      .set({ claimedLoanAt })
+      .where("bond.bond_id = :bondId", {
+        bondId: BigNumber.from(bondId).toNumber(),
+      })
+      .execute();
+
+    await manager
+      .createQueryBuilder()
+      .insert()
+      .into(BorrowerTransaction)
+      .values(newBorrowerTransaction)
+      .orUpdate(
+        ["transaction_hash", "status"],
+        ["transactionHash", "borrowerAddress", "bondId"]
+      )
+      .execute();
+  }
+
+  async handleBondRepaid(eventBondRepaidPayload, manager: EntityManager) {
+    const [
+      bondId,
+      borrower,
+      totalLend,
+      repaymentAmount,
+      interestPaid,
+      collateralReturnedAmount,
+    ] = eventBondRepaidPayload?.event?.args;
+    const metaData = eventBondRepaidPayload?.meta;
+    const newBorrowerTransaction = new BorrowerTransaction();
+    newBorrowerTransaction.bondId = BigNumber.from(bondId).toNumber();
+    newBorrowerTransaction.borrowerAddress = borrower;
+    newBorrowerTransaction.loanAmount = BigNumber.from(repaymentAmount).toNumber();
+    newBorrowerTransaction.interestPayment = BigNumber.from(interestPaid).toNumber();
+    newBorrowerTransaction.paymentAmount = BigNumber.from(totalLend).toNumber();
+    newBorrowerTransaction.transactionHash = metaData?.transaction_hash;
+    newBorrowerTransaction.collateralAmount = BigNumber.from(collateralReturnedAmount).toNumber();
+    newBorrowerTransaction.status = BorrowerTransactionStatus.COMPLETED;
+    newBorrowerTransaction.transactionType = BorrowerTransactionType.LOAN_REPAYMENT;
+
+    const repaidAt = new Date();
+    await manager.createQueryBuilder()
+    .update(Bond)
+    .set({ repaidAt })
+    .where("bond.bond_id = :bondId", {
+      bondId: BigNumber.from(bondId).toNumber(),
+    })
+    .execute();
+    await manager
+      .createQueryBuilder()
+      .insert()
+      .into(BorrowerTransaction)
+      .values(newBorrowerTransaction)
+      .orUpdate(
+        ["transaction_hash", "status"],
+        ["transactionHash", "borrowerAddress", "bondId"]
       )
       .execute();
   }

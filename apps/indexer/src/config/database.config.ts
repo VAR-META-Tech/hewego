@@ -6,6 +6,7 @@ import {
   User,
   Token,
   LenderTransaction,
+  BorrowerTransaction,
 } from "../database/entities";
 
 export const databaseConfig: DataSourceOptions = {
@@ -15,7 +16,15 @@ export const databaseConfig: DataSourceOptions = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [Bond, LatestBlock, BondCheckout, User, Token, LenderTransaction],
+  entities: [
+    Bond,
+    LatestBlock,
+    BondCheckout,
+    User,
+    Token,
+    LenderTransaction,
+    BorrowerTransaction,
+  ],
   synchronize: process.env.DB_SYNCHRONIZE === "true",
   logging: true,
 };
