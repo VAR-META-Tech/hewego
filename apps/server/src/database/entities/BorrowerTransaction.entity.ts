@@ -55,6 +55,14 @@ export class BorrowerTransaction {
     nullable: true,
   })
   transactionHash: string;
+  
+  @Column({
+    type: "varchar",
+    name: "status",
+    length: 100,
+    nullable: true
+  })
+  status: string;
 
   @Column({ name: 'bond_id', type: 'int', nullable: true })
   bondId: number;
