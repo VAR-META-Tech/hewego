@@ -301,6 +301,7 @@ export class HederaWorkerService {
     newBorrowerTransaction.loanAmount = BigNumber.from(loanAmount).toNumber();
     newBorrowerTransaction.interestPayment = caculatePercentage(bond?.lenderInterestRate,BigNumber.from(loanAmount).toNumber() );
     newBorrowerTransaction.paymentAmount = BigNumber.from(loanAmount).toNumber();
+    newBorrowerTransaction.collateralAmount  = bond.collateralAmount;
     newBorrowerTransaction.transactionHash = metaData?.transaction_hash;
     newBorrowerTransaction.status = BorrowerTransactionStatus.COMPLETED;
     newBorrowerTransaction.transactionType = BorrowerTransactionType.LOAN_CLAIMED;
