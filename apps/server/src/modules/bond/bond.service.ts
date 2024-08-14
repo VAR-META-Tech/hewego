@@ -169,7 +169,6 @@ export class BondService {
     params: FindManyRequestBondsParamsDto,
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     try {
-      // const walletAddressUpperCase = toUpperCaseHex(user.walletAddress);
       const currentTimestamp = Math.floor(Date.now() / 1000);
       const gracePeriodInSeconds = 3 * 24 * 60 * 60; // 3 days in seconds
 
@@ -187,6 +186,7 @@ export class BondService {
         )
         .select([
           'bonds.name as name',
+          'bonds.bond_id as bondId',
           'bonds.loanTerm as loanTerm',
           'bonds.loanAmount as loanAmount',
           'bonds.loanToken as loanToken',
