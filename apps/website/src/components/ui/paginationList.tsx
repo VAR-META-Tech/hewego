@@ -21,7 +21,7 @@ type Props = {
   className?: string;
 };
 
-const Pagination = (props: Props) => {
+const PaginationList = (props: Props) => {
   const { onPageChange, totalCount, siblingCount = 1, currentPage, pageSize } = props;
 
   const paginationRange = usePagination({
@@ -51,9 +51,7 @@ const Pagination = (props: Props) => {
   return (
     <PaginationContent>
       <PaginationContent>
-        <PaginationItem onClick={disablePrev ? undefined : onPrevious}>
-          <PaginationPrevious disabled={disablePrev} />
-        </PaginationItem>
+        <PaginationPrevious onClick={disablePrev ? undefined : onPrevious} disabled={disablePrev} />
 
         {paginationRange.map((pageNumber, i) => {
           if (pageNumber === DOTS) {
@@ -65,20 +63,24 @@ const Pagination = (props: Props) => {
           }
 
           return (
-            <PaginationItem onClick={() => onPageChange(pageNumber as number)} key={pageNumber}>
-              <Button size="md" className={cn('aspect-square h-10 rounded-md p-0')}>
-                {pageNumber}
-              </Button>
-            </PaginationItem>
+            <Button
+              variant={pageNumber === currentPage ? 'bordered' : 'light'}
+              onClick={() => onPageChange(Number(pageNumber))}
+              key={pageNumber}
+              size="md"
+              className={cn('min-w-10 h-10 rounded-full p-0', {
+                'border-primary-500 text-primary-500': pageNumber === currentPage,
+              })}
+            >
+              {pageNumber}
+            </Button>
           );
         })}
 
-        <PaginationItem onClick={disabledNext ? undefined : onNext}>
-          <PaginationNext disabled={disabledNext} />
-        </PaginationItem>
+        <PaginationNext onClick={disabledNext ? undefined : onNext} disabled={disabledNext} />
       </PaginationContent>
     </PaginationContent>
   );
 };
 
-export default Pagination;
+export default PaginationList;

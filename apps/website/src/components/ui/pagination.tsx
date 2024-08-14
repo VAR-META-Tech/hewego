@@ -46,14 +46,14 @@ PaginationItem.displayName = 'PaginationItem';
 // PaginationLink.displayName = 'PaginationLink';
 
 const PaginationPrevious = ({ className, ...props }: React.ComponentProps<typeof Button>) => (
-  <Button size="md" className={cn('aspect-square h-10 rounded-md p-0', className)} {...props}>
+  <Button size="md" variant="light" className={cn('aspect-square h-10 rounded-md p-0', className)} {...props}>
     <ChevronLeft className="h-4 w-4" />
   </Button>
 );
 PaginationPrevious.displayName = 'PaginationPrevious';
 
 const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof Button>) => (
-  <Button size="md" className={cn('aspect-square h-10 rounded-md p-0', className)} {...props}>
+  <Button size="md" variant="light" className={cn('aspect-square h-10 rounded-md p-0', className)} {...props}>
     <ChevronRight className="h-4 w-4" />
   </Button>
 );

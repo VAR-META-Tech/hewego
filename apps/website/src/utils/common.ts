@@ -47,7 +47,7 @@ export const prettyNumber = (number: number | string, digits = 3, separator = ',
 
 export const roundNumber = (
   number: string | number,
-  round = 8,
+  round = 2,
   roundMode: RoundingModes = bigDecimal.RoundingModes.DOWN
 ) => bigDecimal.round(number, round, roundMode);
 
@@ -267,4 +267,8 @@ export const getBalance = async (tokenId: string, accountId: string) => {
   }
 
   return 0;
+};
+
+export const currentNo = (no: number, page: number, limit: number) => {
+  return no + 1 + (Number(page) - 1) * Number(limit);
 };

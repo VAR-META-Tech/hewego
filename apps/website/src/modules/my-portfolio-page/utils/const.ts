@@ -9,7 +9,7 @@ export const TAB_DATA = [
     value: TAB_VALUE.BOND_MANAGEMENT,
   },
   {
-    label: 'History',
+    label: 'Transaction History',
     value: TAB_VALUE.HISTORY,
   },
 ];
@@ -27,6 +27,15 @@ export const HEADER_COLUMNS_BOND_REQUESTS = [
   { key: 'action', label: 'Action' },
 ];
 
+export const HEADER_COLUMNS_BOND_HOLDINGS = [
+  { key: 'no', label: 'No' },
+  { key: 'maturityDate', label: 'Maturity' },
+  { key: 'name', label: 'Bond Name' },
+  { key: 'bondAmount', label: 'Quantity' },
+  { key: 'purchasedAmount', label: 'Total Value' },
+  { key: 'receivedAmount', label: 'Total Received Amount ' },
+  { key: 'action', label: 'Action' },
+];
 export const MOCK_DATA_BOND_REQUESTS = [
   {
     requestId: '001',
@@ -107,3 +116,8 @@ export const BOND_MANAGEMENT_TAB_DATA = [
 ];
 
 export const GET_BOND_REQUEST_LIMIT = 5;
+
+export const HOLDING_BOND_STATUS_BUTTON = {
+  DISABLE_CLAIM: 'DISABLE_CLAIM',
+  ENABLE_CLAIM: 'ENABLE_CLAIM',
+};

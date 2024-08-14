@@ -21,7 +21,7 @@ const BondRequestFilter: React.FC<Props> = ({ isOpenFilter, setIsOpenFilter }) =
     <VStack spacing={20}>
       <HStack pos={'apart'} spacing={20}>
         <VStack>
-          <span className="text-2xl font-bold">My Bond Requests</span>
+          <span className="text-3xl font-bold">My Bond Requests</span>
           <span>
             <span className="underline">Note:</span> Confirmed requests will be opened for the lender to supply.
           </span>

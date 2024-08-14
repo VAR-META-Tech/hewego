@@ -8,17 +8,19 @@ import TransitionLayout from '@/components/TransitionLayout';
 import BondManagement from './components/BondManagement';
 import { TAB_DATA, TAB_VALUE } from './utils/const';
 
-const TabContent = React.memo(({ tab }: { tab: string }) => {
-  return (
-    <>
-      {tab === TAB_VALUE.BOND_MANAGEMENT && (
-        <TransitionLayout>
-          <BondManagement />
-        </TransitionLayout>
-      )}
-    </>
-  );
-});
+const TabContent = React.memo(
+  ({ tab, setTab }: { tab: string; setTab: React.Dispatch<React.SetStateAction<string>> }) => {
+    return (
+      <>
+        {tab === TAB_VALUE.BOND_MANAGEMENT && (
+          <TransitionLayout>
+            <BondManagement setTab={setTab} />
+          </TransitionLayout>
+        )}
+      </>
+    );
+  }
+);
 
 TabContent.displayName = 'TabContent';
 
@@ -32,14 +34,14 @@ const MyPortfolioPage = () => {
 
   return (
     <AuthLayout>
-      <div className="py-20 space-y-12">
+      <div className="py-20 space-y-12 overflow-hidden">
         <div className="container">
           <Back title="My Portfolio" />
 
           <div className="w-full md:w-3/5 mx-auto">{memoizedTabs}</div>
         </div>
 
-        <TabContent tab={tab} />
+        <TabContent tab={tab} setTab={setTab} />
       </div>
     </AuthLayout>
   );
