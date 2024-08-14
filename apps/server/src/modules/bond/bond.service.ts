@@ -273,7 +273,7 @@ export class BondService {
         const statusCase = `
           CASE
             WHEN bonds.claimedLoanAt IS NOT NULL AND bonds.repaidAt IS NULL AND bonds.maturityDate <= ${currentTimestamp} AND bonds.maturityDate + ${gracePeriodInSeconds} >= ${currentTimestamp} THEN '${RequestBondAction.REPAY}'
-            WHEN bonds.claimedLoanAt IS NULL AND bonds.repaidAt IS NULL THEN '${BondStatusEnum.CLAIM}'
+            WHEN bonds.claimedLoanAt IS NULL AND bonds.repaidAt IS NULL THEN '${RequestBondAction.CLAIM}'
             WHEN bonds.repaidAt IS NULL THEN '${RequestBondAction.REPAY}'
             ELSE '${RequestBondAction.CLOSED}'
           END
