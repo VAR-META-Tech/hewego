@@ -37,6 +37,7 @@ import {
   ArrowLeft,
   Calendar,
   Camera,
+  Check,
   CheckCircle,
   ChevronDown,
   ChevronLeft,
@@ -119,6 +120,7 @@ const IconList = {
   calendar: Calendar,
   moveRight: MoveRight,
   listFilter: ListFilter,
+  check: Check,
 };
 
 export const Icons = IconList as Record<keyof typeof IconList, Icon>;

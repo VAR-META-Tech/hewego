@@ -18,6 +18,12 @@ export interface IGetBorrowRequestParams {
   status: string;
   page?: string;
   limit?: string;
+  bondDuration?: string;
+  issuanceStartDate?: string;
+  issuanceEndDate?: string;
+  maturityStartDate?: string;
+  maturityEndDate?: string;
+  name?: string;
 }
 
 export interface IGetBorrowRequestResponse {
@@ -27,27 +33,28 @@ export interface IGetBorrowRequestResponse {
 
 export interface IGetBorrowRequestData {
   name: string;
-  loanterm: number;
-  loanamount: string;
-  loantoken: string;
-  collateralamount: string;
-  collateraltoken: string;
-  volumebond: string;
-  interestrate: string;
-  issuancedate: string;
-  maturitydate: string;
-  borroweraddress: string;
-  createdat: string;
-  updatedat: string;
-  totalsold: number;
+  bondId: number;
+  loanTerm: number;
+  loanAmount: string;
+  loanToken: string;
+  collateralAmount: string;
+  collateralToken: string;
+  volumeBond: string;
+  interestRate: string;
+  issuanceDate: string;
+  maturityDate: string;
+  borrowerAddress: string;
+  createdAt: string;
+  updatedAt: string;
+  totalSold: number;
   loanTokenType: string;
   collateralTokenType: string;
-  status: string;
-  canceledat: string | null;
-  repaidat: string | null;
-  claimedloanat: string | null;
-  liquidatedat: string | null;
-  graceperiodendsat: string | null;
+  canceledAt: string | null;
+  repaidAt: string | null;
+  claimedLoanAt: string | null;
+  liquidatedAt: string | null;
+  gracePeriodEndsAt: string | null;
+  action?: string;
 }
 
 export interface IGetBondHoldingsParams {
@@ -93,4 +100,11 @@ export interface IGetBondHoldingsSummaryData {
   totalCapitalAndInterestRecieved: string;
   totalAmountBondPurchased: string;
   totalBondPurchased: number;
+}
+
+export interface IGetTransactionHistoryParams {
+  page?: string;
+  limit?: string;
+  supplies: string;
+  searchTransactionHash?: string;
 }

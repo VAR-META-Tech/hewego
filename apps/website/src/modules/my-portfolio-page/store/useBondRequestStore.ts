@@ -1,20 +1,23 @@
 import { createSelectorFunctions } from 'auto-zustand-selectors-hook';
 import { create } from 'zustand';
 
+interface IDateRange {
+  start: string | Date | undefined;
+  end: string | Date | undefined;
+}
+
 export type IBondRequestStore = {
-  isOpen: boolean;
-  isAbleClose: boolean;
-  onOpen: () => void;
-  onOpenChange: () => void;
-  setIsAbleClose: (isAbleClose: boolean) => void;
+  pendingIssuanceDateRange: IDateRange;
+  setPendingIssuanceDateRange: (dateRange: IDateRange) => void;
+  activeMaturityDateRange: IDateRange;
+  setActiveMaturityDateRange: (dateRange: IDateRange) => void;
 };
 
 const useBaseBondRequestStore = create<IBondRequestStore>((set) => ({
-  isOpen: false,
-  isAbleClose: true,
-  onOpen: () => set({ isOpen: true }),
-  onOpenChange: () => set({ isOpen: false }),
-  setIsAbleClose: (isAbleClose: boolean) => set({ isAbleClose }),
+  pendingIssuanceDateRange: { start: undefined, end: undefined },
+  setPendingIssuanceDateRange: (dateRange) => set({ pendingIssuanceDateRange: dateRange }),
+  activeMaturityDateRange: { start: undefined, end: undefined },
+  setActiveMaturityDateRange: (dateRange) => set({ activeMaturityDateRange: dateRange }),
 }));
 
 export const useBondRequestStore = createSelectorFunctions(useBaseBondRequestStore);

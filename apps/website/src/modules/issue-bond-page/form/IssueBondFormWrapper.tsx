@@ -87,7 +87,7 @@ const IssueBondFormWrapper: FCC = ({ children }) => {
 
   React.useEffect(() => {
     if (!priceFeedData) return;
-    console.log(String(prettyNumber(formatUnits(BigInt(priceFeedData?.data?.collateralPrice || 0), TOKEN_UNIT))));
+
     form.setValue(
       'minimumCollateralAmount',
       String(formatUnits(BigInt(priceFeedData?.data?.collateralPrice || 0), TOKEN_UNIT))

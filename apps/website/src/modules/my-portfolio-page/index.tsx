@@ -6,6 +6,7 @@ import AuthLayout from '@/components/layouts/AuthLayout';
 import TransitionLayout from '@/components/TransitionLayout';
 
 import BondManagement from './components/BondManagement';
+import TransactionHistory from './components/TransactionHistory';
 import { TAB_DATA, TAB_VALUE } from './utils/const';
 
 const TabContent = React.memo(
@@ -15,6 +16,12 @@ const TabContent = React.memo(
         {tab === TAB_VALUE.BOND_MANAGEMENT && (
           <TransitionLayout>
             <BondManagement setTab={setTab} />
+          </TransitionLayout>
+        )}
+
+        {tab === TAB_VALUE.HISTORY && (
+          <TransitionLayout>
+            <TransactionHistory />
           </TransitionLayout>
         )}
       </>
