@@ -13,7 +13,11 @@ import { ActiveBondItemResponseDto } from './dto/activeBondItemResponse.dto';
 import { FindManyRequestBondsParamsDto } from './dto/findManyRequestBondParams.dto';
 import { RequestBondItemResponseDto } from './dto/requestBondItemResponse.dto';
 import { BorrowBondRequestSummaryDto } from './dto/borrowBondRequestSummary.dto';
-import { BondStatusEnum, HoldingBondStatus, RequestBondAction } from 'shared/enum';
+import {
+  BondStatusEnum,
+  HoldingBondStatus,
+  RequestBondAction,
+} from 'shared/enum';
 import { FindManyHoldingBondParamsDto } from './dto/findManyHoldingBond.params.dto';
 import { HoldingBondItemResponseDto } from './dto/holdingBondItemResponse.dto';
 import { HoldingBondSummaryItemResponseDto } from './dto/holdingBondSummaryItemResponse.dto';
@@ -270,7 +274,7 @@ export class BondService {
             );
           }),
         );
-        const statusCase = `
+        const actionCase = `
           CASE
             WHEN bonds.claimedLoanAt IS NOT NULL AND bonds.repaidAt IS NULL AND bonds.maturityDate <= ${currentTimestamp} AND bonds.maturityDate + ${gracePeriodInSeconds} >= ${currentTimestamp} THEN '${RequestBondAction.REPAY}'
             WHEN bonds.claimedLoanAt IS NULL AND bonds.repaidAt IS NULL THEN '${RequestBondAction.CLAIM}'
@@ -279,7 +283,7 @@ export class BondService {
           END
         `;
 
-        queryBuilder.addSelect(statusCase, 'status');
+        queryBuilder.addSelect(actionCase, 'action');
       }
 
       const totalRequestBonds = await queryBuilder.getCount();
