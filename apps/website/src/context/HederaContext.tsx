@@ -1,4 +1,5 @@
 import React from 'react';
+import { ILoginResponse } from '@/api/auth/type';
 import { FCC } from '@/types';
 import { COOKIES_KEY } from '@/utils/constants';
 import { HashConnect } from 'hashconnect';
@@ -20,6 +21,7 @@ interface HederaWalletsContextType {
   // clearConnectedBladeWalletData: () => void;
   isConnected: boolean;
   accountId: string;
+  loginData: ILoginResponse | undefined;
   handleDisconnect: () => void;
   onConnectHaskPack: () => void;
   onConnectBladeWallet: () => void;
@@ -37,6 +39,7 @@ const HEDERA_CONTEXT: HederaWalletsContextType = {
   // clearConnectedBladeWalletData: () => undefined,
   isConnected: false,
   accountId: '',
+  loginData: undefined,
   handleDisconnect: () => undefined,
   onConnectHaskPack: () => undefined,
   onConnectBladeWallet: () => undefined,
@@ -47,7 +50,8 @@ export const HederaWalletsContext = React.createContext(HEDERA_CONTEXT);
 export const HederaWalletProvider: FCC = ({ children }) => {
   // const { bladeSigner, bladeAccountId, connectBladeWallet, clearConnectedBladeWalletData } = useBladeWallet();
 
-  const { hashConnect, hashConnectState, connectToHashPack, disconnectFromHashPack, isIframeParent } = useHashPack();
+  const { hashConnect, hashConnectState, connectToHashPack, disconnectFromHashPack, isIframeParent, loginData } =
+    useHashPack();
 
   const accountId = React.useMemo(() => {
     if (hashConnectState?.pairingData?.accountIds?.length) {
@@ -117,6 +121,7 @@ export const HederaWalletProvider: FCC = ({ children }) => {
         handleDisconnect,
         onConnectHaskPack,
         onConnectBladeWallet,
+        loginData,
       }}
     >
       {children}

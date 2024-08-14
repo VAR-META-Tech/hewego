@@ -58,7 +58,7 @@ export const AMOUNT_PREVENT_KEYS = [...NUMBER_PREVENT_KEYS, '.'];
 
 export const TOKEN_UNIT = 8;
 
-export const PLATFORM_FEE = 0.5;
+export const PLATFORM_FEE = 5;
 
 export const CONTRACT_ID = process.env.NEXT_PUBLIC_CONTRACT_ID || '0.0.4673119';
 export const COLLATERAL_CONTRACT_ID = process.env.NEXT_PUBLIC_COLLATERAL_CONTRACT_ID || '0.0.4673010';

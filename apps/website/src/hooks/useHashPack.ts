@@ -23,7 +23,7 @@ const useHashPack = () => {
 
   const { isIframeParent } = useHashConnectEvents(hashConnect, setHashConnectState);
 
-  const { mutate: login } = useLoginMutation({
+  const { mutate: login, data: loginData } = useLoginMutation({
     onSuccess: ({ data }) => {
       setCookies(COOKIES_KEY.ACCESS_TOKEN, data?.tokens?.accessToken);
       setCookies(COOKIES_KEY.REFRESH_TOKEN, data?.tokens?.refreshToken);
@@ -101,6 +101,7 @@ const useHashPack = () => {
     connectToHashPack,
     disconnectFromHashPack,
     isIframeParent,
+    loginData,
   };
 };
 
