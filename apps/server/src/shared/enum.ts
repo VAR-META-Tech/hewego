@@ -21,7 +21,6 @@ export enum BondStatusEnum {
   REPAID = 'REPAID',
   AUTOMATED_LIQUIDATION = 'AUTOMATED_LIQUIDATION',
   CANCELED = 'CANCELED',
-  CLAIM = 'CLAIM',
 }
 export enum TokenSymbolEnum {
   USDC = 'USDC',
