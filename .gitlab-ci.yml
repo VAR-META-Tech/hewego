@@ -2,9 +2,29 @@ include:
   - project: foundation/templates/ci-template
     file: update-manifest.yml
 
-#####
-## Stage: deploy
-####
+stages:
+  - dockerize
+  - deploy
+
+##### Dockerize template
+.dockerize_template: &dockerize
+  stage: dockerize
+  image: $KANIKO_RUNNER_IMAGE
+  script:
+    - sh ./scripts/dockerize.sh
+  tags:
+    - vm-docker
+  allow_failure: false
+  when: on_success
+
+dockerize:be:
+  <<: *dockerize
+  variables:
+    REGISTRY: $REGISTRY_BE
+    DOCKERFILE_DIR: apps/server
+  only: # update this for staging
+    - dev
+
 deploy-vm:
   stage: deploy
   tags:
@@ -13,7 +33,4 @@ deploy-vm:
     - sh ./scripts/deploy.sh
   only:
     - dev
-  when: manual
-  needs: 
-    - job: dockerize:dev
-      artifacts: true
+  when: on_success
