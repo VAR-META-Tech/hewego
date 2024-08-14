@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   HttpException,
   Injectable,
@@ -6,15 +5,9 @@ import {
 } from '@nestjs/common';
 import { FindManyActiveBondsParams } from './dto/findManyActiveBondParams.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import {
-  Bond,
-  BondCheckout,
-  LenderTransaction,
-  Token,
-  User,
-} from 'database/entities';
+import { Bond, BondCheckout, LenderTransaction, User } from 'database/entities';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { getArrayPaginationBuildTotal, getOffset } from 'utils/pagination';
 import { ActiveBondItemResponseDto } from './dto/activeBondItemResponse.dto';
 import { FindManyRequestBondsParamsDto } from './dto/findManyRequestBondParams.dto';
@@ -169,7 +162,9 @@ export class BondService {
     params: FindManyRequestBondsParamsDto,
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     try {
+      console.log({ user });
       const currentTimestamp = Math.floor(Date.now() / 1000);
+      console.log({ currentTimestamp });
       const gracePeriodInSeconds = 3 * 24 * 60 * 60; // 3 days in seconds
 
       const queryBuilder = this.bondRepository
@@ -185,24 +180,24 @@ export class BondService {
           'bonds.collateralToken = collateralToken.address',
         )
         .select([
-          'bonds.name as name',
-          'bonds.bond_id as bondId',
-          'bonds.loanTerm as loanTerm',
-          'bonds.loanAmount as loanAmount',
-          'bonds.loanToken as loanToken',
-          'bonds.collateralAmount as collateralAmount',
-          'bonds.collateralToken as collateralToken',
-          'bonds.volumeBond as volumeBond',
-          'bonds.lenderInterestRate as interestRate',
-          'bonds.issuanceDate as issuanceDate',
-          'bonds.maturityDate as maturityDate',
-          'bonds.borrowerAddress as borrowerAddress',
-          'bonds.createdAt as createdAt',
-          'bonds.updatedAt as updatedAt',
-          'bonds.totalSold as totalSold',
+          'bonds.name as "name"',
+          'bonds.bond_id as "bondId"',
+          'bonds.loanTerm as "loanTerm"',
+          'bonds.loanAmount as "loanAmount"',
+          'bonds.loanToken as "loanToken"',
+          'bonds.collateralAmount as "collateralAmount"',
+          'bonds.collateralToken as "collateralToken"',
+          'bonds.volumeBond as "volumeBond"',
+          'bonds.lenderInterestRate as "interestRate"',
+          'bonds.issuanceDate as "issuanceDate"',
+          'bonds.maturityDate as "maturityDate"',
+          'bonds.borrowerAddress as "borrowerAddress"',
+          'bonds.createdAt as "createdAt"',
+          'bonds.updatedAt as "updatedAt"',
+          'bonds.totalSold as "totalSold"',
           'loanToken.symbol AS "loanTokenType"',
           'collateralToken.symbol AS "collateralTokenType"',
-          `'${params.status}' as status`,
+          // `'${params.status}' as status`,
           'bonds.canceledAt as "canceledAt"',
           'bonds.repaidAt as "repaidAt"',
           'bonds.claimedLoanAt AS "claimedLoanAt"',
@@ -254,24 +249,90 @@ export class BondService {
         });
       }
 
-      const statusConditions: any = {
-        [BondStatusEnum.PENDING_ISSUANCE]:
-          'bonds.issuanceDate > :currentTimestamp',
-        [BondStatusEnum.ACTIVE]:
-          'bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp',
-        [BondStatusEnum.GRACE_PERIOD]:
-          'bonds.repaidAt IS NULL AND bonds.maturityDate <= :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp',
-        [BondStatusEnum.REPAID]: 'bonds.repaidAt IS NOT NULL',
-        [BondStatusEnum.AUTOMATED_LIQUIDATION]:
-          'bonds.liquidatedAt IS NOT NULL',
-      };
+      if (params?.status === BondStatusEnum.PENDING_ISSUANCE) {
+        queryBuilder.andWhere('bonds.issuanceDate > :currentTimestamp', {
+          currentTimestamp,
+        });
+      }
 
-      const statusCondition = statusConditions[params.status];
-      queryBuilder.andWhere(statusCondition, {
-        currentTimestamp,
-        status: params.status,
-        gracePeriodInSeconds,
-      });
+      if (params?.status === BondStatusEnum.ACTIVE) {
+        queryBuilder.andWhere(
+          new Brackets((qb) => {
+            qb.where(
+              'bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp',
+              {
+                currentTimestamp,
+              },
+            ).orWhere(
+              'bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp',
+              {
+                currentTimestamp,
+                gracePeriodInSeconds,
+              },
+            );
+          }),
+        );
+        // const activeConditions = [
+        //   'bonds.issuanceDate <= :currentTimestamp',
+        //   'bonds.maturityDate > :currentTimestamp',
+        // ];
+
+        // queryBuilder.andWhere(activeConditions.join(' AND '), {
+        //   currentTimestamp,
+        // });
+
+        const statusCase = `
+          CASE
+            WHEN bonds.repaidAt IS NULL AND bonds.maturityDate <= ${currentTimestamp} AND bonds.maturityDate + ${gracePeriodInSeconds} >= ${currentTimestamp} THEN '${BondStatusEnum.GRACE_PERIOD}'
+            WHEN bonds.claimedLoanAt IS NULL AND bonds.repaidAt IS NULL THEN '${BondStatusEnum.CLAIM}'
+            WHEN bonds.repaidAt IS NOT NULL THEN '${BondStatusEnum.REPAID}'
+            WHEN bonds.liquidatedAt IS NOT NULL THEN '${BondStatusEnum.AUTOMATED_LIQUIDATION}'
+            ELSE '${BondStatusEnum.CLOSED}'
+          END
+        `;
+
+        queryBuilder.addSelect(statusCase, 'status');
+      }
+
+      // if (params?.status === BondStatusEnum.ACTIVE) {
+      //   queryBuilder.andWhere(
+      //     'bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp',
+      //     {
+      //       currentTimestamp,
+      //     },
+      //   );
+      //   queryBuilder.addSelect(
+      //     `
+      //     CASE
+      //       WHEN bonds.repaidAt IS NULL AND bonds.maturityDate <= ${currentTimestamp} AND bonds.maturityDate + ${gracePeriodInSeconds} >= ${currentTimestamp} THEN ${BondStatusEnum.GRACE_PERIOD}
+      //       WHEN bonds.claimedLoanAt IS NULL AND bonds.repaidAt IS NULL THEN ${BondStatusEnum.CLAIM}
+      //       WHEN bonds.repaidAt IS NOT NULL THEN ${BondStatusEnum.REPAID}
+      //       WHEN bonds.liquidatedAt IS NOT NULL THEN ${BondStatusEnum.AUTOMATED_LIQUIDATION}
+      //       ELSE ${BondStatusEnum.ACTIVE}
+      //     END
+      //      `,
+      //     'status',
+      //   );
+      // }
+
+      // const statusConditions: Record<string, string> = {
+      //   [BondStatusEnum.PENDING_ISSUANCE]:
+      //     'bonds.issuanceDate > :currentTimestamp',
+      //   [BondStatusEnum.ACTIVE]:
+      //     'bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp',
+      //   // [BondStatusEnum.GRACE_PERIOD]:
+      //   //   'bonds.repaidAt IS NULL AND bonds.maturityDate <= :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp',
+      //   // [BondStatusEnum.REPAID]: 'bonds.repaidAt IS NOT NULL',
+      //   // [BondStatusEnum.AUTOMATED_LIQUIDATION]:
+      //   //   'bonds.liquidatedAt IS NOT NULL',
+      // };
+
+      // const statusCondition = statusConditions[params.status];
+      // queryBuilder.andWhere(statusCondition, {
+      //   currentTimestamp,
+      //   status: params.status,
+      //   gracePeriodInSeconds,
+      // });
 
       const totalRequestBonds = await queryBuilder.getCount();
 
