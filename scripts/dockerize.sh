@@ -12,6 +12,6 @@ cp $REGISTRY_AUTH /kaniko/.docker/config.json
 
 #use kaniko to build image
 /kaniko/executor  \
-    --context $CI_PROJECT_DIR   \
+    --context $CI_PROJECT_DIR/$DOCKERFILE_DIR   \
     --dockerfile $CI_PROJECT_DIR/$DOCKERFILE_DIR/Dockerfile    \
     --destination $REGISTRY:$CI_COMMIT_SHORT_SHA    
