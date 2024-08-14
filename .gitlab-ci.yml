@@ -1,0 +1,23 @@
+include:
+  - project: foundation/templates/ci-template
+    file: backend-ci.yml
+    inputs:
+      branch: dev
+  - project: foundation/templates/ci-template
+    file: update-manifest.yml
+
+#####
+## Stage: deploy
+####
+deploy-vm:
+  stage: deploy
+  tags:
+    - vm
+  script: 
+    - sh ./scripts/deploy.sh
+  only:
+    - dev
+  when: manual
+  needs: 
+    - job: dockerize:dev
+      artifacts: true
