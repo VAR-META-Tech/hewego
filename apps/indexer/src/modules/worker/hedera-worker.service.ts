@@ -49,6 +49,7 @@ export class HederaWorkerService {
           await this.delay(500); // 0.5 seconds, to avoid too many requests
         }
       } catch (e) {
+        console.log({e})
         this.logger.error(e.message);
       }
     } while (true);
@@ -99,9 +100,12 @@ export class HederaWorkerService {
         latestBlockInDb ? latestBlockInDb.blockNumber : toBlock,
         toBlock
       );
-      await Promise.all(
-        events.map((eventItem) => this.handleEvents(eventItem, manager))
-      );
+      // await Promise.all(
+      //   events.map((eventItem) => this.handleEvents(eventItem, manager))
+      // );
+      for(const eventItem of events) {
+        await this.handleEvents(eventItem, manager);
+      }
 
       if (latestBlockInDb && events?.length > 0) {
         latestBlockInDb.blockNumber = Math.floor(toBlock);
@@ -319,7 +323,7 @@ export class HederaWorkerService {
       .values(newBorrowerTransaction)
       .orUpdate(
         ["transaction_hash", "status"],
-        ["transactionHash", "borrowerAddress", "bondId"]
+        ["transaction_hash", "borrower_address", "bond_id"]
       )
       .execute();
   }
