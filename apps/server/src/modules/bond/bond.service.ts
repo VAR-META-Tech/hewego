@@ -21,7 +21,6 @@ import { FindManyRequestBondsParamsDto } from './dto/findManyRequestBondParams.d
 import { RequestBondItemResponseDto } from './dto/requestBondItemResponse.dto';
 import { BorrowBondRequestSummaryDto } from './dto/borrowBondRequestSummary.dto';
 import { BondStatusEnum, HoldingBondStatus } from 'shared/enum';
-import { toUpperCaseHex } from 'utils';
 import { FindManyHoldingBondParamsDto } from './dto/findManyHoldingBond.params.dto';
 import { HoldingBondItemResponseDto } from './dto/holdingBondItemResponse.dto';
 import { HoldingBondSummaryItemResponseDto } from './dto/holdingBondSummaryItemResponse.dto';
@@ -151,14 +150,7 @@ export class BondService {
           'loanToken.symbol AS "loanTokenType"',
           'collateralToken.symbol AS "collateralTokenType"',
         ])
-        // .leftJoin(
-        //   BondCheckout,
-        //   'bondCheckout',
-        //   'bondCheckout.bond_id = bond.bond_id',
-        // )
         .where('bond.bond_id = :id', { id })
-        // .groupBy('bond.bond_id')
-        // .addGroupBy('bond.contract_address')
         .getRawOne();
 
       return {
@@ -307,7 +299,6 @@ export class BondService {
     user: User,
   ): Promise<BorrowBondRequestSummaryDto> {
     try {
-      // const walletAddressUpperCase = toUpperCaseHex(user.walletAddress);
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
         .select([

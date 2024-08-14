@@ -21,6 +21,7 @@ export enum BondStatusEnum {
   REPAID = 'REPAID',
   AUTOMATED_LIQUIDATION = 'AUTOMATED_LIQUIDATION',
   CANCELED = 'CANCELED',
+  CLAIM = 'CLAIM',
 }
 export enum TokenSymbolEnum {
   USDC = 'USDC',
@@ -41,4 +42,12 @@ export enum LenderTransactionType {
 }
 export enum LenderTransactionStatus {
   COMPLETED = 'COMPLETED',
+}
+
+export enum BorrowerTransactionType {
+  LOAN_CLAIMED = 'LOAN_CLAIMED',
+  COLLATERAL_DEPOSITED = 'COLLATERAL_DEPOSITED',
+  LOAN_REPAYMENT = 'LOAN_REPAYMENT',
+  COLLATERAL_WITHDRAWN = 'COLLATERAL_WITHDRAWN',
+  REFUND_COLLATERAL = 'REFUND_COLLATERAL',
 }
