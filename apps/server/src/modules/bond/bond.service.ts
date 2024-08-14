@@ -307,7 +307,7 @@ export class BondService {
     user: User,
   ): Promise<BorrowBondRequestSummaryDto> {
     try {
-      const walletAddressUpperCase = toUpperCaseHex(user.walletAddress);
+      // const walletAddressUpperCase = toUpperCaseHex(user.walletAddress);
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
         .select([
