@@ -4,13 +4,21 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Bond, LenderTransaction, Token, User } from 'database/entities';
+import {
+  Bond,
+  BorrowerTransaction,
+  LenderTransaction,
+  Token,
+  User,
+} from 'database/entities';
 import { Repository } from 'typeorm';
 import { FindManyLenderTransactionParamsDto } from './dto/findManyLenderTransactionParams.dto';
 import { TokenTypeEnum } from 'shared/enum';
 import { getArrayPaginationBuildTotal, getOffset } from 'utils/pagination';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { LenderTransactionItemResponseDto } from './dto/lenderTransactionItemResponse.dto';
+import { BorrowerTransactionItemResponseDto } from './dto/borrowerTransactionItemResponse.dto';
+import { FindManyBorrowerTransactionParams } from './dto/findManyBorrowerTransactionParams.dto';
 
 @Injectable()
 export class TransactionService {
@@ -19,6 +27,8 @@ export class TransactionService {
     private bondRepository: Repository<Bond>,
     @InjectRepository(LenderTransaction)
     private lenderTransactionRepository: Repository<LenderTransaction>,
+    @InjectRepository(BorrowerTransaction)
+    private borrowerTransactionRepository: Repository<BorrowerTransaction>,
   ) {}
 
   async getLenderTransactionHistoriesWithPageable(
@@ -29,7 +39,11 @@ export class TransactionService {
       const loanTokenType = TokenTypeEnum.LOAN;
       const queryBuilder = this.lenderTransactionRepository
         .createQueryBuilder('lender_transaction')
-        .leftJoinAndSelect(Bond, 'bond', 'bond.id = lender_transaction.bond_id')
+        .leftJoinAndSelect(
+          Bond,
+          'bond',
+          'bond.bond_id = lender_transaction.bond_id',
+        )
         .leftJoinAndSelect(
           Token,
           'token',
@@ -49,7 +63,7 @@ export class TransactionService {
           'lender_transaction.transactionHash AS "transactionHash"',
           'lender_transaction.createdAt AS "createdAt"',
           'bond.name AS "bondName"',
-          'bond.id AS "bondId"',
+          'bond.bond_id AS "bondId"',
           'bond.loan_token AS "loanToken"',
           'token.symbol AS "loanTokenType"',
         ])
@@ -85,6 +99,81 @@ export class TransactionService {
       return getArrayPaginationBuildTotal<LenderTransactionItemResponseDto>(
         selectedLenderTransaction,
         totalLenderTransaction,
+        { page, limit },
+      );
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async getBorrowerTransactionHistoriesWithPageable(
+    params: FindManyBorrowerTransactionParams,
+    user: User,
+  ): Promise<Pagination<BorrowerTransactionItemResponseDto>> {
+    try {
+      const queryBuilder = this.borrowerTransactionRepository
+        .createQueryBuilder('borrower_transaction')
+        .leftJoinAndSelect(
+          Bond,
+          'bond',
+          'bond.bodn_id = borrower_transaction.bond_id',
+        )
+        .leftJoinAndSelect(
+          'tokens',
+          'loanToken',
+          'bond.loan_token = loanToken.address',
+        )
+        .leftJoinAndSelect(
+          'tokens',
+          'tokenToken',
+          'bond.collateral_token = tokenToken.address',
+        )
+        .select([
+          'borrower_transaction.id AS "id"',
+          'borrower_transaction.transaction_type AS "transactionType"',
+          'borrower_transaction.borrowerAddress AS "borrowerAddress"',
+          'borrower_transaction.loan_amount AS "loanAmount"',
+          'borrower_transaction.interest_payment AS "interestPayment"',
+          'borrower_transaction.received_amount AS "receivedAmount"',
+          'borrower_transaction.status AS "status"',
+          'borrower_transaction.transaction_hash AS "transactionHash"',
+          'borrower_transaction.created_at AS "createdAt"',
+          'bond.name AS "bondName"',
+          'bond.bond_id AS "bondId"',
+          'bond.loan_token AS "loanToken"',
+          'tokenToken.symbol AS "loanTokenType"',
+          'bond.collateral_token AS "collateralToken"',
+          'loanToken.symbol AS "collateralTokenType"',
+        ])
+
+        .where(
+          'LOWER(borrower_transaction.borrower_address) = LOWER(:borrowerAddress)',
+          {
+            borrowerAddress: user.walletAddress,
+          },
+        )
+        .orderBy('borrower_transaction.created_at', 'DESC');
+      if (params?.searchTransactionHash) {
+        queryBuilder.where(
+          'borrower_transaction.transaction_hash LIKE :transactionHash',
+          { transactionHash: `%${params.searchTransactionHash}%` },
+        );
+      }
+      const totalBorrowerTransaction = await queryBuilder.getCount();
+
+      const limit = Number(params?.limit || 10);
+      const page = Number(params?.page || 1);
+      const offset = getOffset({ page, limit });
+      queryBuilder.limit(limit).offset(offset);
+
+      const selectedBorrowerTransaction = await queryBuilder.execute();
+
+      return getArrayPaginationBuildTotal<BorrowerTransactionItemResponseDto>(
+        selectedBorrowerTransaction,
+        totalBorrowerTransaction,
         { page, limit },
       );
     } catch (error) {

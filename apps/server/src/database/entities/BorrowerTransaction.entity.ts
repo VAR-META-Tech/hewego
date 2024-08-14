@@ -1,60 +1,53 @@
-import { LenderTransactionType } from '../../shared/enum';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  Unique,
-  UpdateDateColumn,
-} from 'typeorm';
-@Unique(['transactionHash', 'lenderAddress', 'bondId'])
-@Entity('lender_transactions')
-export class LenderTransaction {
+import { BorrowerTransactionType } from 'shared/enum';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
+@Entity('borrower_transactions')
+export class BorrowerTransaction {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({
     name: 'transaction_type',
     type: 'enum',
-    enum: LenderTransactionType,
+    enum: BorrowerTransactionType,
+    nullable: true,
   })
-  transactionType: LenderTransactionType;
+  transactionType: BorrowerTransactionType;
 
   @Column({
-    name: 'lender_address',
+    name: 'borrower_address',
     type: 'varchar',
     nullable: true,
   })
-  lenderAddress: string;
+  borrowerAddress: string;
 
   @Column({
-    type: 'bigint',
     name: 'loan_amount',
+    type: 'bigint',
     nullable: true,
   })
-  loanAmount: number;
+  public loanAmount: number;
 
   @Column({
-    type: 'bigint',
     name: 'interest_payment',
+    type: 'bigint',
     nullable: true,
   })
   interestPayment: number;
 
   @Column({
+    name: 'collateral_amount',
     type: 'bigint',
-    name: 'received_amount',
     nullable: true,
   })
-  receivedAmount: number;
+  collateralAmount: number;
 
   @Column({
-    type: 'varchar',
-    name: 'status',
-    length: 100,
+    type: 'bigint',
+    name: 'payment_amount',
     nullable: true,
   })
-  status: string;
+  paymentAmount: number;
 
   @Column({
     name: 'transaction_hash',
