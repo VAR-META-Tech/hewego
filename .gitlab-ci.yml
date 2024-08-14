@@ -17,7 +17,7 @@ stages:
   allow_failure: false
   when: on_success
 
-dockerize:be:
+dockerize:dev:
   <<: *dockerize
   variables:
     REGISTRY: $REGISTRY_BE
