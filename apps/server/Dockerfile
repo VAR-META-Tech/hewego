@@ -1,18 +1,14 @@
-FROM node:lts AS dist
-COPY package.json yarn.lock ./
-
-RUN yarn install
-
-COPY . ./
-
+FROM node:18-alpine AS dist
+COPY package.json ./
+RUN yarn install --frozen-lockfile
+COPY . .
 RUN yarn build:prod
 
-FROM node:lts AS node_modules
-COPY package.json yarn.lock ./
-
+FROM node:18-alpine AS node_modules
+COPY package.json ./
 RUN yarn install --prod
 
-FROM node:lts
+FROM node:18-alpine
 
 ARG PORT=3000
 
