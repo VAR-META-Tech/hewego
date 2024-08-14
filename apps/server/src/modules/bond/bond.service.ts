@@ -266,7 +266,7 @@ export class BondService {
                 currentTimestamp,
               },
             ).orWhere(
-              'bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp AND bonds.repaidAt IS NULL',
+              'bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp AND bonds.repaidAt IS NULL',
               {
                 currentTimestamp,
                 gracePeriodInSeconds,
