@@ -3,14 +3,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
 } from "typeorm";
 @Unique(["transactionHash", "lenderAddress","bondId"])
 @Entity("lender_transactions")
 export class LenderTransaction {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({
