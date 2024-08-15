@@ -4,13 +4,15 @@ import * as fs from "fs";
 import * as hre from "hardhat";
 import * as path from "path";
 import { BondIssuance, ERC20Token, HederaERC20TokenManage, PriceFeed } from "../typechain-types";
-import { addressToAccountId, approveTokenAllowance, associateToken, deployContractWithAdminKey } from "./token";
-export function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import { addressToAccountId, approveTokenAllowance, associateToken } from "./token";
+import { sleep } from "./utils/time";
+
 const ethers = hre.ethers;
 const bondIssuanceAbiPath = path.join(__dirname, "../contract-flattens/BondIssuance/BondIssuance.abi");
 const bondIssuanceBytecodePath = path.join(__dirname, "../contract-flattens/BondIssuance/BondIssuance.bin");
+
+const priceFeedAbiPath = path.join(__dirname, "../contract-flattens/PriceFeed/PriceFeed.abi");
+const priceFeedBytecodePath = path.join(__dirname, "../contract-flattens/PriceFeed/PriceFeed.bin");
 let tx = null;
 
 async function main() {
@@ -53,12 +55,15 @@ async function main() {
     };
 
     // Deploy PriceFeed contract
-    const PriceFeedFactory = await ethers.getContractFactory("PriceFeed");
     const HederaERC20TokenManageFactory = await ethers.getContractFactory("HederaERC20TokenManage");
-    // const priceFeed: PriceFeed = await PriceFeedFactory.deploy();
+
+    const abiPriceFeed = JSON.parse(fs.readFileSync(priceFeedAbiPath, "utf8"));
+    const bytecodePriceFeed = fs.readFileSync(priceFeedBytecodePath, "utf8");
+    const PriceFeedFactory = new ethers.ContractFactory(abiPriceFeed, bytecodePriceFeed, admin);
+    // const priceFeed: PriceFeed = (await PriceFeedFactory.deploy()) as PriceFeed;
     // await priceFeed.waitForDeployment();
 
-    const priceFeed: PriceFeed = PriceFeedFactory.attach("0xDf75aA411514e48E5cecE3395d131325365D4072") as PriceFeed;
+    const priceFeed: PriceFeed = PriceFeedFactory.attach("0xbe354fe8EA98dc9eE6684e4fD835780EfA946DB6") as PriceFeed;
     console.log("PriceFeed deployed to:", await priceFeed.getAddress());
 
     // Deploy ERC20Token contracts
@@ -190,10 +195,9 @@ async function main() {
     await tx.wait();
 
     // Set initial price in the PriceFeed contract
-    tx = await priceFeed.setInitialPrice(loanTokenInfo.address, collateralTokenInfo.address, ethers.parseUnits("1", 8));
+    tx = await priceFeed.setPrice(collateralTokenInfo.address, loanTokenInfo.address, ethers.parseUnits("1", 8));
     await tx.wait();
 
-    await tx.wait();
     tx = await bondIssuance.connect(admin).setRateTokenPerBond(loanTokenInfo.address, ethers.parseUnits("10", 8));
     await tx.wait();
     tx = await bondIssuance.connect(admin).setUpScaleCollateral(collateralTokenInfo.address, 1500);
@@ -209,7 +213,7 @@ async function main() {
         collateralTokenAddress: collateralTokenInfo.address,
     };
 
-    const amountCollateral = await bondIssuance.collateralAmountCalculation(
+    const amountCollateral = await bondIssuance.collateralAmountCalculationWithScale(
         loanToken.target,
         bondDetails.loanAmount,
         collateralToken.target,
@@ -245,6 +249,15 @@ async function main() {
         throw new Error("Bond creation failed.");
     }
 
+    // tx = await bondIssuance.swapCollateralToLoan(
+    //     collateralTokenInfo.address,
+    //     loanTokenInfo.address,
+    //     100000000,
+    //     0,
+    //     999999999999,
+    // );
+    // await tx.wait();
+
     // tx = await loanToken.connect(lender).approve(bondIssuance.target, bondDetails.loanAmount);
     // await tx.wait();
 
@@ -257,10 +270,7 @@ async function main() {
         operatorKeyLender,
     );
 
-    const boneAmount = await bondIssuance.loanTokenToBondTokenCalculation(
-        loanTokenInfo.address,
-        bondDetails.loanAmount,
-    );
+    const boneAmount = await bondIssuance.calculateLoanTokenToBondToken(loanTokenInfo.address, bondDetails.loanAmount);
 
     tx = await bondIssuance.connect(lender).buyBond(bondId, boneAmount);
     await tx.wait();
@@ -270,15 +280,13 @@ async function main() {
         throw new Error("Bond lending failed.");
     }
 
-    await sleep(8 * 60 * 1000); //8 minutes
-    // await hre.network.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]); // + 7 days
+    await sleep(8 * 60 * 1000); // 8 minutes
     const beforeBalance = await loanToken.balanceOf(await borrower.getAddress());
     tx = await bondIssuance.connect(borrower).borrowerClaim(bondId);
     await tx.wait();
     const afterBalance = await loanToken.balanceOf(await borrower.getAddress());
     console.log({ beforeBalance: beforeBalance.toString(), afterBalance: afterBalance.toString() });
 
-    // await hre.network.provider.send("evm_increaseTime", [12 * 7 * 24 * 60 * 60 + 1]); // + 12 weeks
     const repaymentAmount = ethers.parseUnits("200", 8); // Original plus interest
     // tx = await loanToken.connect(borrower).approve(bondIssuance.target, repaymentAmount);
 

@@ -10,8 +10,6 @@ import {
     FileCreateTransaction,
     Hbar,
     PrivateKey,
-    Status,
-    StatusError,
     TokenAssociateTransaction,
     TokenCreateTransaction,
     TokenId,
@@ -20,8 +18,6 @@ import {
     TransferTransaction,
 } from "@hashgraph/sdk";
 import dotenv from "dotenv";
-import { sleep } from "./ez_implement";
-import { StatusErrorJSON } from "@hashgraph/sdk/lib/StatusError";
 
 dotenv.config();
 
@@ -178,7 +174,7 @@ export async function approveTokenAllowance(
 
     console.log(`Approved ${amount} tokens of ID: ${tokenId} for spender: ${spenderAccountId}`);
 }
-async function transferTokens(
+export async function transferTokens(
     client: Client,
     tokenId: TokenId,
     fromAccountId: AccountId,
@@ -244,11 +240,10 @@ async function main() {
 
     // console.log(`Token created and additional tokens minted with ID: ${tokenId}`);
 
-    const accountId = await addressToAccountId(client, "0x2fd2a5ef3fe1fa5d2a158971a7e4579f303c05f1");
-    console.log(accountId);
+    // const accountId = await addressToAccountId(client, "0x2fd2a5ef3fe1fa5d2a158971a7e4579f303c05f1");
+    // console.log(accountId);
 }
 
-// We recommend this pattern to be able to use async/await everywhere and properly handle errors.
 // main()
 //     .then(() => process.exit(0))
 //     .catch((error) => {

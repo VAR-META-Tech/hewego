@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as hre from "hardhat";
 import * as path from "path";
 import { HederaERC20TokenManage } from "../typechain-types";
+
 function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -54,7 +55,9 @@ async function main() {
         gasLimit: 15000000,
     });
 
-    tx = await bondIssuance.tokenAssociate(1);
+    tx = await bondIssuance.tokenAssociate(1, {
+        gasLimit: 15000000,
+    });
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -58,7 +58,7 @@ contract HederaERC20TokenManage is SafeHederaTokenService, KeyHelper {
 
         address token = tokens[tokenIndex].tokenAddress;
 
-        safeMintToken(token, account, amount, new bytes[](0));
+        safeMintToken(token, amount, new bytes[](0));
         safeTransferToken(token, address(this), account, amount);
         return true;
     }

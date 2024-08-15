@@ -38,7 +38,7 @@ describe("BondIssuance", () => {
         await loanToken.mint(lender_2.address, ethers.parseUnits("1000", 8));
         await loanToken.mint(lender_3.address, ethers.parseUnits("1000", 8));
 
-        await priceFeed.setInitialPrice(loanToken.target, collateralToken.target, ethers.parseUnits("1", 8));
+        await priceFeed.setPrice(collateralToken.target, loanToken.target, ethers.parseUnits("1", 8));
 
         const BondIssuanceFactory = await ethers.getContractFactory("BondIssuance");
         bondIssuance = await BondIssuanceFactory.deploy(priceFeed.target);
@@ -46,6 +46,7 @@ describe("BondIssuance", () => {
 
         await bondIssuance.connect(admin).setRateTokenPerBond(loanToken.target, ethers.parseUnits("10", 8));
         await bondIssuance.connect(admin).setUpScaleCollateral(collateralToken.target, 1500);
+        await bondIssuance.connect(admin).setThresholdLiquidityCollateral(collateralToken.target, 1200);
     });
 
     describe("Bond creation and lending", () => {
@@ -59,7 +60,7 @@ describe("BondIssuance", () => {
                 collateralTokenAddress: collateralToken.target,
             };
 
-            const amountCollateral = await bondIssuance.collateralAmountCalculation(
+            const amountCollateral = await bondIssuance.collateralAmountCalculationWithScale(
                 loanToken.target,
                 bondDetails.loanAmount,
                 collateralToken.target,
@@ -79,16 +80,17 @@ describe("BondIssuance", () => {
 
             const bondId = 0;
             const bond = await bondIssuance.getBond(bondId);
-            console.log(bond);
+            console.log("Bond creation and lending: ", bond);
             expect(bond.name).to.equal(bondDetails.name);
             expect(bond.loanAmount).to.equal(bondDetails.loanAmount);
 
             console.log("bondDetails.loanAmount : ", bondDetails.loanAmount);
             await loanToken.connect(lender).approve(bondIssuance.target, bondDetails.loanAmount);
-            const boneAmount = await bondIssuance.loanTokenToBondTokenCalculation(
+            const boneAmount = await bondIssuance.calculateLoanTokenToBondToken(
                 loanToken.target,
                 bondDetails.loanAmount,
             );
+
             await bondIssuance.connect(lender).buyBond(bondId, boneAmount);
 
             const updatedBond = await bondIssuance.getBond(bondId);
@@ -103,6 +105,25 @@ describe("BondIssuance", () => {
 
             console.log("Should borrower claim", { beforeBalance, afterBalance });
         });
+
+        it("Should allow the borrower to add additional collateral", async () => {
+            const bondId = 0;
+            const additionalCollateralAmount = ethers.parseUnits("0.5", 8); // Adding 100 units of collateral
+
+            await collateralToken.mint(borrower.address, additionalCollateralAmount);
+            await collateralToken.connect(borrower).approve(bondIssuance.target, additionalCollateralAmount);
+
+            const beforeCollateralAmount = (await bondIssuance.getBond(bondId)).collateralAmount;
+
+            await bondIssuance.connect(borrower).addCollateral(bondId, additionalCollateralAmount);
+
+            const updatedBond = await bondIssuance.getBond(bondId);
+            const afterCollateralAmount = updatedBond.collateralAmount;
+
+            console.log("Before and after collateral amount:", { beforeCollateralAmount, afterCollateralAmount });
+            expect(afterCollateralAmount).to.equal(beforeCollateralAmount + additionalCollateralAmount);
+        });
+
         it("Should allow the borrower to repay the bond", async () => {
             await ethers.provider.send("evm_increaseTime", [12 * 7 * 24 * 60 * 60 + 1]); // + 12 weeks
             const beforeBalance = await loanToken.balanceOf(borrower.address);
@@ -136,7 +157,7 @@ describe("BondIssuance", () => {
                 collateralTokenAddress: collateralToken.target,
             };
 
-            const amountCollateral = await bondIssuance.collateralAmountCalculation(
+            const amountCollateral = await bondIssuance.collateralAmountCalculationWithScale(
                 loanToken.target,
                 bondDetails.loanAmount,
                 collateralToken.target,
@@ -162,7 +183,7 @@ describe("BondIssuance", () => {
 
             console.log("bondDetails.loanAmount : ", bondDetails.loanAmount);
             await loanToken.connect(lender).approve(bondIssuance.target, bondDetails.loanAmount);
-            const boneAmount = await bondIssuance.loanTokenToBondTokenCalculation(
+            const boneAmount = await bondIssuance.calculateLoanTokenToBondToken(
                 loanToken.target,
                 bondDetails.loanAmount,
             );
@@ -182,7 +203,7 @@ describe("BondIssuance", () => {
         });
         it("Should liquidate", async () => {
             await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]); // + 7 days
-            await priceFeed.setInitialPrice(loanToken.target, collateralToken.target, ethers.parseUnits("0.1", 8));
+            await priceFeed.setPrice(collateralToken.target, loanToken.target, ethers.parseUnits("0.7", 8));
 
             const bondId = 1;
             const repaymentAmount = ethers.parseUnits("200", 8); // Original plus interest

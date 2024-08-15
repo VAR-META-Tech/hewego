@@ -1,10 +1,9 @@
-import { AccountId, Client, PrivateKey, TokenId } from "@hashgraph/sdk";
+import { AccountId, Client, PrivateKey } from "@hashgraph/sdk";
 import { Signer } from "ethers";
 import * as fs from "fs";
 import * as hre from "hardhat";
 import * as path from "path";
-import { BondIssuance, HederaERC20TokenManage, PriceFeed } from "../typechain-types";
-import { approveTokenAllowance } from "./token";
+import { BondIssuance, PriceFeed } from "../typechain-types";
 function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }

@@ -8,19 +8,38 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./BondERC1155Token.sol";
 import "./hedera/system/SafeHederaTokenService.sol";
 
-// import "hardhat/console.sol";
+/**
+ * @title BondIssuance
+ * @dev [Vincent]
+ */
 
-// Interface for the price feed
+// feature update: check priceFeed last update is validate
+// feature update: support for different token decimal
 interface IPriceFeed {
     function getLatestPrice(address _tokenA, address _tokenB) external view returns (uint256, uint256); // price, lastUpdated
 }
 
+interface IUniswapV2Router {
+    function swapExactTokensForTokens(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external returns (uint256[] memory amounts);
+}
+
 contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    address public admin;
+    address public vault;
+
+    bool public useErc20Mode = false;
+    uint256 public platformFeePercent = 50; // 5%
+
     IPriceFeed public priceFeed;
     BondERC1155Token public bondToken;
-    bool useErc2Mode = false;
+    IUniswapV2Router public saucerSwapRouter = IUniswapV2Router(0x0000000000000000000000000000000000004b40);
+
     struct Lender {
         address lender;
         uint256 amountLend;
@@ -40,18 +59,18 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         uint256 maturityDate;
         address borrower;
         Lender[] lenders;
-        bool isActive;
         uint256 totalLend;
         uint256 totalBond;
+        uint256 liquidationLoanTokenAmount;
+        bool isActive;
         bool readyToRepay;
         bool isBorrowerClaimed;
-        uint256 liquidationLoanTokenAmount;
     }
 
     Bond[] public bonds;
     mapping(address => uint256[]) public userBonds;
-    mapping(address => uint256) public rateTokenPerBond;
-    mapping(address => uint256) public upScaleCollateral;
+    mapping(address => uint256) public loanTokenRatePerBond;
+    mapping(address => uint256) public collateralScalingFactor;
     mapping(address => uint256) public thresholdLiquidityCollateral;
 
     event BondCreated(
@@ -76,11 +95,18 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         uint256 indexed bondId,
         address indexed borrower,
         uint256 totalLend,
-        uint256 interestPaid,
         uint256 repaymentAmount,
-        bool collateralReturned
+        uint256 interestPaid,
+        uint256 collateralReturnedAmount
     );
-    event BorrowerClaimLoanToken(uint256 bondId, address indexed borrower, address lentToken, uint256 amount);
+    event BorrowerClaimLoanToken(uint256 bondId, address indexed borrower, address loanToken, uint256 loanAmount);
+    event BorrowerRefundoanToken(
+        uint256 bondId,
+        address indexed borrower,
+        address collateralToken,
+        uint256 collateralAmount
+    );
+
     event BondLiquidated(
         uint256 indexed bondId,
         address indexed borrower,
@@ -91,11 +117,20 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         uint256 excessRefund
     );
     event LenderClaimed(
-        address indexed lender,
         uint256 indexed bondId,
+        address indexed lender,
         uint256 bondTokenAmount,
         uint256 loanTokenAmount,
-        uint256 totalRepayment
+        uint256 interestLoanTokenAmount,
+        uint256 repaymentAmount
+    );
+    event PlatformFeeUpdated(uint256 oldFee, uint256 newFee);
+    event CollateralAdded(
+        uint256 indexed bondId,
+        address indexed borrower,
+        address collateralToken,
+        uint256 additionalCollateralAmount,
+        uint256 newCollateralAmount
     );
 
     constructor(address _priceFeed) {
@@ -103,8 +138,8 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         _setupRole(ADMIN_ROLE, msg.sender);
         priceFeed = IPriceFeed(_priceFeed);
 
-        bondToken = new BondERC1155Token("");
-        admin = msg.sender;
+        bondToken = new BondERC1155Token("https://hedera.com/ipfs/vincent");
+        vault = address(this);
     }
 
     modifier onlyAdmin() {
@@ -113,27 +148,35 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
     }
 
     function setRateTokenPerBond(address _token, uint256 _rate) external onlyAdmin {
-        rateTokenPerBond[_token] = _rate;
+        loanTokenRatePerBond[_token] = _rate;
         emit RateTokenPerBondUpdated(_token, _rate);
     }
 
     function setUpScaleCollateral(address _token, uint256 _scale) external onlyAdmin {
         // 1000 scale is 100%
-        upScaleCollateral[_token] = _scale;
+        collateralScalingFactor[_token] = _scale;
         emit UpScaleCollateralUpdated(_token, _scale);
     }
 
-    function loanTokenToBondTokenCalculation(address _loanToken, uint256 _loanAmount) public view returns (uint256) {
-        require(rateTokenPerBond[_loanToken] > 0, "Rate for token is not set");
-        return _loanAmount / rateTokenPerBond[_loanToken];
+    function setThresholdLiquidityCollateral(address _token, uint256 _scale) external onlyAdmin {
+        thresholdLiquidityCollateral[_token] = _scale;
     }
 
-    function bondTokenToLoanTokenCalculation(
-        address _loanToken,
-        uint256 _bondTokenAmount
-    ) public view returns (uint256) {
-        require(rateTokenPerBond[_loanToken] > 0, "Rate for token is not set");
-        return _bondTokenAmount * rateTokenPerBond[_loanToken];
+    function setPlatformFee(uint256 _newFee) external onlyAdmin {
+        require(_newFee <= 1000, "Fee must be less than or equal to 1000");
+        uint256 oldFee = platformFeePercent;
+        platformFeePercent = _newFee;
+        emit PlatformFeeUpdated(oldFee, _newFee);
+    }
+
+    function calculateLoanTokenToBondToken(address _loanToken, uint256 _loanAmount) public view returns (uint256) {
+        require(loanTokenRatePerBond[_loanToken] > 0, "Rate for loan token not set.");
+        return _loanAmount / loanTokenRatePerBond[_loanToken];
+    }
+
+    function calculateBondTokenToLoanToken(address _loanToken, uint256 _bondTokenAmount) public view returns (uint256) {
+        require(loanTokenRatePerBond[_loanToken] > 0, "Rate for loan token not set.");
+        return _bondTokenAmount * loanTokenRatePerBond[_loanToken];
     }
 
     function collateralAmountCalculation(
@@ -141,13 +184,33 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         uint256 _loanAmount,
         address _collateralToken
     ) public view returns (uint256) {
-        (uint256 collateralRate, ) = priceFeed.getLatestPrice(_loanToken, _collateralToken);
+        (uint256 collateralRate, ) = priceFeed.getLatestPrice(_collateralToken, _loanToken);
         require(collateralRate > 0, "Invalid price from price feed");
-        uint256 scale = upScaleCollateral[_collateralToken];
+        return (_loanAmount * 1e8) / collateralRate;
+    }
+
+    function collateralAmountCalculationWithScale(
+        address _loanToken,
+        uint256 _loanAmount,
+        address _collateralToken
+    ) public view returns (uint256) {
+        (uint256 collateralRate, ) = priceFeed.getLatestPrice(_collateralToken, _loanToken);
+        require(collateralRate > 0, "Invalid price from price feed");
+        uint256 scale = collateralScalingFactor[_collateralToken];
         require(scale > 0, "Upscale factor for collateral token is not set");
-        // console.log("_loanAmount, collateralRate, scale");
-        // console.log(_loanAmount, collateralRate, scale);
-        return (((_loanAmount / collateralRate) * scale) / 1000) * 1e8;
+        return ((((_loanAmount * 1e8) / collateralRate) * scale) / 1000);
+    }
+
+    function calculateBondDates(
+        uint256 _bondDuration
+    ) private view returns (uint256 issuanceDate, uint256 maturityDate) {
+        if (useErc20Mode) {
+            issuanceDate = block.timestamp + 7 days;
+            maturityDate = issuanceDate + (_bondDuration * 1 weeks);
+        } else {
+            issuanceDate = block.timestamp + 7 minutes;
+            maturityDate = issuanceDate + (_bondDuration * 1 hours);
+        }
     }
 
     function createBond(
@@ -159,20 +222,19 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         uint256 _lenderInterestRate,
         address _collateralToken
     ) public {
-        uint256 volumeBond = loanTokenToBondTokenCalculation(_loanToken, _loanAmount);
-        require(volumeBond > 0, "Volume bond must greater 1");
-        uint256 issuanceDate = 0;
-        uint256 maturityDate = 0;
-        if (useErc2Mode) {
-            issuanceDate = block.timestamp + 7 days;
-            maturityDate = issuanceDate + (_bondDuration * 1 weeks);
-        } else {
-            issuanceDate = block.timestamp + 7 minutes;
-            maturityDate = issuanceDate + (_bondDuration * 1 hours);
-        }
+        uint256 volumeBond = calculateLoanTokenToBondToken(_loanToken, _loanAmount);
+        require(volumeBond > 0, "Volume bond must be greater than 1");
+        require(
+            _lenderInterestRate + platformFeePercent == _borrowerInterestRate,
+            "Lender Interest Rate and Platform Fee must equal Borrower Interest Rate"
+        );
 
-        uint256 collateralAmount = collateralAmountCalculation(_loanToken, _loanAmount, _collateralToken);
-        // console.log("createBond-collateralAmount: ", collateralAmount);
+        uint256 issuanceDate;
+        uint256 maturityDate;
+        (issuanceDate, maturityDate) = calculateBondDates(_bondDuration);
+
+        uint256 collateralAmount = collateralAmountCalculationWithScale(_loanToken, _loanAmount, _collateralToken);
+
         Bond memory newBond = Bond({
             name: _name,
             loanToken: _loanToken,
@@ -195,14 +257,14 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
             liquidationLoanTokenAmount: 0
         });
 
-        if (useErc2Mode) {
+        if (useErc20Mode) {
             IERC20 collateralToken = IERC20(newBond.collateralToken);
             require(
                 collateralToken.transferFrom(msg.sender, address(this), newBond.collateralAmount),
-                "Transfer failed"
+                "Collateral transfer from borrower failed"
             );
         } else {
-            safeTransferToken(newBond.collateralToken, msg.sender, admin, newBond.collateralAmount);
+            safeTransferToken(newBond.collateralToken, msg.sender, vault, newBond.collateralAmount);
         }
 
         bonds.push(newBond);
@@ -229,155 +291,197 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
     function buyBond(uint256 bondId, uint256 amount) external nonReentrant {
         require(bondId < bonds.length, "Bond does not exist");
         Bond storage bond = bonds[bondId];
-        require(bond.isActive, "Bond is not active");
+        address lender = msg.sender;
+        require(bond.isActive, "Bond must be active for this operation.");
         require(!bond.readyToRepay, "Bond is already repaid");
         require(block.timestamp <= bond.issuanceDate, "Bond was issuanced");
 
-        uint256 amountLend = bondTokenToLoanTokenCalculation(bond.loanToken, amount);
+        uint256 amountLend = calculateBondTokenToLoanToken(bond.loanToken, amount);
         require(bond.totalLend + amountLend <= bond.loanAmount, "Borrower not need borrow more");
 
-        if (useErc2Mode) {
-            // console.log("bond.loanToken", bond.loanToken, amount);
+        if (useErc20Mode) {
             IERC20 loanToken = IERC20(bond.loanToken);
-            require(loanToken.transferFrom(msg.sender, address(this), amountLend), "Transfer failed");
+            require(loanToken.transferFrom(lender, address(this), amountLend), "Transfer failed");
         } else {
-            safeTransferToken(bond.loanToken, msg.sender, admin, amountLend);
+            safeTransferToken(bond.loanToken, lender, vault, amountLend);
         }
 
-        bond.lenders.push(Lender({lender: msg.sender, amountLend: amountLend, amountBond: amount}));
+        bond.lenders.push(Lender({lender: lender, amountLend: amountLend, amountBond: amount}));
         bond.totalLend += amountLend;
         bond.totalBond += amount;
-        bondToken.mint(msg.sender, bondId, amount, "");
+        bondToken.mint(lender, bondId, amount, "");
 
-        emit LenderParticipated(bondId, msg.sender, amountLend, amount);
+        emit LenderParticipated(bondId, lender, amountLend, amount);
     }
 
     function borrowerClaim(uint256 bondId) external nonReentrant {
-        require(bondId < bonds.length, "Bond does not exist");
+        require(bondId < bonds.length, "Bond does not exist.");
         Bond storage bond = bonds[bondId];
-        require(bond.borrower == msg.sender, "Caller is not the borrower");
-        require(bond.isActive, "Bond is not active");
-        require(!bond.readyToRepay, "Bond is already repaid");
+        require(bond.isActive, "Bond must be active for this operation.");
+        require(!bond.readyToRepay, "Bond is already repaid.");
         require(!bond.isBorrowerClaimed, "Claimed before");
-        require(
-            block.timestamp > bond.issuanceDate && block.timestamp < bond.maturityDate,
-            "Claim must in issuance date to maturity date"
-        );
+        require(block.timestamp > bond.issuanceDate, "Claim must be after issuance date.");
 
-        if (useErc2Mode) {
+        if (useErc20Mode) {
             IERC20 loanToken = IERC20(bond.loanToken);
             require(loanToken.transfer(bond.borrower, bond.totalLend), "Transfer to lend token to borrower failed");
         } else {
-            safeTransferToken(bond.loanToken, admin, bond.borrower, bond.totalLend);
+            safeTransferToken(bond.loanToken, vault, bond.borrower, bond.totalLend);
         }
 
         bond.isBorrowerClaimed = true;
 
-        emit BorrowerClaimLoanToken(bondId, msg.sender, bond.loanToken, bond.totalLend);
+        emit BorrowerClaimLoanToken(bondId, bond.borrower, bond.loanToken, bond.totalLend);
+    }
+
+    function borrowerRefund(uint256 bondId) external nonReentrant {
+        require(bondId < bonds.length, "Bond does not exist.");
+        Bond storage bond = bonds[bondId];
+        require(bond.isActive, "Bond must be active for this operation.");
+        require(!bond.readyToRepay, "Bond is already repaid.");
+        require(!bond.isBorrowerClaimed, "Claimed before");
+        require(bond.totalLend == 0, "Refund must be no lender participation.");
+        if (block.timestamp <= bond.issuanceDate) {
+            require(bond.borrower == msg.sender, "Only borrower refund in issuance date time.");
+        }
+        if (useErc20Mode) {
+            IERC20 collateralToken = IERC20(bond.collateralToken);
+            require(
+                collateralToken.transfer(bond.borrower, bond.collateralAmount),
+                "Transfer to collateral token to borrower failed"
+            );
+        } else {
+            safeTransferToken(bond.collateralToken, vault, bond.borrower, bond.collateralAmount);
+        }
+
+        bond.isBorrowerClaimed = true;
+        bond.isActive = false;
+
+        emit BorrowerRefundoanToken(bondId, bond.borrower, bond.collateralToken, bond.collateralAmount);
     }
 
     function repayBond(uint256 bondId) external nonReentrant {
         require(bondId < bonds.length, "Bond does not exist");
         Bond storage bond = bonds[bondId];
-        require(bond.borrower == msg.sender, "Caller is not the borrower");
-        require(bond.isActive, "Bond is not active");
+        require(bond.isActive, "Bond must be active for this operation.");
         require(!bond.readyToRepay, "Bond is already repaid");
+        require(block.timestamp > bond.issuanceDate, "Repay Bond be in issuance date");
+
+        uint256 repaymentAmount = bond.totalLend + ((bond.totalLend * bond.borrowerInterestRate) / 1000);
+        uint256 interestPaid = repaymentAmount - bond.totalLend;
 
         IERC20 loanToken = IERC20(bond.loanToken);
         IERC20 collateralToken = IERC20(bond.collateralToken);
-
-        uint256 repaymentAmount = bond.totalLend + ((bond.totalLend * bond.borrowerInterestRate) / 1000);
-        // console.log("repaymentAmount : ", repaymentAmount);
-        uint256 interestPaid = repaymentAmount - bond.totalLend;
-
-        if (useErc2Mode) {
+        if (useErc20Mode) {
             require(
                 loanToken.transferFrom(msg.sender, address(this), repaymentAmount),
                 "Transfer from borrower failed"
             );
-        } else safeTransferToken(bond.loanToken, msg.sender, admin, repaymentAmount);
-
-        if (useErc2Mode) {
             require(
                 collateralToken.transfer(bond.borrower, bond.collateralAmount),
                 "Transfer of collateral to borrower failed"
             );
-        } else safeTransferToken(bond.collateralToken, admin, bond.borrower, bond.collateralAmount);
+        } else {
+            safeTransferToken(bond.collateralToken, vault, bond.borrower, bond.collateralAmount);
+            safeTransferToken(bond.loanToken, msg.sender, vault, repaymentAmount);
+        }
 
         bond.readyToRepay = true;
 
-        emit BondRepaid(bondId, msg.sender, bond.totalLend, interestPaid, repaymentAmount, true);
+        emit BondRepaid(bondId, bond.borrower, bond.totalLend, repaymentAmount, interestPaid, bond.collateralAmount);
     }
 
     function lenderClaim(uint256 bondId) external nonReentrant {
         require(bondId < bonds.length, "Bond does not exist");
         Bond storage bond = bonds[bondId];
+        require(bond.isActive, "Bond must be active for this operation.");
         require(bond.readyToRepay, "Bond is not ready to repay");
 
         uint256 bondBalance = bondToken.balanceOf(msg.sender, bondId);
-
         require(bondBalance > 0, "Bond value insufficient");
 
-        uint256 effectiveBondAmount = 0;
-        if (bond.liquidationLoanTokenAmount > 0) {
-            effectiveBondAmount = (bond.liquidationLoanTokenAmount * bondBalance) / bond.totalBond;
-        } else {
-            effectiveBondAmount = (bond.totalLend * bondBalance) / bond.totalBond;
-        }
-        // console.log("effectiveBondAmount:", effectiveBondAmount);
+        uint256 effectiveLoanAmount = (bond.liquidationLoanTokenAmount > 0)
+            ? (bond.liquidationLoanTokenAmount * bondBalance) / bond.totalBond
+            : (bond.totalLend * bondBalance) / bond.totalBond;
 
-        uint256 lenderRepayment = effectiveBondAmount + ((effectiveBondAmount * bond.lenderInterestRate) / 1000);
-        uint256 loanTokenAmount = bondTokenToLoanTokenCalculation(bond.loanToken, bondBalance);
+        uint256 repaymentAmount = effectiveLoanAmount + ((effectiveLoanAmount * bond.lenderInterestRate) / 1000);
+        uint256 loanTokenAmount = calculateBondTokenToLoanToken(bond.loanToken, bondBalance);
 
-        if (useErc2Mode) {
+        if (useErc20Mode) {
             IERC20 loanToken = IERC20(bond.loanToken);
-            uint256 currentBalance = loanToken.balanceOf(address(this));
-            // console.log("currentBalance-loanToken-this: ", currentBalance);
-            // console.log("lenderRepayment: ", lenderRepayment);
-            require(loanToken.transfer(msg.sender, lenderRepayment), "Transfer to lender failed");
-        } else safeTransferToken(bond.loanToken, admin, msg.sender, lenderRepayment);
+            require(loanToken.transfer(msg.sender, repaymentAmount), "Transfer to lender failed");
+        } else {
+            safeTransferToken(bond.loanToken, vault, msg.sender, repaymentAmount);
+        }
 
         bondToken.burn(msg.sender, bondId, bondBalance);
-        emit LenderClaimed(msg.sender, bondId, bondBalance, loanTokenAmount, lenderRepayment);
+
+        emit LenderClaimed(
+            bondId,
+            msg.sender,
+            bondBalance,
+            loanTokenAmount,
+            repaymentAmount - loanTokenAmount,
+            repaymentAmount
+        );
+    }
+
+    function isBondLiquidatable(uint256 bondId) public view returns (uint256, bool) {
+        Bond memory bond = bonds[bondId];
+
+        require(
+            thresholdLiquidityCollateral[bond.collateralToken] > 0,
+            "Threshold liquidity collateral not set for this token."
+        );
+        (uint256 currentRate, ) = priceFeed.getLatestPrice(bond.collateralToken, bond.loanToken);
+        uint256 currentCollateralValue = (bond.collateralAmount * currentRate) / 1e8;
+        return (
+            currentCollateralValue,
+            currentCollateralValue < (bond.totalLend * thresholdLiquidityCollateral[bond.collateralToken]) / 1000
+        );
     }
 
     function liquidateBond(uint256 bondId) external nonReentrant {
         require(bondId < bonds.length, "Bond does not exist");
         Bond storage bond = bonds[bondId];
         require(bond.isActive && !bond.readyToRepay, "Bond cannot be liquidated");
-
-        (uint256 currentRate, ) = priceFeed.getLatestPrice(bond.loanToken, bond.collateralToken);
-        uint256 currentCollateralValue = (bond.collateralAmount * currentRate) / 1e8;
-
+        (uint256 currentCollateralValue, bool isLiquidate) = isBondLiquidatable(bondId);
         require(
-            (currentCollateralValue * thresholdLiquidityCollateral[bond.collateralToken]) / 1000 < bond.totalLend,
-            "Collateral value insufficient"
+            isLiquidate || block.timestamp > bond.maturityDate,
+            "Liquidated must hight rich or after maturity date"
         );
 
         IERC20 loanToken = IERC20(bond.loanToken);
-        uint256 currentBalance = loanToken.balanceOf(address(this));
-        // console.log("liquidateBond-loanToken-this: ", currentBalance);
-        // TODO : Swap Collateral token to loan token
-        uint256 mockSwapLoanTokenReceive = 200 * 1e8;
+        uint256 swapLoanTokenReceive = 0;
+        if (useErc20Mode) {
+            swapLoanTokenReceive = 200 * 1e8; // mock
+        } else {
+            uint256[] memory amounts = swapCollateralToLoan(
+                bond.collateralToken,
+                bond.loanToken,
+                bond.collateralAmount,
+                0,
+                block.timestamp + 15 minutes
+            );
+            swapLoanTokenReceive = amounts[1];
+        }
 
         uint256 repaymentAmount = bond.totalLend + ((bond.totalLend * bond.borrowerInterestRate) / 1000);
-        // console.log("liquidateBond-repaymentAmount-this: ", repaymentAmount);
 
         uint256 excessRefund = 0;
-        if (mockSwapLoanTokenReceive > repaymentAmount) {
-            excessRefund = mockSwapLoanTokenReceive - repaymentAmount;
-            // console.log("liquidateBond-excessRefund-this: ", excessRefund);
+        if (swapLoanTokenReceive > repaymentAmount) {
+            excessRefund = swapLoanTokenReceive - repaymentAmount;
 
-            if (useErc2Mode) {
+            if (useErc20Mode) {
                 require(loanToken.transfer(bond.borrower, excessRefund), "Transfer excess refund to borrower failed");
-            } else safeTransferToken(bond.loanToken, admin, bond.borrower, excessRefund);
+            } else {
+                safeTransferToken(bond.loanToken, vault, bond.borrower, excessRefund);
+            }
         }
-        bond.liquidationLoanTokenAmount = mockSwapLoanTokenReceive - excessRefund;
-        if (bond.liquidationLoanTokenAmount > bond.totalLend) {
-            bond.liquidationLoanTokenAmount = bond.totalLend;
-        }
-
-        // console.log("liquidateBond-liquidationLoanTokenAmount-this: ", bond.liquidationLoanTokenAmount);
+        bond.liquidationLoanTokenAmount = swapLoanTokenReceive - excessRefund;
+        bond.liquidationLoanTokenAmount = bond.liquidationLoanTokenAmount > bond.totalLend
+            ? bond.totalLend
+            : swapLoanTokenReceive - excessRefund;
 
         bond.readyToRepay = true;
 
@@ -386,10 +490,67 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
             bond.borrower,
             bond.collateralAmount,
             currentCollateralValue,
-            mockSwapLoanTokenReceive,
+            swapLoanTokenReceive,
             repaymentAmount,
             excessRefund
         );
+    }
+
+    function addCollateral(uint256 bondId, uint256 additionalCollateralAmount) external nonReentrant {
+        require(bondId < bonds.length, "Bond does not exist");
+        Bond storage bond = bonds[bondId];
+        require(bond.isActive, "Bond must be active for this operation.");
+        require(!bond.readyToRepay, "Bond is already repaid");
+
+        if (useErc20Mode) {
+            IERC20 collateralToken = IERC20(bond.collateralToken);
+            require(
+                collateralToken.transferFrom(msg.sender, address(this), additionalCollateralAmount),
+                "Collateral transfer from borrower failed"
+            );
+        } else {
+            safeTransferToken(bond.collateralToken, msg.sender, vault, additionalCollateralAmount);
+        }
+
+        bond.collateralAmount += additionalCollateralAmount;
+
+        emit CollateralAdded(
+            bondId,
+            bond.borrower,
+            bond.collateralToken,
+            additionalCollateralAmount,
+            bond.collateralAmount
+        );
+    }
+
+    function swapCollateralToLoan(
+        address collateralToken,
+        address loanToken,
+        uint256 amountIn,
+        uint256 amountOutMin,
+        uint256 deadline
+    ) private returns (uint256[] memory) {
+        require(amountIn > 0, "Amount in must be greater than 0");
+        require(collateralToken != address(0) && loanToken != address(0), "Invalid token addresses");
+        address[] memory path = new address[](2);
+        path[0] = collateralToken;
+        path[1] = loanToken;
+
+        if (useErc20Mode) {
+            IERC20(collateralToken).approve(address(saucerSwapRouter), amountIn);
+        } else {
+            safeApprove(collateralToken, address(saucerSwapRouter), amountIn);
+        }
+
+        uint256[] memory amounts = saucerSwapRouter.swapExactTokensForTokens(
+            amountIn,
+            amountOutMin,
+            path,
+            address(this),
+            deadline
+        );
+
+        return amounts;
     }
 
     function getBond(uint256 bondId) external view returns (Bond memory) {
@@ -399,5 +560,9 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
 
     function getUserBonds(address user) external view returns (uint256[] memory) {
         return userBonds[user];
+    }
+
+    function tokenAssociate(address token) external onlyAdmin {
+        safeAssociateToken(address(this), token);
     }
 }
