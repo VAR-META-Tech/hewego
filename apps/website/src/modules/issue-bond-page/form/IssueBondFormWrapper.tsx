@@ -37,7 +37,7 @@ const IssueBondFormWrapper: FCC = ({ children }) => {
 
   React.useEffect(() => {
     if (borrowInterestRateDebounced && borrowInterestRateDebounced >= 1) {
-      form.setValue('lenderInterestRate', borrowInterestRateDebounced - PLATFORM_FEE);
+      form.setValue('lenderInterestRate', borrowInterestRateDebounced - Number(PLATFORM_FEE));
     }
   }, [borrowInterestRateDebounced, form]);
 
@@ -78,7 +78,7 @@ const IssueBondFormWrapper: FCC = ({ children }) => {
 
   const { data: priceFeedData } = useGetPriceFeedQuery({
     variables: {
-      loanAmount: String(parseUnits(loanAmountDebounced, TOKEN_UNIT)),
+      loanAmount: String(parseUnits(loanAmountDebounced, Number(TOKEN_UNIT))),
       collateralToken: collateralToken,
       loanToken: loanToken,
     },
@@ -90,7 +90,7 @@ const IssueBondFormWrapper: FCC = ({ children }) => {
 
     form.setValue(
       'minimumCollateralAmount',
-      String(formatUnits(BigInt(priceFeedData?.data?.collateralPrice || 0), TOKEN_UNIT))
+      String(formatUnits(BigInt(priceFeedData?.data?.collateralPrice || 0), Number(TOKEN_UNIT)))
     );
   }, [form, priceFeedData]);
 

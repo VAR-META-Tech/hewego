@@ -1,6 +1,7 @@
 import React from 'react';
 import { Icons } from '@/assets/icons';
 import { TransactionHistoryFilterType } from '@/modules/my-portfolio-page/types/schema';
+import { useDebouncedValue } from '@mantine/hooks';
 import { useFormContext } from 'react-hook-form';
 
 import { useGetMetaToken } from '@/hooks/useGetMetaToken';
@@ -8,9 +9,23 @@ import { SelectField } from '@/components/ui/FormField/SelectField';
 import { TextField } from '@/components/ui/FormField/TextField';
 import { HStack, VStack } from '@/components/Utilities';
 
-const TransactionHistoryFilter = () => {
-  const { control } = useFormContext<TransactionHistoryFilterType>();
+interface Props {
+  handleSearchChange: (values: TransactionHistoryFilterType) => void;
+}
+
+const TransactionHistoryFilter: React.FC<Props> = ({ handleSearchChange }) => {
+  const { control, watch } = useFormContext<TransactionHistoryFilterType>();
   const { borrowTokenData } = useGetMetaToken();
+
+  const [search] = watch(['search']);
+
+  const [searchDebounced] = useDebouncedValue(search, 300);
+
+  React.useEffect(() => {
+    handleSearchChange({
+      search: searchDebounced,
+    });
+  }, [handleSearchChange, searchDebounced]);
 
   return (
     <HStack pos={'apart'} spacing={20}>
@@ -27,9 +42,6 @@ const TransactionHistoryFilter = () => {
           variant="bordered"
           startContent={<Icons.search />}
           className="w-96"
-          onValueChange={(value) => {
-            console.log(value);
-          }}
         />
 
         <SelectField
@@ -50,7 +62,9 @@ const TransactionHistoryFilter = () => {
             },
           }}
           onSelectionChange={(value) => {
-            console.log(value?.currentKey);
+            handleSearchChange({
+              supply: value?.currentKey,
+            });
           }}
         />
       </HStack>
@@ -58,4 +72,4 @@ const TransactionHistoryFilter = () => {
   );
 };
 
-export default TransactionHistoryFilter;
+export default React.memo(TransactionHistoryFilter);

@@ -8,7 +8,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   titleClassName?: string;
   firstValue: string;
   secondValue: string;
-  isShowDevider?: boolean;
+  isShowDivider?: boolean;
 }
 
 const SummaryItem: React.FC<Props> = ({
@@ -16,7 +16,7 @@ const SummaryItem: React.FC<Props> = ({
   firstValue,
   secondValue,
   titleClassName,
-  isShowDevider = true,
+  isShowDivider = true,
   ...props
 }) => {
   return (
@@ -29,7 +29,7 @@ const SummaryItem: React.FC<Props> = ({
 
       <VStack justify={'center'} className="w-fit" spacing={4}>
         <span className="text-center text-2xl font-semibold">{firstValue}</span>
-        {isShowDevider && <span className="bg-border w-full h-[1px]" />}
+        {isShowDivider && <span className="bg-border w-full h-[1px]" />}
         <span className="text-center text-2xl font-semibold">{secondValue}</span>
       </VStack>
     </VStack>

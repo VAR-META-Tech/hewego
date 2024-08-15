@@ -3,18 +3,30 @@ import React from 'react';
 import TransactionHistoryFilterFormWrapper from '../../form/TransactionHistoryFilterFormWrapper';
 import { useGetTransactionHistory } from '../../hooks/useGetTransactionHistory';
 import TransactionHistoryFilter from './components/TransactionHistoryFilter';
-
-// import TransactionHistoryTable from './components/TransactionHistoryTable';
+import TransactionHistoryTable from './components/TransactionHistoryTable';
 
 const TransactionHistory = () => {
-  const { data } = useGetTransactionHistory();
-  console.log('🚀 ~ TransactionHistory ~ data:', data);
+  const { refetch, handleSearchChange, paging, pagination, onPageChange, transactions } = useGetTransactionHistory();
+
+  React.useEffect(() => {
+    refetch();
+
+    return () => {
+      refetch();
+    };
+  }, [refetch]);
+
   return (
     <TransactionHistoryFilterFormWrapper>
       <div className="container space-y-10">
-        <TransactionHistoryFilter />
+        <TransactionHistoryFilter handleSearchChange={handleSearchChange} />
 
-        {/* <TransactionHistoryTable /> */}
+        <TransactionHistoryTable
+          transactions={transactions}
+          pagination={pagination}
+          paging={paging}
+          onPageChange={onPageChange}
+        />
       </div>
     </TransactionHistoryFilterFormWrapper>
   );

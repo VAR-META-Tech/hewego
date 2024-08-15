@@ -13,6 +13,7 @@ export const env = {
   NETWORK_TYPE: (process.env.NEXT_PUBLIC_NETWORK_TYPE || 'testnet') as 'testnet' | 'mainnet' | 'previewnet',
   SIGNATURE_TEXT: process.env.NEXT_PUBLIC_SIGNATURE_TEXT || '',
   HEDERA_URL: process.env.NEXT_PUBLIC_HEDERA_URL || '',
+  HASHSCAN_URL: process.env.NEXT_PUBLIC_HASHSCAN_URL || '',
 };
 
 export const HASHCONNECT_DEBUG_MODE = false;
@@ -21,6 +22,7 @@ export const DATE_FORMAT = {
   DD_MM_YYYY: 'dd/MM/yyyy',
   YYYY_MM_DD: 'YYYY-MM-dd',
   MMM_DD_YYYY: 'MMM dd, yyyy',
+  YYYY_MM_DD_HH_MM: 'yyyy-MM-dd HH:mm',
 };
 
 export const COOKIES_KEY = {
@@ -53,12 +55,22 @@ export const TIME_FORMAT = {
   HOUR_MIN: 'hh:mm a',
 };
 
+export const LOOK_UP = [
+  { value: 1, symbol: '' },
+  { value: 1e3, symbol: 'k' },
+  { value: 1e6, symbol: 'M' },
+  { value: 1e9, symbol: 'B' },
+  { value: 1e12, symbol: 'T' },
+  { value: 1e15, symbol: 'P' },
+  { value: 1e18, symbol: 'E' },
+];
+
 export const NUMBER_PREVENT_KEYS = ['e', 'E', '+', '-'];
 export const AMOUNT_PREVENT_KEYS = [...NUMBER_PREVENT_KEYS, '.'];
 
-export const TOKEN_UNIT = 8;
+export const TOKEN_UNIT = process.env.NEXT_PUBLIC_TOKEN_UNIT || '8';
 
-export const PLATFORM_FEE = 5;
+export const PLATFORM_FEE = process.env.NEXT_PUBLIC_PLATFORM_FEE || '5';
 
 export const CONTRACT_ID = process.env.NEXT_PUBLIC_CONTRACT_ID || '0.0.4673119';
 export const COLLATERAL_CONTRACT_ID = process.env.NEXT_PUBLIC_COLLATERAL_CONTRACT_ID || '0.0.4673010';

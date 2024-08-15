@@ -3,7 +3,8 @@ import React, { useCallback } from 'react';
 import { IGetBorrowRequestData } from '@/api/portfolio/type';
 import { HederaWalletsContext } from '@/context/HederaContext';
 import { cn, prettyNumber } from '@/utils/common';
-import { CONTRACT_ID, DATE_FORMAT, TOKEN_UNIT } from '@/utils/constants';
+import { IPagination, IPaging } from '@/utils/common.type';
+import { CONTRACT_ID, DATE_FORMAT, env, TOKEN_UNIT } from '@/utils/constants';
 import { ContractExecuteTransaction, ContractFunctionParameters } from '@hashgraph/sdk';
 import { Signer } from '@hashgraph/sdk/lib/Signer';
 import { Button, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
@@ -12,19 +13,27 @@ import { toast } from 'sonner';
 import { formatUnits } from 'viem';
 
 import { useGetMetaToken } from '@/hooks/useGetMetaToken';
+import PaginationList from '@/components/ui/paginationList';
 import { HStack, VStack } from '@/components/Utilities';
 
 import { BOND_REQUEST_ACTIVE_ACTIONS, BOND_REQUESTS_KEYS, HEADER_COLUMNS_BOND_REQUESTS } from '../../../../utils/const';
 
 interface Props {
   bonds: IGetBorrowRequestData[];
+  paging: IPaging;
+  pagination: IPagination | undefined;
+  onPageChange: (newPage: number) => void;
+  refetch: () => void;
 }
 
-const BondRequestsActiveTable: React.FC<Props> = ({ bonds }) => {
+const CENTER_COLUMNS = [BOND_REQUESTS_KEYS.action];
+const RIGHT_COLUMNS = [BOND_REQUESTS_KEYS.loanAmount, BOND_REQUESTS_KEYS.interestRate];
+
+const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, onPageChange, refetch }) => {
   const { getLoanTokenLabel } = useGetMetaToken();
   const { hashConnect, accountId } = React.useContext(HederaWalletsContext);
 
-  const provider = hashConnect?.getProvider('testnet', hashConnect?.hcData?.topic ?? '', accountId ?? '');
+  const provider = hashConnect?.getProvider(env.NETWORK_TYPE, hashConnect?.hcData?.topic ?? '', accountId ?? '');
 
   const signer = React.useMemo(() => {
     if (!provider) return null;
@@ -77,18 +86,20 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds }) => {
           .catch((e) => console.error(e));
 
         if (contractExecSubmit?.transactionId) {
-          console.log('contractExecSubmit', contractExecSubmit?.transactionId);
+          setTimeout(() => {
+            refetch();
+          }, 500);
         }
       } catch (error) {
         toast.error(error as string);
       }
     },
-    [signer]
+    [refetch, signer]
   );
 
   const renderCell = useCallback(
     (item: IGetBorrowRequestData, columnKey: string) => {
-      const loanAmount = Number(formatUnits(BigInt(Number(item?.loanAmount || 0)), TOKEN_UNIT));
+      const loanAmount = Number(formatUnits(BigInt(Number(item?.loanAmount || 0)), Number(TOKEN_UNIT)));
       const loanTokenLabel = getLoanTokenLabel(item?.loanToken);
 
       // getPriceFeed(item?.loanToken, item?.collateralToken, item?.loanAmount);
@@ -132,8 +143,6 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds }) => {
     [getLoanTokenLabel, handleClaim, handleRepay]
   );
 
-  const textRightAlignArray = [BOND_REQUESTS_KEYS.loanAmount, BOND_REQUESTS_KEYS.interestRate];
-
   return (
     <VStack>
       <HStack spacing={12}>
@@ -146,7 +155,8 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds }) => {
           {(column) => (
             <TableColumn
               className={cn({
-                'text-right': textRightAlignArray.includes(String(column.key)),
+                'text-right': RIGHT_COLUMNS.includes(String(column.key)),
+                'text-center': CENTER_COLUMNS.includes(String(column.key)),
               })}
               key={column.key}
             >
@@ -160,7 +170,8 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds }) => {
               {(columnKey) => (
                 <TableCell
                   className={cn({
-                    'text-right': textRightAlignArray.includes(String(columnKey)),
+                    'text-right': RIGHT_COLUMNS.includes(String(columnKey)),
+                    'text-center': CENTER_COLUMNS.includes(String(columnKey)),
                   })}
                 >
                   {renderCell(item, String(columnKey))}
@@ -170,6 +181,20 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds }) => {
           ))}
         </TableBody>
       </Table>
+
+      {!!pagination?.itemCount && (
+        <HStack pos={'center'}>
+          <PaginationList
+            pageSize={paging?.limit}
+            currentPage={paging?.page}
+            onPageChange={(newPage) => {
+              onPageChange(newPage);
+            }}
+            siblingCount={1}
+            totalCount={paging?.total || 0}
+          />
+        </HStack>
+      )}
     </VStack>
   );
 };

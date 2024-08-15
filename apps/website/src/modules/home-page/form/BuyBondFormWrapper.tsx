@@ -9,7 +9,7 @@ import {
   convertEvmAddressToHederaAccountId,
   getTokensAssociated,
 } from '@/utils/common';
-import { CONTRACT_ID, TOKEN_UNIT } from '@/utils/constants';
+import { CONTRACT_ID, env, TOKEN_UNIT } from '@/utils/constants';
 import { ContractExecuteTransaction, ContractFunctionParameters } from '@hashgraph/sdk';
 import { Signer } from '@hashgraph/sdk/lib/Signer';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,7 +34,7 @@ const BuyBondFormWrapper: FCC<Props> = ({ children, onOpen, refetch }) => {
   const setIsLoadingTransaction = useBuyBondStore.use.setIsLoadingTransaction();
   const setIsEnoughBalance = useBuyBondStore.use.setIsEnoughBalance();
   const { hashConnect, accountId } = React.useContext(HederaWalletsContext);
-  const provider = hashConnect?.getProvider('testnet', hashConnect?.hcData?.topic ?? '', accountId ?? '');
+  const provider = hashConnect?.getProvider(env.NETWORK_TYPE, hashConnect?.hcData?.topic ?? '', accountId ?? '');
   const { bond, volumeLeft } = useGetBondDetail(Number(bondId));
 
   const signer = React.useMemo(() => {
@@ -89,7 +89,10 @@ const BuyBondFormWrapper: FCC<Props> = ({ children, onOpen, refetch }) => {
       const tokens = await getTokensAssociated(accountId);
 
       if (tokens?.length) {
-        const balance = formatUnits(tokens?.find((token: any) => token?.token_id === tokenId)?.balance, TOKEN_UNIT);
+        const balance = formatUnits(
+          tokens?.find((token: any) => token?.token_id === tokenId)?.balance,
+          Number(TOKEN_UNIT)
+        );
 
         if (Number(balance) < Number(numberOfBond) * 100) {
           setIsEnoughBalance(false);
@@ -135,7 +138,7 @@ const BuyBondFormWrapper: FCC<Props> = ({ children, onOpen, refetch }) => {
         accountId,
         tokenId: loanTokenId,
         contractId: CONTRACT_ID,
-        tokenUnit: TOKEN_UNIT,
+        tokenUnit: Number(TOKEN_UNIT),
       });
 
       if (transactionIdApprove) {

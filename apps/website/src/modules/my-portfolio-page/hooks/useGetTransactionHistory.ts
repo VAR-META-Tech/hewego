@@ -20,8 +20,8 @@ export const useGetTransactionHistory = () => {
     variables: {
       page: String(paging.page),
       limit: String(paging.limit),
-      searchTransactionHash: filter?.search || '',
-      supplies: filter?.supply || '',
+      searchTransactionHash: filter?.search || undefined,
+      supplies: filter?.supply || undefined,
     },
     enabled: !!isConnected && !!loginData,
   });
@@ -48,7 +48,7 @@ export const useGetTransactionHistory = () => {
 
   return {
     data,
-    bonds: data?.data || [],
+    transactions: data?.data || [],
     pagination: data?.meta?.pagination,
     paging,
     filter,

@@ -34,6 +34,7 @@ const BondHoldings: React.FC<Props> = ({ setTabContainer }) => {
           pagination={pagination}
           onPageChange={onPageChange}
           setTabContainer={setTabContainer}
+          refetch={refetch}
         />
       </div>
     </BondHoldingsFilterFormWrapper>

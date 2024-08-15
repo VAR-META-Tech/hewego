@@ -105,6 +105,26 @@ export interface IGetBondHoldingsSummaryData {
 export interface IGetTransactionHistoryParams {
   page?: string;
   limit?: string;
-  supplies: string;
+  supplies?: string;
   searchTransactionHash?: string;
+}
+
+export interface IGetTransactionHistoryResponse {
+  meta: IMetaPagination;
+  data: IGetTransactionHistoryData[];
+}
+export interface IGetTransactionHistoryData {
+  id: number;
+  transactionType: string;
+  lenderAddress: string;
+  loanAmount: string;
+  interestPayment: string;
+  receivedAmount: string;
+  status: string;
+  transactionHash: string;
+  createdAt: string;
+  bondName: string;
+  bondId: number;
+  loanToken: string;
+  loanTokenType: string;
 }

@@ -46,14 +46,14 @@ export const BOND_HOLDINGS_KEYS = {
 };
 
 export const TRANSACTION_HISTORY_KEYS = {
-  transactionId: 'Transaction ID',
-  dateTime: 'Date & Time',
-  transactionType: 'Transaction Type',
-  loanAmount: 'Loan Amount',
-  interestPayment: 'Interest Payment',
-  receivedAmount: 'Received Amount',
-  status: 'Status',
-  action: 'Action',
+  transactionId: 'id',
+  dateTime: 'createdAt',
+  transactionType: 'transactionType',
+  loanAmount: 'loanAmount',
+  interestPayment: 'interestPayment',
+  receivedAmount: 'receivedAmount',
+  status: 'status',
+  action: 'action',
 };
 
 export const HEADER_COLUMNS_BOND_REQUESTS = [
@@ -85,7 +85,7 @@ export const HEADER_COLUMNS_TRANSACTION_HISTORY = [
   { key: TRANSACTION_HISTORY_KEYS.interestPayment, label: 'Interest Payment' },
   { key: TRANSACTION_HISTORY_KEYS.receivedAmount, label: 'Received Amount' },
   { key: TRANSACTION_HISTORY_KEYS.status, label: 'Status' },
-  { key: TRANSACTION_HISTORY_KEYS.action, label: 'Action' },
+  { key: TRANSACTION_HISTORY_KEYS.action, label: '' },
 ];
 
 export const BOND_MANAGEMENT_TAB_VALUE = {
@@ -104,7 +104,7 @@ export const BOND_MANAGEMENT_TAB_DATA = [
   },
 ];
 
-export const GET_BOND_REQUEST_LIMIT = 5;
+export const GET_BOND_REQUEST_LIMIT = 3;
 export const GET_BOND_HOLDING_LIMIT = 5;
 export const GET_BOND_TRANSACTION_HISTORY_LIMIT = 10;
 

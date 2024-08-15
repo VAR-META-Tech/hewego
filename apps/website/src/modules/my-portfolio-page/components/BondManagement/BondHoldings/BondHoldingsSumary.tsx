@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGetBondHoldingsSummaryQuery } from '@/api/portfolio/queries';
 import { HederaWalletsContext } from '@/context/HederaContext';
-import { prettyNumber } from '@/utils/common';
+import { nFormatter, prettyNumber } from '@/utils/common';
 import { TOKEN_UNIT } from '@/utils/constants';
 import { formatUnits } from 'viem';
 
@@ -21,17 +21,17 @@ const BondHoldingsSumary = () => {
       <SummaryItem
         className="py-10"
         title="Total Number of Bonds Purchased"
-        firstValue={`${data?.data?.totalBondPurchased || 0} bonds~${prettyNumber(Number(formatUnits(BigInt(data?.data?.totalAmountBondPurchased || 0), TOKEN_UNIT)))} USDC`}
+        firstValue={`${data?.data?.totalBondPurchased || 0} bonds~${nFormatter(Number(formatUnits(BigInt(data?.data?.totalAmountBondPurchased || 0), Number(TOKEN_UNIT))))} USDC`}
         secondValue={''}
-        isShowDevider={false}
+        isShowDivider={false}
       />
 
       <SummaryItem
         className="py-10"
         title=" Total Capital and Interest Received "
-        firstValue={`${prettyNumber(Number(data?.data?.totalCapitalAndInterestRecieved || 0))} USDC`}
+        firstValue={`${prettyNumber(Number(formatUnits(BigInt(data?.data?.totalCapitalAndInterestRecieved || 0), Number(TOKEN_UNIT)) || 0))} USDC`}
         secondValue={''}
-        isShowDevider={false}
+        isShowDivider={false}
       />
     </HStack>
   );

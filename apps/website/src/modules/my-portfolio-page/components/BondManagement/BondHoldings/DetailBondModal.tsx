@@ -38,7 +38,7 @@ const DetailBondModal: React.FC<Props> = ({ bond, setTabContainer }) => {
   const loanAmount = React.useMemo(() => {
     if (!bond?.purchasedAmount) return 0;
 
-    return Number(formatUnits(BigInt(bond?.purchasedAmount || 0), TOKEN_UNIT));
+    return Number(formatUnits(BigInt(bond?.purchasedAmount || 0), Number(TOKEN_UNIT)));
   }, [bond?.purchasedAmount]);
 
   const totalInterest = React.useMemo(() => {
