@@ -257,6 +257,11 @@ export class BondService {
         queryBuilder.andWhere('bonds.issuanceDate > :currentTimestamp', {
           currentTimestamp,
         });
+        const actionCase = `
+          CASE bonds.canceledAt IS NOT NULL THEN '${RequestBondAction.TO_BE_CANCEL}'
+          THEN '${RequestBondAction.CLOSED}'
+          `;
+        queryBuilder.addSelect(actionCase, 'action');
       }
 
       if (params?.status === BondStatusEnum.ACTIVE) {
