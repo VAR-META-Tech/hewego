@@ -291,7 +291,7 @@ export class BondService {
           CASE
             WHEN bonds.repaidAt IS NULL AND bonds.maturityDate <= ${currentTimestamp} AND bonds.maturityDate + ${gracePeriodInSeconds} >= ${currentTimestamp} THEN '${RequestBondAction.REPAY}'
             WHEN bonds.repaidAt IS NULL THEN '${RequestBondAction.REPAY}'
-            WHEN bonds.liquidatedAt IS NOT NULL '${RequestBondAction.CLOSED}'
+            WHEN bonds.liquidatedAt IS NOT NULL THEN '${RequestBondAction.CLOSED}'
             ELSE '${RequestBondAction.CLOSED}'
           END
         `;
