@@ -258,8 +258,10 @@ export class BondService {
           currentTimestamp,
         });
         const actionCase = `
-          CASE bonds.canceledAt IS NOT NULL THEN '${RequestBondAction.TO_BE_CANCEL}'
-          THEN '${RequestBondAction.CLOSED}'
+          CASE 
+            WHEN bonds.canceledAt IS NOT NULL THEN '${RequestBondAction.TO_BE_CANCEL}'
+            ELSE '${RequestBondAction.CLOSED}'
+          END
           `;
         queryBuilder.addSelect(actionCase, 'action');
       }
