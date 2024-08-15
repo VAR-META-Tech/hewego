@@ -387,7 +387,7 @@ export class BondService {
         .addSelect(
           `
         CASE 
-          WHEN bonds.repaid_at IS NOT NULL AND bond_checkout.claimed_at IS NOT NULL THEN '${HoldingBondStatus.ENABLE_CLAIM}'
+          WHEN bonds.repaid_at IS NOT NULL THEN '${HoldingBondStatus.ENABLE_CLAIM}'
           ELSE '${HoldingBondStatus.DISABLE_CLAIM}'
         END as "status"`,
         )
@@ -438,6 +438,18 @@ export class BondService {
       });
 
     const bondCheckout = await bondCheckoutQueryBuilder.getRawOne();
+
+    // const queryBuilder = this.bondCheckoutRepository
+    //   .createQueryBuilder('bond_checkout')
+    //   .where('LOWER(bond_checkout.lender_address) = LOWER(:walletAddress)', {
+    //     walletAddress: user.walletAddress,
+    //   });
+    // const lenderCheckout = await queryBuilder.execute();
+    // console.log({ lenderCheckout });
+
+    // const totalLenderCheckouts = lenderCheckout.reduce((item) => {
+    //   const loan_amount = ethers.utils.formatUnits()
+    // });
 
     const lenderTransactionQueryBuilder = this.lenderTransactionRepository
       .createQueryBuilder('lender_transaction')
