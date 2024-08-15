@@ -387,7 +387,7 @@ export class BondService {
         .addSelect(
           `
         CASE 
-          WHEN bonds.repaid_at IS NOT NULL OR bond_checkout.claimed_at IS NOT NULL OR bonds.liquidated_at IS NOT NULL THEN '${HoldingBondStatus.ENABLE_CLAIM}'
+          WHEN bonds.repaid_at IS NOT NULL AND bond_checkout.claimed_at IS NOT NULL THEN '${HoldingBondStatus.ENABLE_CLAIM}'
           ELSE '${HoldingBondStatus.DISABLE_CLAIM}'
         END as "status"`,
         )
