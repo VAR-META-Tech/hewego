@@ -17,6 +17,7 @@ export class LenderTransaction {
     name: 'transaction_type',
     type: 'enum',
     enum: LenderTransactionType,
+    nullable: true,
   })
   transactionType: LenderTransactionType;
 
