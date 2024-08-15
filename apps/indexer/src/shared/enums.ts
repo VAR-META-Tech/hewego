@@ -26,6 +26,7 @@ export enum TransactionTag {
 export enum TokenSymbolEnum {
   USDC = "USDC",
   USDT = "USDT",
+  BTC = "BTC",
 }
 export enum TokenTypeEnum {
   COLLATERAL = "COLLATERAL",
@@ -37,6 +38,7 @@ export enum EventType {
   LenderClaimed = "LenderClaimed",
   BorrowerClaimLoanToken = "BorrowerClaimLoanToken",
   BondRepaid = "BondRepaid",
+  BorrowerRefundoanToken = "BorrowerRefundoanToken",
 }
 
 export enum BondRequestTransactionType {

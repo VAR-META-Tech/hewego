@@ -25,6 +25,7 @@ export enum BondStatusEnum {
 export enum TokenSymbolEnum {
   USDC = 'USDC',
   USDT = 'USDT',
+  BTC = 'BTC',
 }
 export enum TokenTypeEnum {
   COLLATERAL = 'COLLATERAL',
@@ -54,4 +55,5 @@ export enum RequestBondAction {
   CLAIM = 'CLAIM',
   REPAY = 'REPAY',
   CLOSED = 'CLOSE',
+  TO_BE_CANCEL = 'TO_BE_CANCEL',
 }

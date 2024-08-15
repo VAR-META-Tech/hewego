@@ -50,7 +50,7 @@ export class HederaWorkerService {
           await this.delay(500); // 0.5 seconds, to avoid too many requests
         }
       } catch (e) {
-        console.log({e})
+        console.log({ e });
         this.logger.error(e.message);
       }
     } while (true);
@@ -101,10 +101,7 @@ export class HederaWorkerService {
         latestBlockInDb ? latestBlockInDb.blockNumber : toBlock,
         toBlock
       );
-      // await Promise.all(
-      //   events.map((eventItem) => this.handleEvents(eventItem, manager))
-      // );
-      for(const eventItem of events) {
+      for (const eventItem of events) {
         await this.handleEvents(eventItem, manager);
       }
 
@@ -136,6 +133,9 @@ export class HederaWorkerService {
         break;
       case EventType.BondRepaid:
         await this.handleBondRepaid(event, manager);
+        break;
+      case EventType.BorrowerRefundoanToken:
+        await this.handleBorrowerRefundoanToken(event, manager);
         break;
       default:
         this.logger.debug(
@@ -269,7 +269,6 @@ export class HederaWorkerService {
     newLenderTransaction.transactionHash = metaData?.transaction_hash;
     newLenderTransaction.status = LenderTransactionStatus.COMPLETED;
 
-
     await manager
       .createQueryBuilder()
       .insert()
@@ -281,14 +280,17 @@ export class HederaWorkerService {
       )
       .execute();
 
-    await manager.createQueryBuilder()
-    .update(BondCheckout)
-    .set({
-      claimedAt: new Date()
-    })
-    .where('bond_id = :bondId', { bondId: newLenderTransaction.bondId })
-    .andWhere('lender_address = :lenderAddress', { lenderAddress: newLenderTransaction.lenderAddress })
-    .execute();
+    await manager
+      .createQueryBuilder()
+      .update(BondCheckout)
+      .set({
+        claimedAt: new Date(),
+      })
+      .where("bond_id = :bondId", { bondId: newLenderTransaction.bondId })
+      .andWhere("lender_address = :lenderAddress", {
+        lenderAddress: newLenderTransaction.lenderAddress,
+      })
+      .execute();
   }
   async handleBorrowerClaimedLoan(
     eventBorrowerClaimedPayload,
@@ -378,6 +380,46 @@ export class HederaWorkerService {
         ["transaction_hash", "status"],
         ["transaction_hash", "borrower_address", "bond_id"]
       )
+      .execute();
+  }
+
+  async handleBorrowerRefundoanToken(
+    eventBorrowerRefundoanTokenPayload,
+    manager: EntityManager
+  ) {
+    const [bondId, borrower, collateralToken, collateralAmount] =
+      eventBorrowerRefundoanTokenPayload?.event?.args;
+
+    const metaData = eventBorrowerRefundoanTokenPayload?.meta;
+    const newBorrowerTransaction = new BorrowerTransaction();
+    newBorrowerTransaction.bondId = BigNumber.from(bondId).toNumber();
+    newBorrowerTransaction.borrowerAddress = borrower;
+    newBorrowerTransaction.loanAmount = 0;
+    newBorrowerTransaction.interestPayment = 0;
+    newBorrowerTransaction.paymentAmount = 0;
+    newBorrowerTransaction.collateralAmount = BigNumber.from(collateralAmount).toNumber();
+    newBorrowerTransaction.transactionHash = metaData?.transaction_hash;
+    newBorrowerTransaction.status = BorrowerTransactionStatus.COMPLETED;
+    newBorrowerTransaction.transactionType = BorrowerTransactionType.REFUND_COLLATERAL;
+
+    await manager
+      .createQueryBuilder()
+      .insert()
+      .into(BorrowerTransaction)
+      .values(newBorrowerTransaction)
+      .orUpdate(
+        ["transaction_hash", "status"],
+        ["transaction_hash", "borrower_address", "bond_id"]
+      )
+      .execute();
+
+    await manager
+      .createQueryBuilder()
+      .update(Bond)
+      .set({ canceledAt: new Date() })
+      .where("bond_id = :bondId", {
+        bondId: BigNumber.from(bondId).toNumber(),
+      })
       .execute();
   }
 
