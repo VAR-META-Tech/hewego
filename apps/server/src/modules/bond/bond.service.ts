@@ -281,7 +281,7 @@ export class BondService {
         );
         const actionCase = `
           CASE
-            WHEN bonds.claimedLoanAt IS NOT NULL AND bonds.repaidAt IS NULL AND bonds.maturityDate <= ${currentTimestamp} AND bonds.maturityDate + ${gracePeriodInSeconds} >= ${currentTimestamp} THEN '${RequestBondAction.REPAY}'
+            WHEN bonds.repaidAt IS NULL AND bonds.maturityDate <= ${currentTimestamp} AND bonds.maturityDate + ${gracePeriodInSeconds} >= ${currentTimestamp} THEN '${RequestBondAction.REPAY}'
             WHEN bonds.repaidAt IS NULL THEN '${RequestBondAction.REPAY}'
             ELSE '${RequestBondAction.CLOSED}'
           END
@@ -487,10 +487,9 @@ export class BondService {
       this.configService.getHederaConfig.bondIssuanceContractAddress;
     return await this.bondRepository
       .createQueryBuilder('bonds')
-      .select(['bonds.bond_id as "bondId"'])
       .where('LOWER(bonds.contract_address) = LOWER(:contractAddress)', {
         contractAddress: activeBondIssuanceContractAddress,
       })
-      .execute();
+      .getMany();
   }
 }
