@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { request } from '../axios';
 import {
   IGetBondHoldingsParams,
@@ -8,6 +7,7 @@ import {
   IGetBorrowRequestParams,
   IGetBorrowRequestResponse,
   IGetTransactionHistoryParams,
+  IGetTransactionHistoryResponse,
 } from './type';
 
 export const getBondRequestSummaryRequest = async (): Promise<IGetBondRequestSummaryResponse> => {
@@ -48,7 +48,9 @@ export const getBondHoldingsSummaryRequest = async (): Promise<IGetBondHoldingsS
   return data;
 };
 
-export const getTransactionHistoryRequest = async (params: IGetTransactionHistoryParams): Promise<any> => {
+export const getTransactionHistoryRequest = async (
+  params: IGetTransactionHistoryParams
+): Promise<IGetTransactionHistoryResponse> => {
   const { data } = await request({
     url: `/api/lender-transactions`,
     method: 'GET',

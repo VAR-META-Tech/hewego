@@ -13,7 +13,7 @@ import { extendTailwindMerge } from 'tailwind-merge';
 import { parseUnits as ethersParseUnits, formatUnits } from 'viem';
 
 import { getMutateError } from '../lib/getMutateError';
-import { AMOUNT_PREVENT_KEYS, DATETIME_FORMAT, env, NUMBER_PREVENT_KEYS, TOKEN_UNIT } from './constants';
+import { AMOUNT_PREVENT_KEYS, DATETIME_FORMAT, env, LOOK_UP, NUMBER_PREVENT_KEYS, TOKEN_UNIT } from './constants';
 import * as util from './util';
 
 const twMerge = extendTailwindMerge({});
@@ -242,7 +242,7 @@ export const getBalance = async (tokenId: string, accountId: string) => {
   if (tokens?.length) {
     const balance = formatUnits(
       BigInt(tokens?.find((token: any) => token?.token_id === tokenId)?.balance || 0),
-      TOKEN_UNIT
+      Number(TOKEN_UNIT)
     );
 
     return balance || 0;
@@ -254,3 +254,9 @@ export const getBalance = async (tokenId: string, accountId: string) => {
 export const currentNo = (no: number, page: number, limit: number) => {
   return no + 1 + (Number(page) - 1) * Number(limit);
 };
+
+export function nFormatter(num: number, digits = 1) {
+  const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/;
+  const item = LOOK_UP.findLast((item) => num >= item.value);
+  return item ? (num / item.value).toFixed(digits).replace(regexp, '').concat(item.symbol) : '0';
+}

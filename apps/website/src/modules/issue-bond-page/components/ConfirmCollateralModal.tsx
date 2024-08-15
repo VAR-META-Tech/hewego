@@ -11,7 +11,7 @@ import {
   convertEvmAddressToAccountId,
   prettyNumber,
 } from '@/utils/common';
-import { CONTRACT_ID, TOKEN_UNIT } from '@/utils/constants';
+import { CONTRACT_ID, env, TOKEN_UNIT } from '@/utils/constants';
 import { ContractExecuteTransaction, ContractFunctionParameters } from '@hashgraph/sdk';
 import { Signer } from '@hashgraph/sdk/lib/Signer';
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
@@ -59,7 +59,7 @@ const ConfirmCollateralModal: React.FC<Props> = ({ isOpen, onOpenChange }) => {
     'lenderInterestRate',
   ]);
 
-  const provider = hashConnect?.getProvider('testnet', hashConnect?.hcData?.topic ?? '', accountId ?? '');
+  const provider = hashConnect?.getProvider(env.NETWORK_TYPE, hashConnect?.hcData?.topic ?? '', accountId ?? '');
 
   const signer = React.useMemo(() => {
     if (!provider) return null;
@@ -106,7 +106,7 @@ const ConfirmCollateralModal: React.FC<Props> = ({ isOpen, onOpenChange }) => {
           new ContractFunctionParameters()
             .addString(name)
             .addAddress(loanToken) // loan token
-            .addUint256(String(parseUnits(Number(loanAmount), TOKEN_UNIT)) as any)
+            .addUint256(String(parseUnits(Number(loanAmount), Number(TOKEN_UNIT))) as any)
             .addUint256(Number(durationBond?.split(' ')[0]))
             .addUint256(Number(borrowInterestRate * 10))
             .addUint256(Number(lenderInterestRate * 10))
@@ -158,7 +158,7 @@ const ConfirmCollateralModal: React.FC<Props> = ({ isOpen, onOpenChange }) => {
         provider,
         signer: signer as unknown as Signer,
         tokenId: collateralTokenId,
-        tokenUnit: TOKEN_UNIT,
+        tokenUnit: Number(TOKEN_UNIT),
       });
 
       if (transactionIdApprove) {

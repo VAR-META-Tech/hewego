@@ -13,22 +13,25 @@ import BondRequestsPendingTable from './BondRequestPending.tsx/BondRequestsPendi
 import BondRequestsSummary from './BondRequestsSummary';
 
 const BondRequests = () => {
-  const { bonds, refetch, handleSearchChange } = useGetBondRequestsPending();
+  const { bonds, refetch, handleSearchChange, onPageChange, pagination, paging } = useGetBondRequestsPending();
   const {
     bonds: bondsActive,
-    refetch: refetchAtive,
+    refetch: refetchActive,
     handleSearchChange: handleSearchChangeActive,
+    onPageChange: onPageChangeActive,
+    pagination: paginationActive,
+    paging: pagingActive,
   } = useGetBondRequestsActive();
 
   React.useEffect(() => {
     refetch();
-    refetchAtive();
+    refetchActive();
 
     return () => {
       refetch();
-      refetchAtive();
+      refetchActive();
     };
-  }, [refetch, refetchAtive]);
+  }, [refetch, refetchActive]);
 
   return (
     <div className="space-y-10">
@@ -45,13 +48,25 @@ const BondRequests = () => {
         <BondRequestPendingFilterFormWrapper>
           <BondRequestsPendingFilter handleSearchChange={handleSearchChange} />
 
-          <BondRequestsPendingTable bonds={bonds} />
+          <BondRequestsPendingTable
+            bonds={bonds}
+            pagination={pagination}
+            onPageChange={onPageChange}
+            paging={paging}
+            refetch={refetch}
+          />
         </BondRequestPendingFilterFormWrapper>
 
         <BondRequestActiveFilterFormWrapper>
           <BondRequestsActiveFilter handleSearchChange={handleSearchChangeActive} />
 
-          <BondRequestsActiveTable bonds={bondsActive} />
+          <BondRequestsActiveTable
+            bonds={bondsActive}
+            pagination={paginationActive}
+            onPageChange={onPageChangeActive}
+            paging={pagingActive}
+            refetch={refetchActive}
+          />
         </BondRequestActiveFilterFormWrapper>
       </div>
     </div>

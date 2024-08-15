@@ -5,7 +5,7 @@ import { HederaWalletsContext } from '@/context/HederaContext';
 import { useBondHoldingsStore } from '@/modules/my-portfolio-page/store/useBondHoldingsStore';
 import { cn, currentNo, prettyNumber, roundNumber } from '@/utils/common';
 import { IPagination, IPaging } from '@/utils/common.type';
-import { CONTRACT_ID, DATE_FORMAT, TOKEN_UNIT } from '@/utils/constants';
+import { CONTRACT_ID, DATE_FORMAT, env, TOKEN_UNIT } from '@/utils/constants';
 import { ContractExecuteTransaction, ContractFunctionParameters } from '@hashgraph/sdk';
 import { Signer } from '@hashgraph/sdk/lib/Signer';
 import { Button, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
@@ -17,7 +17,7 @@ import { useGetMetaToken } from '@/hooks/useGetMetaToken';
 import PaginationList from '@/components/ui/paginationList';
 import { HStack } from '@/components/Utilities';
 
-import { HEADER_COLUMNS_BOND_HOLDINGS, HOLDING_BOND_STATUS_BUTTON } from '../../../utils/const';
+import { BOND_HOLDINGS_KEYS, HEADER_COLUMNS_BOND_HOLDINGS, HOLDING_BOND_STATUS_BUTTON } from '../../../utils/const';
 import DetailBondModal from './DetailBondModal';
 
 interface Props {
@@ -26,14 +26,18 @@ interface Props {
   bonds: IGetBondHoldingsData[];
   pagination: IPagination | undefined;
   setTabContainer: React.Dispatch<React.SetStateAction<string>>;
+  refetch: () => void;
 }
 
-const BondHoldingsTable: React.FC<Props> = ({ paging, onPageChange, bonds, pagination, setTabContainer }) => {
+const CENTER_COLUMNS = [BOND_HOLDINGS_KEYS.no, BOND_HOLDINGS_KEYS.action];
+const RIGHT_COLUMNS = [BOND_HOLDINGS_KEYS.purchasedAmount, BOND_HOLDINGS_KEYS.receivedAmount];
+
+const BondHoldingsTable: React.FC<Props> = ({ paging, onPageChange, bonds, pagination, setTabContainer, refetch }) => {
   const { getLoanTokenLabel } = useGetMetaToken();
   const { hashConnect, accountId } = React.useContext(HederaWalletsContext);
   const setBondDetailId = useBondHoldingsStore.use.setBondDetailId();
 
-  const provider = hashConnect?.getProvider('testnet', hashConnect?.hcData?.topic ?? '', accountId ?? '');
+  const provider = hashConnect?.getProvider(env.NETWORK_TYPE, hashConnect?.hcData?.topic ?? '', accountId ?? '');
 
   const signer = React.useMemo(() => {
     if (!provider) return null;
@@ -59,23 +63,26 @@ const BondHoldingsTable: React.FC<Props> = ({ paging, onPageChange, bonds, pagin
           .catch((e) => console.error(e));
 
         if (contractExecSubmit?.transactionId) {
+          refetch();
           toast.success('Claim bond successfully!');
         }
       } catch (error) {
         toast.error(error as string);
       }
     },
-    [signer]
+    [refetch, signer]
   );
 
   const renderCell = React.useCallback(
     (item: IGetBondHoldingsData, columnKey: string, index: number) => {
-      const loanAmount = Number(formatUnits(BigInt(item?.purchasedAmount || 0), TOKEN_UNIT));
+      const loanAmount = Number(formatUnits(BigInt(item?.purchasedAmount || 0), Number(TOKEN_UNIT)));
       const interestRate = Number(item?.bondInfo?.interestRate || 0);
 
       const receiveAmount = loanAmount + Number(loanAmount * (interestRate / 100));
 
-      const isDisableButton = item?.status === HOLDING_BOND_STATUS_BUTTON.DISABLE_CLAIM;
+      const isDisableClaim = item?.status === HOLDING_BOND_STATUS_BUTTON.DISABLE_CLAIM;
+
+      const isDisableButton = isDisableClaim || (!isDisableClaim && !!item?.claimedAt);
 
       switch (columnKey) {
         case 'no':
@@ -111,7 +118,7 @@ const BondHoldingsTable: React.FC<Props> = ({ paging, onPageChange, bonds, pagin
                 'opacity-50 pointer-events-none': isDisableButton,
               })}
             >
-              Claim
+              {item?.claimedAt ? 'Claimed' : 'Claim'}
             </Button>
           );
         default:
@@ -125,12 +132,31 @@ const BondHoldingsTable: React.FC<Props> = ({ paging, onPageChange, bonds, pagin
     <>
       <Table removeWrapper aria-label="Example table with dynamic content">
         <TableHeader columns={HEADER_COLUMNS_BOND_HOLDINGS}>
-          {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+          {(column) => (
+            <TableColumn
+              key={column.key}
+              className={cn({
+                'text-center': CENTER_COLUMNS.includes(String(column.key)),
+                'text-right': RIGHT_COLUMNS.includes(String(column.key)),
+              })}
+            >
+              {column.label}
+            </TableColumn>
+          )}
         </TableHeader>
         <TableBody items={bonds} emptyContent="No data to display.">
           {bonds?.map((item, index) => (
             <TableRow key={`${item?.bondInfo?.bondId}-${index}`}>
-              {(columnKey) => <TableCell>{renderCell(item, String(columnKey), index)}</TableCell>}
+              {(columnKey) => (
+                <TableCell
+                  className={cn({
+                    'text-center': CENTER_COLUMNS.includes(String(columnKey)),
+                    'text-right': RIGHT_COLUMNS.includes(String(columnKey)),
+                  })}
+                >
+                  {renderCell(item, String(columnKey), index)}
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
