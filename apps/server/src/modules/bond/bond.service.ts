@@ -492,6 +492,7 @@ export class BondService {
   }
 
   async getManyBonds(): Promise<Partial<Bond[]>> {
+    const currentTimestamp = Math.floor(Date.now() / 1000);
     const activeBondIssuanceContractAddress =
       this.configService.getHederaConfig.bondIssuanceContractAddress;
     return await this.bondRepository
@@ -499,6 +500,13 @@ export class BondService {
       .where('LOWER(bonds.contract_address) = LOWER(:contractAddress)', {
         contractAddress: activeBondIssuanceContractAddress,
       })
+      .andWhere('bonds.repaid_at IS NULL')
+      .andWhere(
+        'bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp',
+        {
+          currentTimestamp,
+        },
+      )
       .getMany();
   }
 }
