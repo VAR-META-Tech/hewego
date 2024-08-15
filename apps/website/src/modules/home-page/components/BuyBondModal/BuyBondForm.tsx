@@ -56,13 +56,16 @@ const BuyBondForm: React.FC<Props> = ({ bondId }) => {
   const interestPaymentValue = React.useMemo(() => {
     if (!numberOfBond) return 0;
 
-    return (Number(priceValue) * Number(lenderInterestRate)) / 100;
-  }, [lenderInterestRate, numberOfBond, priceValue]);
+    const interestRate = Number(lenderInterestRate || 0) / 100;
+    const duration = Number(bond?.loanTerm || 0) / 52;
+
+    return Number(Number(priceValue) * interestRate * duration).toFixed(2);
+  }, [bond?.loanTerm, lenderInterestRate, numberOfBond, priceValue]);
 
   const receiveMaturityValue = React.useMemo(() => {
     if (!numberOfBond) return 0;
 
-    return priceValue + interestPaymentValue;
+    return priceValue + Number(interestPaymentValue);
   }, [interestPaymentValue, numberOfBond, priceValue]);
 
   return (

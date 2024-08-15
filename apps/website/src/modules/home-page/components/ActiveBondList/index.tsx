@@ -15,6 +15,14 @@ const ActiveBondList = () => {
     };
   }, [refetch]);
 
+  React.useEffect(() => {
+    const refetchInterval = setInterval(() => {
+      refetch();
+    }, 4000);
+
+    return () => clearInterval(refetchInterval);
+  }, [refetch]);
+
   return (
     <div className="container">
       <div className="grid grid-cols-5 gap-8">

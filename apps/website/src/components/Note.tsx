@@ -13,10 +13,10 @@ const Note = React.forwardRef<HTMLDivElement, NoteProps>(({ className = '', note
   const renderNote = React.useMemo(() => {
     if (typeof note === 'string') {
       return (
-        <HStack ref={ref} spacing={8} className={cn('bg-gray-300 rounded-md px-4 py-1', className)} {...props}>
-          <Icons.circleAlert size={16} />
+        <HStack ref={ref} spacing={8} className={cn('bg-primary-50 rounded-md px-4 py-1', className)} {...props}>
+          <Icons.circleAlert size={12} color="#8259EF" />
 
-          <p className={cn('flex-1 text-sm font-semibold text-justify', noteClassName)}>{note}</p>
+          <p className={cn('flex-1 text-sm text-primary-500 text-justify', noteClassName)}>{note}</p>
         </HStack>
       );
     }

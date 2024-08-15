@@ -15,10 +15,10 @@ const WalletPoppover = () => {
   const { accountId, handleDisconnect } = React.useContext(HederaWalletsContext);
 
   return (
-    <HStack noWrap className="bg-primary-700 rounded-md pr-2 pl-4">
+    <HStack noWrap pos={'apart'} className="bg-primary-700 rounded-md pr-1 pl-4">
       <span className="text-white">{accountId}</span>
 
-      <Popover isOpen={isOpen} onOpenChange={(open) => setIsOpen(open)}>
+      <Popover size="lg" isOpen={isOpen} onOpenChange={(open) => setIsOpen(open)}>
         <PopoverTrigger>
           <button className="p-2">
             <Icons.ellipsisVertical color="white" />
@@ -28,15 +28,15 @@ const WalletPoppover = () => {
           <VStack spacing={20}>
             <VStack spacing={8}>
               <Button variant="light" startContent={<Icons.user />} onClick={() => router.push(ROUTE.MY_PORTFOLIO)}>
-                My Portfolio
+                <span className="w-32">My Portfolio</span>
               </Button>
 
               <Button variant="light" disabled={copied} startContent={<Icons.copy />} onClick={() => copy(accountId)}>
-                Copy Address
+                <span className="w-32">Copy Address </span>
               </Button>
 
               <Button variant="light" startContent={<Icons.link2Off />} onClick={handleDisconnect}>
-                Disconnect
+                <span className="w-32"> Disconnect </span>
               </Button>
             </VStack>
           </VStack>

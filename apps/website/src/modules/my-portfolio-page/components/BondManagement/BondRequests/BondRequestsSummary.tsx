@@ -11,7 +11,7 @@ import SummaryItem from '../SummaryItem';
 const BondRequestsSummary = () => {
   const { isConnected } = React.useContext(HederaWalletsContext);
 
-  const { data } = useGetBondRequestSummaryQuery({
+  const { data, refetch } = useGetBondRequestSummaryQuery({
     enabled: !!isConnected,
   });
 
@@ -24,6 +24,14 @@ const BondRequestsSummary = () => {
 
     return getLoanTokenLabel(loanToken);
   }, [borrowTokenData, getLoanTokenLabel]);
+
+  React.useEffect(() => {
+    const refetchInterval = setInterval(() => {
+      refetch();
+    }, 4000);
+
+    return () => clearInterval(refetchInterval);
+  }, [refetch]);
 
   return (
     <HStack pos={'center'} spacing={32}>

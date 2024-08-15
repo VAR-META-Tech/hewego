@@ -7,7 +7,7 @@ import { IPagination, IPaging } from '@/utils/common.type';
 import { CONTRACT_ID, DATE_FORMAT, env, TOKEN_UNIT } from '@/utils/constants';
 import { ContractExecuteTransaction, ContractFunctionParameters } from '@hashgraph/sdk';
 import { Signer } from '@hashgraph/sdk/lib/Signer';
-import { Button, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
+import { Button, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { formatUnits } from 'viem';
@@ -24,12 +24,13 @@ interface Props {
   pagination: IPagination | undefined;
   onPageChange: (newPage: number) => void;
   refetch: () => void;
+  isLoading: boolean;
 }
 
 const CENTER_COLUMNS = [BOND_REQUESTS_KEYS.action];
 const RIGHT_COLUMNS = [BOND_REQUESTS_KEYS.loanAmount, BOND_REQUESTS_KEYS.interestRate];
 
-const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, onPageChange, refetch }) => {
+const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, onPageChange, refetch, isLoading }) => {
   const { getLoanTokenLabel } = useGetMetaToken();
   const { hashConnect, accountId } = React.useContext(HederaWalletsContext);
 
@@ -164,7 +165,7 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, o
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={bonds} emptyContent="No data to display.">
+        <TableBody isLoading={isLoading} loadingContent={<Spinner />} items={bonds} emptyContent="No data to display.">
           {bonds?.map((item, index) => (
             <TableRow key={`${item?.bondId}-${index}`}>
               {(columnKey) => (

@@ -16,10 +16,10 @@ const TextFieldWithNote: React.FC<TextFieldWithNoteProps> = ({ note, noteClassNa
   const renderNote = React.useMemo(() => {
     if (typeof note === 'string') {
       return (
-        <HStack spacing={8} className="bg-gray-300 rounded-md px-4 py-1">
-          <Icons.circleAlert size={16} />
+        <HStack spacing={8} className="bg-primary-50 rounded-md px-4 py-1">
+          <Icons.circleAlert size={12} color="#8259EF" />
 
-          <p className={cn('flex-1 text-sm font-semibold text-justify', noteClassName)}>{note}</p>
+          <p className={cn('flex-1 text-sm text-primary-500 text-justify', noteClassName)}>{note}</p>
         </HStack>
       );
     }

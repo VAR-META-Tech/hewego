@@ -6,7 +6,7 @@ import { HEADER_COLUMNS_TRANSACTION_HISTORY, TRANSACTION_HISTORY_KEYS } from '@/
 import { cn, prettyNumber } from '@/utils/common';
 import { IPagination, IPaging } from '@/utils/common.type';
 import { DATE_FORMAT, env, TOKEN_UNIT } from '@/utils/constants';
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
+import { Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 import { format } from 'date-fns';
 import { formatUnits } from 'viem';
 
@@ -18,6 +18,7 @@ interface Props {
   paging: IPaging;
   onPageChange: (newPage: number) => void;
   transactions: IGetTransactionHistoryData[];
+  isLoading: boolean;
 }
 
 const CENTER_COLUMNS = [TRANSACTION_HISTORY_KEYS.transactionId, TRANSACTION_HISTORY_KEYS.status];
@@ -27,7 +28,7 @@ const RIGHT_COLUMNS = [
   TRANSACTION_HISTORY_KEYS.receivedAmount,
 ];
 
-const TransactionHistoryTable: React.FC<Props> = ({ pagination, paging, onPageChange, transactions }) => {
+const TransactionHistoryTable: React.FC<Props> = ({ pagination, paging, onPageChange, transactions, isLoading }) => {
   const renderCell = React.useCallback((item: IGetTransactionHistoryData, columnKey: string) => {
     switch (columnKey) {
       case TRANSACTION_HISTORY_KEYS.dateTime:
@@ -83,7 +84,12 @@ const TransactionHistoryTable: React.FC<Props> = ({ pagination, paging, onPageCh
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={transactions} emptyContent="No data to display.">
+        <TableBody
+          isLoading={isLoading}
+          loadingContent={<Spinner />}
+          items={transactions}
+          emptyContent="No data to display."
+        >
           {(item) => (
             <TableRow key={1}>
               {(columnKey) => (

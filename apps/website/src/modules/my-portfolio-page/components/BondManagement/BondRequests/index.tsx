@@ -13,7 +13,8 @@ import BondRequestsPendingTable from './BondRequestPending.tsx/BondRequestsPendi
 import BondRequestsSummary from './BondRequestsSummary';
 
 const BondRequests = () => {
-  const { bonds, refetch, handleSearchChange, onPageChange, pagination, paging } = useGetBondRequestsPending();
+  const { bonds, refetch, handleSearchChange, onPageChange, pagination, paging, isLoading } =
+    useGetBondRequestsPending();
   const {
     bonds: bondsActive,
     refetch: refetchActive,
@@ -21,17 +22,29 @@ const BondRequests = () => {
     onPageChange: onPageChangeActive,
     pagination: paginationActive,
     paging: pagingActive,
+    isLoading: isLoadingActive,
   } = useGetBondRequestsActive();
 
-  React.useEffect(() => {
+  const handleRefetch = React.useCallback(() => {
     refetch();
     refetchActive();
+  }, [refetch, refetchActive]);
+
+  React.useEffect(() => {
+    handleRefetch();
 
     return () => {
-      refetch();
-      refetchActive();
+      handleRefetch();
     };
-  }, [refetch, refetchActive]);
+  }, [handleRefetch]);
+
+  React.useEffect(() => {
+    const refetchInterval = setInterval(() => {
+      handleRefetch();
+    }, 4000);
+
+    return () => clearInterval(refetchInterval);
+  }, [handleRefetch]);
 
   return (
     <div className="space-y-10">
@@ -54,6 +67,7 @@ const BondRequests = () => {
             onPageChange={onPageChange}
             paging={paging}
             refetch={refetch}
+            isLoading={isLoading}
           />
         </BondRequestPendingFilterFormWrapper>
 
@@ -66,6 +80,7 @@ const BondRequests = () => {
             onPageChange={onPageChangeActive}
             paging={pagingActive}
             refetch={refetchActive}
+            isLoading={isLoadingActive}
           />
         </BondRequestActiveFilterFormWrapper>
       </div>

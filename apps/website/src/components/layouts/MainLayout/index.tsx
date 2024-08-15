@@ -8,11 +8,11 @@ interface Props {}
 
 const MainLayout: FCC<Props> = ({ children }) => {
   return (
-    <>
+    <div className="relative">
       <Header />
 
       <main className="min-h-screen bg-white pt-20">{children}</main>
-    </>
+    </div>
   );
 };
 
