@@ -73,6 +73,7 @@ export class BondService {
         .where('bonds.issuanceDate >=:currentTimestamp', {
           currentTimestamp,
         })
+        .andWhere('bonds.canceled_at IS NULL')
         .orderBy('bonds.createdAt', 'DESC');
 
       if (params?.loanTerms) {
