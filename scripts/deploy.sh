@@ -17,7 +17,7 @@ docker stop $IMAGE_NAME || true
 docker rm $IMAGE_NAME || true
 docker rmi $(docker images | grep 'imagename') || true
 echo "rebuilding new image"
-docker run -d --name $IMAGE_NAME --env-file .env -p $PORT:3030 $REGISTRY:$CI_COMMIT_SHORT_SHA 
+docker run -d --name $IMAGE_NAME --env-file .env -p 3030:3030 $REGISTRY:$CI_COMMIT_SHORT_SHA 
 docker ps -a | grep $IMAGE_NAME
 docker logs $IMAGE_NAME || true
 ## remove backup process
