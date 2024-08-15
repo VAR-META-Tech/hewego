@@ -11,7 +11,6 @@ import edit from '@/assets/svg/edit.svg';
 import eyeHidden from '@/assets/svg/eye-hidden.svg';
 import eye from '@/assets/svg/eye.svg';
 import facebookCircle from '@/assets/svg/facebook_circle.svg';
-import facebook from '@/assets/svg/facebook.svg';
 import google from '@/assets/svg/google.svg';
 import insecurity from '@/assets/svg/insecurity.svg';
 import location from '@/assets/svg/location.svg';
@@ -47,6 +46,7 @@ import {
   CircleAlert,
   Copy,
   EllipsisVertical,
+  Facebook,
   HelpCircle,
   Link,
   Link2Off,
@@ -55,6 +55,7 @@ import {
   LogOut,
   MoveRight,
   Search,
+  Send,
   User,
   Wallet,
   X,
@@ -101,7 +102,6 @@ const IconList = {
   logout: LogOut,
   helpCircle: HelpCircle,
   google,
-  facebook,
   twitterFill,
   discord,
   youtube,
@@ -121,6 +121,8 @@ const IconList = {
   moveRight: MoveRight,
   listFilter: ListFilter,
   check: Check,
+  send: Send,
+  facebook: Facebook,
 };
 
 export const Icons = IconList as Record<keyof typeof IconList, Icon>;

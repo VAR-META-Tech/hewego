@@ -2,6 +2,8 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { FCC } from '@/types';
 
+import Footer from './components/Footer';
+
 const Header = dynamic(() => import('./components/Header'));
 
 interface Props {}
@@ -12,6 +14,8 @@ const MainLayout: FCC<Props> = ({ children }) => {
       <Header />
 
       <main className="min-h-screen bg-white pt-20">{children}</main>
+
+      <Footer />
     </div>
   );
 };
