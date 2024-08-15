@@ -39,6 +39,7 @@ export enum EventType {
   BorrowerClaimLoanToken = "BorrowerClaimLoanToken",
   BondRepaid = "BondRepaid",
   BorrowerRefundoanToken = "BorrowerRefundoanToken",
+  BondLiquidated = "BondLiquidated",
 }
 
 export enum BondRequestTransactionType {
@@ -71,4 +72,5 @@ export enum BorrowerTransactionType {
   LOAN_REPAYMENT = "LOAN_REPAYMENT",
   COLLATERAL_WITHDRAWN = "COLLATERAL_WITHDRAWN",
   REFUND_COLLATERAL = "REFUND_COLLATERAL",
+  LIQUIDATED = "LIQUIDATED",
 }

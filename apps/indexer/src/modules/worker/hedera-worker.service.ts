@@ -96,7 +96,8 @@ export class HederaWorkerService {
           EventType.LenderClaimed,
           EventType.BorrowerClaimLoanToken,
           EventType.BondRepaid,
-          EventType.BorrowerRefundoanToken
+          EventType.BorrowerRefundoanToken,
+          EventType.BondLiquidated,
         ],
         this.contractId,
         latestBlockInDb ? latestBlockInDb.blockNumber : toBlock,
@@ -119,7 +120,7 @@ export class HederaWorkerService {
     event: Record<string, Record<string, any>>,
     manager: EntityManager
   ) {
-    console.log({event})
+    console.log({ event });
     switch (event?.event?.name) {
       case EventType.BondCreated:
         await this.handleBondCreated(event, manager);
@@ -138,6 +139,9 @@ export class HederaWorkerService {
         break;
       case EventType.BorrowerRefundoanToken:
         await this.handleBorrowerRefundoanToken(event, manager);
+        break;
+      case EventType.BondLiquidated:
+        await this.handleBondLiquidated(event, manager);
         break;
       default:
         this.logger.debug(
@@ -264,10 +268,14 @@ export class HederaWorkerService {
     const newLenderTransaction = new LenderTransaction();
     newLenderTransaction.bondId = BigNumber.from(bondId).toNumber();
     newLenderTransaction.lenderAddress = lender;
-    newLenderTransaction.loanAmount = BigNumber.from(loanTokenAmount).toNumber();
-    newLenderTransaction.interestPayment = BigNumber.from( interestLoanTokenAmount).toNumber();
-    newLenderTransaction.receivedAmount = BigNumber.from(repaymentAmount).toNumber();
-    newLenderTransaction.transactionType = LenderTransactionType.RECEIVED
+    newLenderTransaction.loanAmount =
+      BigNumber.from(loanTokenAmount).toNumber();
+    newLenderTransaction.interestPayment = BigNumber.from(
+      interestLoanTokenAmount
+    ).toNumber();
+    newLenderTransaction.receivedAmount =
+      BigNumber.from(repaymentAmount).toNumber();
+    newLenderTransaction.transactionType = LenderTransactionType.RECEIVED;
     newLenderTransaction.transactionHash = metaData?.transaction_hash;
     newLenderTransaction.status = LenderTransactionStatus.COMPLETED;
 
@@ -314,12 +322,17 @@ export class HederaWorkerService {
     newBorrowerTransaction.bondId = BigNumber.from(bondId).toNumber();
     newBorrowerTransaction.borrowerAddress = borrower;
     newBorrowerTransaction.loanAmount = BigNumber.from(loanAmount).toNumber();
-    newBorrowerTransaction.interestPayment = caculatePercentage(bond?.lenderInterestRate,BigNumber.from(loanAmount).toNumber() );
-    newBorrowerTransaction.paymentAmount = BigNumber.from(loanAmount).toNumber();
-    newBorrowerTransaction.collateralAmount  = bond.collateralAmount;
+    newBorrowerTransaction.interestPayment = caculatePercentage(
+      bond?.lenderInterestRate,
+      BigNumber.from(loanAmount).toNumber()
+    );
+    newBorrowerTransaction.paymentAmount =
+      BigNumber.from(loanAmount).toNumber();
+    newBorrowerTransaction.collateralAmount = bond.collateralAmount;
     newBorrowerTransaction.transactionHash = metaData?.transaction_hash;
     newBorrowerTransaction.status = BorrowerTransactionStatus.COMPLETED;
-    newBorrowerTransaction.transactionType = BorrowerTransactionType.LOAN_CLAIMED;
+    newBorrowerTransaction.transactionType =
+      BorrowerTransactionType.LOAN_CLAIMED;
 
     const claimedLoanAt = new Date();
 
@@ -357,22 +370,28 @@ export class HederaWorkerService {
     const newBorrowerTransaction = new BorrowerTransaction();
     newBorrowerTransaction.bondId = BigNumber.from(bondId).toNumber();
     newBorrowerTransaction.borrowerAddress = borrower;
-    newBorrowerTransaction.loanAmount = BigNumber.from(repaymentAmount).toNumber();
-    newBorrowerTransaction.interestPayment = BigNumber.from(interestPaid).toNumber();
+    newBorrowerTransaction.loanAmount =
+      BigNumber.from(repaymentAmount).toNumber();
+    newBorrowerTransaction.interestPayment =
+      BigNumber.from(interestPaid).toNumber();
     newBorrowerTransaction.paymentAmount = BigNumber.from(totalLend).toNumber();
     newBorrowerTransaction.transactionHash = metaData?.transaction_hash;
-    newBorrowerTransaction.collateralAmount = BigNumber.from(collateralReturnedAmount).toNumber();
+    newBorrowerTransaction.collateralAmount = BigNumber.from(
+      collateralReturnedAmount
+    ).toNumber();
     newBorrowerTransaction.status = BorrowerTransactionStatus.COMPLETED;
-    newBorrowerTransaction.transactionType = BorrowerTransactionType.LOAN_REPAYMENT;
+    newBorrowerTransaction.transactionType =
+      BorrowerTransactionType.LOAN_REPAYMENT;
 
     const repaidAt = new Date();
-    await manager.createQueryBuilder()
-    .update(Bond)
-    .set({ repaidAt })
-    .where("bond_id = :bondId", {
-      bondId: BigNumber.from(bondId).toNumber(),
-    })
-    .execute();
+    await manager
+      .createQueryBuilder()
+      .update(Bond)
+      .set({ repaidAt })
+      .where("bond_id = :bondId", {
+        bondId: BigNumber.from(bondId).toNumber(),
+      })
+      .execute();
     await manager
       .createQueryBuilder()
       .insert()
@@ -399,10 +418,12 @@ export class HederaWorkerService {
     newBorrowerTransaction.loanAmount = 0;
     newBorrowerTransaction.interestPayment = 0;
     newBorrowerTransaction.paymentAmount = 0;
-    newBorrowerTransaction.collateralAmount = BigNumber.from(collateralAmount).toNumber();
+    newBorrowerTransaction.collateralAmount =
+      BigNumber.from(collateralAmount).toNumber();
     newBorrowerTransaction.transactionHash = metaData?.transaction_hash;
     newBorrowerTransaction.status = BorrowerTransactionStatus.COMPLETED;
-    newBorrowerTransaction.transactionType = BorrowerTransactionType.REFUND_COLLATERAL;
+    newBorrowerTransaction.transactionType =
+      BorrowerTransactionType.REFUND_COLLATERAL;
 
     await manager
       .createQueryBuilder()
@@ -419,6 +440,53 @@ export class HederaWorkerService {
       .createQueryBuilder()
       .update(Bond)
       .set({ canceledAt: new Date() })
+      .where("bond_id = :bondId", {
+        bondId: BigNumber.from(bondId).toNumber(),
+      })
+      .execute();
+  }
+  async handleBondLiquidated(
+    eventBondLiquidatedPayload,
+    manager: EntityManager
+  ) {
+    const [
+      bondId,
+      borrower,
+      collateralAmount,
+      currentCollateralValue,
+      loanTokenReceived,
+      repaymentAmount,
+      excessRefund,
+    ] = eventBondLiquidatedPayload?.event?.args;
+
+    const metaData = eventBondLiquidatedPayload?.meta;
+    const newBorrowerTransaction = new BorrowerTransaction();
+    newBorrowerTransaction.bondId = BigNumber.from(bondId).toNumber();
+    newBorrowerTransaction.borrowerAddress = borrower;
+    newBorrowerTransaction.loanAmount = 0;
+    newBorrowerTransaction.interestPayment = 0;
+    newBorrowerTransaction.paymentAmount = 0;
+    newBorrowerTransaction.collateralAmount =
+      BigNumber.from(collateralAmount).toNumber();
+    newBorrowerTransaction.transactionHash = metaData?.transaction_hash;
+    newBorrowerTransaction.status = BorrowerTransactionStatus.COMPLETED;
+    newBorrowerTransaction.transactionType = BorrowerTransactionType.LIQUIDATED;
+
+    await manager
+      .createQueryBuilder()
+      .insert()
+      .into(BorrowerTransaction)
+      .values(newBorrowerTransaction)
+      .orUpdate(
+        ["transaction_hash", "status"],
+        ["transaction_hash", "borrower_address", "bond_id"]
+      )
+      .execute();
+
+    await manager
+      .createQueryBuilder()
+      .update(Bond)
+      .set({ liquidatedAt: new Date() })
       .where("bond_id = :bondId", {
         bondId: BigNumber.from(bondId).toNumber(),
       })
