@@ -166,6 +166,7 @@ export class BondService {
     params: FindManyRequestBondsParamsDto,
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     try {
+      console.log({ user });
       const currentTimestamp = Math.floor(Date.now() / 1000);
       const gracePeriodInSeconds = 3 * 24 * 60 * 60; // 3 days in seconds
 
@@ -258,7 +259,7 @@ export class BondService {
       }
 
       if (params?.status === BondStatusEnum.ACTIVE) {
-        queryBuilder.andWhere('bonds.totalSold > : minTotalSold', {
+        queryBuilder.andWhere('bonds.total_sold > :minTotalSold', {
           minTotalSold: 0,
         });
         queryBuilder.andWhere(
@@ -269,7 +270,7 @@ export class BondService {
                 currentTimestamp,
               },
             ).orWhere(
-              '(bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp AND bonds.repaidAt IS NULL)',
+              '(bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp)',
               {
                 currentTimestamp,
                 gracePeriodInSeconds,
