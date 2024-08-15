@@ -167,7 +167,6 @@ export class BondService {
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     try {
       const currentTimestamp = Math.floor(Date.now() / 1000);
-      console.log('currentTimestamp', currentTimestamp);
       const gracePeriodInSeconds = 3 * 24 * 60 * 60; // 3 days in seconds
 
       const queryBuilder = this.bondRepository
@@ -259,6 +258,9 @@ export class BondService {
       }
 
       if (params?.status === BondStatusEnum.ACTIVE) {
+        queryBuilder.andWhere('bonds.totalSold > : minTotalSold', {
+          minTotalSold: 0,
+        });
         queryBuilder.andWhere(
           new Brackets((qb) => {
             qb.where(
