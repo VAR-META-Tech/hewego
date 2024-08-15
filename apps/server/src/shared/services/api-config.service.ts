@@ -145,6 +145,9 @@ export class ApiConfigService {
       bondIssuanceContractId: this.getString(
         'HEDERA_BOND_ISSUANCE_CONTRACT_ID',
       ),
+      bondIssuanceContractAddress: this.getString(
+        'HEDERA_BOND_ISSUANCE_CONTRACT_ADDRESS',
+      ),
     };
   }
 

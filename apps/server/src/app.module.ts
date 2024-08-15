@@ -16,6 +16,7 @@ import { TokenModule } from 'modules/token/token.module';
 import { ContractModule } from 'modules/contract/contract.module';
 import { PriceFeedModule } from 'modules/price-feed/price-feed.module';
 import { TransactionModule } from 'modules/transaction/transaction.module';
+import { InternalModule } from 'modules/internal/internal.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { TransactionModule } from 'modules/transaction/transaction.module';
     ContractModule,
     PriceFeedModule,
     TransactionModule,
+    InternalModule,
   ],
   providers: [
     {

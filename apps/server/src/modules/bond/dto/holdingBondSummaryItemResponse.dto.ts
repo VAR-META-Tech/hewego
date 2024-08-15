@@ -2,16 +2,16 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class HoldingBondSummaryItemResponseDto {
   @ApiProperty({
-    type: String,
+    type: Number,
     description: 'Total capital and interest recieved',
   })
-  totalCapitalAndInterestRecieved: string;
+  totalCapitalAndInterestRecieved: number;
 
   @ApiProperty({
-    type: String,
+    type: Number,
     description: 'Total number of bonds purchased',
   })
-  totalAmountBondPurchased: string;
+  totalAmountBondPurchased: number;
 
   @ApiProperty({
     type: Number,
@@ -19,8 +19,8 @@ export class HoldingBondSummaryItemResponseDto {
   })
   totalBondPurchased: number;
   constructor(
-    totalCapitalAndInterestRecieved: string,
-    totalAmountBondPurchased: string,
+    totalCapitalAndInterestRecieved: number,
+    totalAmountBondPurchased: number,
     totalBondPurchased: number,
   ) {
     this.totalCapitalAndInterestRecieved = totalCapitalAndInterestRecieved;

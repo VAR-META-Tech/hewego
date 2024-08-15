@@ -21,7 +21,8 @@ import {
 import { FindManyHoldingBondParamsDto } from './dto/findManyHoldingBond.params.dto';
 import { HoldingBondItemResponseDto } from './dto/holdingBondItemResponse.dto';
 import { HoldingBondSummaryItemResponseDto } from './dto/holdingBondSummaryItemResponse.dto';
-
+import { ethers } from 'ethers';
+import { ApiConfigService } from 'shared/services/api-config.service';
 @Injectable()
 export class BondService {
   constructor(
@@ -31,6 +32,7 @@ export class BondService {
     private bondCheckoutRepository: Repository<BondCheckout>,
     @InjectRepository(LenderTransaction)
     private lenderTransactionRepository: Repository<LenderTransaction>,
+    private readonly configService: ApiConfigService,
   ) {}
   async findActiveBondsWithPageable(
     params: FindManyActiveBondsParams,
@@ -166,7 +168,6 @@ export class BondService {
     params: FindManyRequestBondsParamsDto,
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     try {
-      console.log({ user });
       const currentTimestamp = Math.floor(Date.now() / 1000);
       const gracePeriodInSeconds = 3 * 24 * 60 * 60; // 3 days in seconds
 
@@ -281,7 +282,6 @@ export class BondService {
         const actionCase = `
           CASE
             WHEN bonds.claimedLoanAt IS NOT NULL AND bonds.repaidAt IS NULL AND bonds.maturityDate <= ${currentTimestamp} AND bonds.maturityDate + ${gracePeriodInSeconds} >= ${currentTimestamp} THEN '${RequestBondAction.REPAY}'
-            WHEN bonds.claimedLoanAt IS NULL AND bonds.repaidAt IS NULL THEN '${RequestBondAction.CLAIM}'
             WHEN bonds.repaidAt IS NULL THEN '${RequestBondAction.REPAY}'
             ELSE '${RequestBondAction.CLOSED}'
           END
@@ -439,34 +439,58 @@ export class BondService {
 
     const bondCheckout = await bondCheckoutQueryBuilder.getRawOne();
 
-    // const queryBuilder = this.bondCheckoutRepository
-    //   .createQueryBuilder('bond_checkout')
-    //   .where('LOWER(bond_checkout.lender_address) = LOWER(:walletAddress)', {
-    //     walletAddress: user.walletAddress,
-    //   });
-    // const lenderCheckout = await queryBuilder.execute();
-    // console.log({ lenderCheckout });
-
-    // const totalLenderCheckouts = lenderCheckout.reduce((item) => {
-    //   const loan_amount = ethers.utils.formatUnits()
-    // });
-
-    const lenderTransactionQueryBuilder = this.lenderTransactionRepository
-      .createQueryBuilder('lender_transaction')
+    const queryBuilder = this.bondCheckoutRepository
+      .createQueryBuilder('bond_checkout')
+      .leftJoin('bonds', 'bonds', 'bond_checkout.bond_id = bonds.bond_id')
       .select([
-        'SUM(lender_transaction.received_amount) AS "totalCapitalAndInterestRecieved"',
+        'bond_checkout.purchased_amount AS "purchasedAmount"',
+        'bonds.loan_term AS "loanTerm"',
+        'bonds.lender_interest_rate AS "lenderInterestRate"',
       ])
-      .where(
-        'LOWER(lender_transaction.lenderAddress) = LOWER(:walletAddress)',
-        {
-          walletAddress: user.walletAddress,
+      .where('LOWER(bond_checkout.lender_address) = LOWER(:walletAddress)', {
+        walletAddress: user.walletAddress,
+      });
+    const lenderCheckout = await queryBuilder.execute();
+
+    const totalRecivedAmountOfLender = lenderCheckout.reduce(
+      (
+        total: number,
+        item: {
+          purchasedAmount: string;
+          loanTerm: number;
+          lenderInterestRate: number;
         },
-      );
-    const lenderTransaction = await lenderTransactionQueryBuilder.getRawOne();
+      ) => {
+        const loanAmount = ethers.utils.formatUnits(
+          ethers.BigNumber.from(item?.purchasedAmount),
+          8,
+        );
+        const weekRate = Number(item?.loanTerm) / 52;
+        const totalInterest = Number(
+          ((Number(loanAmount) * Number(item?.lenderInterestRate)) / 100) *
+            Number(weekRate),
+        );
+        const totalRecieveAmount = Number(loanAmount) + totalInterest;
+        return total + totalRecieveAmount;
+      },
+      0,
+    );
     return new HoldingBondSummaryItemResponseDto(
-      lenderTransaction.totalCapitalAndInterestRecieved,
-      bondCheckout.totalAmountBondPurchased,
+      totalRecivedAmountOfLender,
+      ethers.BigNumber.from(bondCheckout.totalAmountBondPurchased).toNumber(),
       Number(bondCheckout.totalBondPurchased),
     );
+  }
+
+  async getManyBonds(): Promise<Partial<Bond[]>> {
+    const activeBondIssuanceContractAddress =
+      this.configService.getHederaConfig.bondIssuanceContractAddress;
+    return await this.bondRepository
+      .createQueryBuilder('bonds')
+      .select(['bonds.bond_id as "bondId"'])
+      .where('LOWER(bonds.contract_address) = LOWER(:contractAddress)', {
+        contractAddress: activeBondIssuanceContractAddress,
+      })
+      .execute();
   }
 }
