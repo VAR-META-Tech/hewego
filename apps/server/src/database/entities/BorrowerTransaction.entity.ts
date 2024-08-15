@@ -1,7 +1,15 @@
 import { BorrowerTransactionType } from 'shared/enum';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('borrower_transactions')
+@Unique(['transactionHash', 'borrowerAddress', 'bondId'])
 export class BorrowerTransaction {
   @PrimaryGeneratedColumn()
   id: number;
@@ -55,12 +63,12 @@ export class BorrowerTransaction {
     nullable: true,
   })
   transactionHash: string;
-  
+
   @Column({
-    type: "varchar",
-    name: "status",
+    type: 'varchar',
+    name: 'status',
     length: 100,
-    nullable: true
+    nullable: true,
   })
   status: string;
 
