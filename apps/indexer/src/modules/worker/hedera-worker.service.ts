@@ -3,6 +3,7 @@ import {
   BorrowerTransactionType,
   EventType,
   LenderTransactionStatus,
+  LenderTransactionType,
   OnchainStatus,
 } from "../../shared/enums";
 import {
@@ -263,10 +264,11 @@ export class HederaWorkerService {
     newLenderTransaction.lenderAddress = lender;
     newLenderTransaction.loanAmount = BigNumber.from(loanTokenAmount).toNumber();
     newLenderTransaction.interestPayment = BigNumber.from( interestLoanTokenAmount).toNumber();
-    newLenderTransaction.receivedAmount =
-      BigNumber.from(repaymentAmount).toNumber();
+    newLenderTransaction.receivedAmount = BigNumber.from(repaymentAmount).toNumber();
+    newLenderTransaction.transactionType = LenderTransactionType.RECEIVED
     newLenderTransaction.transactionHash = metaData?.transaction_hash;
     newLenderTransaction.status = LenderTransactionStatus.COMPLETED;
+
 
     await manager
       .createQueryBuilder()
@@ -278,6 +280,15 @@ export class HederaWorkerService {
         ["transaction_hash", "lender_address", "bond_id"]
       )
       .execute();
+
+    await manager.createQueryBuilder()
+    .update(BondCheckout)
+    .set({
+      claimedAt: new Date()
+    })
+    .where('bond_id = :bondId', { bondId: newLenderTransaction.bondId })
+    .andWhere('lender_address = :lenderAddress', { lenderAddress: newLenderTransaction.lenderAddress })
+    .execute();
   }
   async handleBorrowerClaimedLoan(
     eventBorrowerClaimedPayload,
