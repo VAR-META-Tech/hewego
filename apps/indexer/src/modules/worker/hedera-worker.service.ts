@@ -96,6 +96,7 @@ export class HederaWorkerService {
           EventType.LenderClaimed,
           EventType.BorrowerClaimLoanToken,
           EventType.BondRepaid,
+          EventType.BorrowerRefundoanToken
         ],
         this.contractId,
         latestBlockInDb ? latestBlockInDb.blockNumber : toBlock,
@@ -118,6 +119,7 @@ export class HederaWorkerService {
     event: Record<string, Record<string, any>>,
     manager: EntityManager
   ) {
+    console.log({event})
     switch (event?.event?.name) {
       case EventType.BondCreated:
         await this.handleBondCreated(event, manager);
