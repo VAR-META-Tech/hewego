@@ -11,7 +11,7 @@ interface Props {
 }
 
 const BondHoldings: React.FC<Props> = ({ setTabContainer }) => {
-  const { bonds, paging, onPageChange, pagination, handleSearchChange, refetch } = useGetBondHoldings();
+  const { bonds, paging, onPageChange, pagination, handleSearchChange, refetch, isLoading } = useGetBondHoldings();
 
   React.useEffect(() => {
     refetch();
@@ -19,6 +19,14 @@ const BondHoldings: React.FC<Props> = ({ setTabContainer }) => {
     return () => {
       refetch();
     };
+  }, [refetch]);
+
+  React.useEffect(() => {
+    const refetchInterval = setInterval(() => {
+      refetch();
+    }, 4000);
+
+    return () => clearInterval(refetchInterval);
   }, [refetch]);
 
   return (
@@ -35,6 +43,7 @@ const BondHoldings: React.FC<Props> = ({ setTabContainer }) => {
           onPageChange={onPageChange}
           setTabContainer={setTabContainer}
           refetch={refetch}
+          isLoading={isLoading}
         />
       </div>
     </BondHoldingsFilterFormWrapper>

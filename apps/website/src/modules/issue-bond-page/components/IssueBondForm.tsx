@@ -12,8 +12,10 @@ import { IssueBondFormType } from '../types/schema';
 import { BOND_DURATION_DATA } from '../utils/const';
 
 const IssueBondForm = () => {
-  const { control, setValue, clearErrors } = useFormContext<IssueBondFormType>();
-  const { borrowTokenData, collateralTokenData, isSuccess } = useGetMetaToken();
+  const { control, setValue, clearErrors, watch } = useFormContext<IssueBondFormType>();
+  const { borrowTokenData, collateralTokenData, isSuccess, getLoanTokenLabel } = useGetMetaToken();
+
+  const [loanToken] = watch(['loanToken']);
 
   React.useEffect(() => {
     if (isSuccess && !!borrowTokenData?.length) {
@@ -26,6 +28,12 @@ const IssueBondForm = () => {
       setValue('collateralToken', collateralTokenData[0]?.value);
     }
   }, [collateralTokenData, isSuccess, setValue]);
+
+  const loanTokenLabel = React.useMemo(() => {
+    if (!loanToken) return '';
+
+    return getLoanTokenLabel(loanToken);
+  }, [getLoanTokenLabel, loanToken]);
 
   return (
     <VStack spacing={12} className="flex-1">
@@ -167,7 +175,7 @@ const IssueBondForm = () => {
         disabled
         variant="bordered"
         label="Maturity Date"
-        name="matuityDate"
+        name="maturityDate"
         control={control}
         className="pointer-events-none bg-[#F3F4F6]"
         note="The maturity date of a bond is calculated by adding the bond duration to the issuance date."
@@ -176,10 +184,11 @@ const IssueBondForm = () => {
       <TextFieldWithNote
         disabled
         variant="bordered"
-        label="Total Repayment Amount (For Lender) "
+        label="Total Repayment Amount"
         name="totalRepaymentAmount"
         control={control}
         className="pointer-events-none bg-[#F3F4F6]"
+        endContent={<span>{loanTokenLabel}</span>}
       />
     </VStack>
   );

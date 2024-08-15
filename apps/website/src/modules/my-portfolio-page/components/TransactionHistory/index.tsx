@@ -6,7 +6,8 @@ import TransactionHistoryFilter from './components/TransactionHistoryFilter';
 import TransactionHistoryTable from './components/TransactionHistoryTable';
 
 const TransactionHistory = () => {
-  const { refetch, handleSearchChange, paging, pagination, onPageChange, transactions } = useGetTransactionHistory();
+  const { refetch, handleSearchChange, paging, pagination, onPageChange, transactions, isLoading } =
+    useGetTransactionHistory();
 
   React.useEffect(() => {
     refetch();
@@ -14,6 +15,14 @@ const TransactionHistory = () => {
     return () => {
       refetch();
     };
+  }, [refetch]);
+
+  React.useEffect(() => {
+    const refetchInterval = setInterval(() => {
+      refetch();
+    }, 4000);
+
+    return () => clearInterval(refetchInterval);
   }, [refetch]);
 
   return (
@@ -26,6 +35,7 @@ const TransactionHistory = () => {
           pagination={pagination}
           paging={paging}
           onPageChange={onPageChange}
+          isLoading={isLoading}
         />
       </div>
     </TransactionHistoryFilterFormWrapper>

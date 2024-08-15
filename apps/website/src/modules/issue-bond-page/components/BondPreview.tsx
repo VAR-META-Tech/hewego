@@ -11,14 +11,14 @@ const BondPreview = () => {
   const { watch } = useFormContext<IssueBondFormType>();
   const { getCollateralTokenLabel, getLoanTokenLabel } = useGetMetaToken();
 
-  const [name, loanToken, volumeBond, durationBond, borrowInterestRate, collateralToken, matuityDate] = watch([
+  const [name, loanToken, volumeBond, durationBond, lenderInterestRate, collateralToken, maturityDate] = watch([
     'name',
     'loanToken',
     'volumeBond',
     'durationBond',
-    'borrowInterestRate',
+    'lenderInterestRate',
     'collateralToken',
-    'matuityDate',
+    'maturityDate',
   ]);
 
   const loanTokenLabel = React.useMemo(() => {
@@ -36,9 +36,9 @@ const BondPreview = () => {
         loanToken={loanTokenLabel || ''}
         volumeBond={String(volumeBond || '')}
         durationBond={durationBond}
-        borrowInterestRate={String(borrowInterestRate || '')}
+        borrowInterestRate={String(lenderInterestRate || '')}
         collateralToken={collateralTokenLabel || ''}
-        maturityDate={matuityDate}
+        maturityDate={maturityDate}
         className="w-96"
       />
     </HStack>

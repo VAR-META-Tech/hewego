@@ -12,9 +12,17 @@ import SummaryItem from '../SummaryItem';
 const BondHoldingsSumary = () => {
   const { isConnected, loginData } = React.useContext(HederaWalletsContext);
 
-  const { data } = useGetBondHoldingsSummaryQuery({
+  const { data, refetch } = useGetBondHoldingsSummaryQuery({
     enabled: !!isConnected && !!loginData,
   });
+
+  React.useEffect(() => {
+    const refetchInterval = setInterval(() => {
+      refetch();
+    }, 4000);
+
+    return () => clearInterval(refetchInterval);
+  }, [refetch]);
 
   return (
     <HStack spacing={20} pos={'center'}>
@@ -29,7 +37,7 @@ const BondHoldingsSumary = () => {
       <SummaryItem
         className="py-10"
         title=" Total Capital and Interest Received "
-        firstValue={`${prettyNumber(Number(formatUnits(BigInt(data?.data?.totalCapitalAndInterestRecieved || 0), Number(TOKEN_UNIT)) || 0))} USDC`}
+        firstValue={`${prettyNumber(Number(data?.data?.totalCapitalAndInterestRecieved || 0).toFixed(2))} USDC`}
         secondValue={''}
         isShowDivider={false}
       />

@@ -21,7 +21,7 @@ export const useGetBondHoldings = () => {
     variables: {
       page: String(paging.page),
       limit: String(paging.limit),
-      name: filter?.search || '',
+      name: filter?.search || undefined,
     },
     enabled: !!isConnected && !!loginData,
   });

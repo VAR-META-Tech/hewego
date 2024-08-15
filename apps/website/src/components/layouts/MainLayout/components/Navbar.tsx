@@ -8,15 +8,11 @@ import { HStack } from '@/components/Utilities';
 
 const LIST_NAVBAR = [
   {
-    label: 'Explore',
+    label: 'Supply',
     route: ROUTE.HOME,
   },
   {
-    label: 'Bonds',
-    route: ROUTE.BONDS,
-  },
-  {
-    label: 'Create',
+    label: 'Borrow',
     route: ROUTE.ISSUE_BOND,
   },
 ];
@@ -25,7 +21,7 @@ const Navbar = () => {
   const pathname = usePathname();
 
   return (
-    <HStack spacing={20} noWrap>
+    <HStack spacing={48} noWrap>
       {LIST_NAVBAR.map((nav) => {
         const isActive = pathname === nav.route;
 
@@ -34,7 +30,7 @@ const Navbar = () => {
             href={nav.route}
             key={nav.label}
             className={cn('hover:opacity-50 text-black font-medium', {
-              'text-primary-700': isActive,
+              'text-primary-500': isActive,
             })}
           >
             {nav.label}

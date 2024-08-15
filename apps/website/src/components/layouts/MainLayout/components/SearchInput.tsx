@@ -9,10 +9,14 @@ const SearchInput: React.FC<Props> = ({ className, ...props }) => {
   return (
     <div className={cn('w-full', className)} {...props}>
       <Input
-        startContent={<Icons.search />}
-        placeholder="Search bonds ..."
+        radius="sm"
+        variant="bordered"
+        startContent={<Icons.search color="#4E358F" />}
+        placeholder="Search borrow request  ..."
         classNames={{
-          input: ['placeholder:text-default-700/50 dark:placeholder:text-white/60'],
+          input: ['placeholder:text-primary-700/80 dark:placeholder:text-white/60'],
+          mainWrapper: ['bg-primary-50'],
+          inputWrapper: ['border-0'],
         }}
       />
     </div>

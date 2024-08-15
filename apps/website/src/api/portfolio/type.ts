@@ -60,7 +60,7 @@ export interface IGetBorrowRequestData {
 export interface IGetBondHoldingsParams {
   page?: string;
   limit?: string;
-  name: string;
+  name?: string;
 }
 
 export interface IGetBondHoldingsResponse {

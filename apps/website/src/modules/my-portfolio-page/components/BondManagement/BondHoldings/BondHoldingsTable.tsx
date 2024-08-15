@@ -8,7 +8,7 @@ import { IPagination, IPaging } from '@/utils/common.type';
 import { CONTRACT_ID, DATE_FORMAT, env, TOKEN_UNIT } from '@/utils/constants';
 import { ContractExecuteTransaction, ContractFunctionParameters } from '@hashgraph/sdk';
 import { Signer } from '@hashgraph/sdk/lib/Signer';
-import { Button, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
+import { Button, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { formatUnits } from 'viem';
@@ -27,12 +27,21 @@ interface Props {
   pagination: IPagination | undefined;
   setTabContainer: React.Dispatch<React.SetStateAction<string>>;
   refetch: () => void;
+  isLoading: boolean;
 }
 
 const CENTER_COLUMNS = [BOND_HOLDINGS_KEYS.no, BOND_HOLDINGS_KEYS.action];
 const RIGHT_COLUMNS = [BOND_HOLDINGS_KEYS.purchasedAmount, BOND_HOLDINGS_KEYS.receivedAmount];
 
-const BondHoldingsTable: React.FC<Props> = ({ paging, onPageChange, bonds, pagination, setTabContainer, refetch }) => {
+const BondHoldingsTable: React.FC<Props> = ({
+  paging,
+  onPageChange,
+  bonds,
+  pagination,
+  setTabContainer,
+  refetch,
+  isLoading,
+}) => {
   const { getLoanTokenLabel } = useGetMetaToken();
   const { hashConnect, accountId } = React.useContext(HederaWalletsContext);
   const setBondDetailId = useBondHoldingsStore.use.setBondDetailId();
@@ -78,7 +87,8 @@ const BondHoldingsTable: React.FC<Props> = ({ paging, onPageChange, bonds, pagin
       const loanAmount = Number(formatUnits(BigInt(item?.purchasedAmount || 0), Number(TOKEN_UNIT)));
       const interestRate = Number(item?.bondInfo?.interestRate || 0);
 
-      const receiveAmount = loanAmount + Number(loanAmount * (interestRate / 100));
+      const receiveAmount =
+        loanAmount + Number((loanAmount * (interestRate / 100) * Number(item?.bondInfo?.loanTerm)) / 52);
 
       const isDisableClaim = item?.status === HOLDING_BOND_STATUS_BUTTON.DISABLE_CLAIM;
 
@@ -144,7 +154,7 @@ const BondHoldingsTable: React.FC<Props> = ({ paging, onPageChange, bonds, pagin
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={bonds} emptyContent="No data to display.">
+        <TableBody isLoading={isLoading} loadingContent={<Spinner />} items={bonds} emptyContent="No data to display.">
           {bonds?.map((item, index) => (
             <TableRow key={`${item?.bondInfo?.bondId}-${index}`}>
               {(columnKey) => (
