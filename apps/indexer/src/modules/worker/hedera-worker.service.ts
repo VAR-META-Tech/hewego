@@ -275,7 +275,7 @@ export class HederaWorkerService {
       .values(newLenderTransaction)
       .orUpdate(
         ["transaction_hash", "status"],
-        ["transactionHash", "lenderAddress", "bondId"]
+        ["transaction_hash", "lender_address", "bond_id"]
       )
       .execute();
   }
