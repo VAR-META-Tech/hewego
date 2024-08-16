@@ -491,7 +491,7 @@ export class BondService {
       });
     const lenderCheckout = await queryBuilder.execute();
 
-    const totalRecivedAmountOfLender = lenderCheckout.reduce(
+    const totalReceivedAmountOfLender = lenderCheckout.reduce(
       (
         total: number,
         item: {
@@ -509,13 +509,13 @@ export class BondService {
           ((Number(loanAmount) * Number(item?.lenderInterestRate)) / 100) *
             Number(weekRate),
         );
-        const totalRecieveAmount = Number(loanAmount) + totalInterest;
-        return total + totalRecieveAmount;
+        const totalReceiveAmount = Number(loanAmount) + totalInterest;
+        return total + totalReceiveAmount;
       },
       0,
     );
     return new HoldingBondSummaryItemResponseDto(
-      totalRecivedAmountOfLender,
+      totalReceivedAmountOfLender,
       ethers.BigNumber.from(bondCheckout.totalAmountBondPurchased).toNumber(),
       Number(bondCheckout.totalBondPurchased),
     );
