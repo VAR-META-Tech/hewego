@@ -334,26 +334,27 @@ export class BondService {
     user: User,
   ): Promise<BorrowBondRequestSummaryDto> {
     try {
-      const queryBuilder = this.bondRepository
-        .createQueryBuilder('bonds')
+      const bondSummaryQueryBuilder = this.bondRepository
+        .createQueryBuilder('bond')
         .select([
-          'SUM(bonds.loan_amount::numeric) AS "totalLoanAmount"',
-          'SUM(bonds.collateral_amount::numeric) AS "totalDepositedCollateral"',
-          'CAST(SUM(bonds.volumeBond) AS BIGINT) AS "totalBondsIssued"',
-          'CAST(SUM(bonds.totalSold) AS BIGINT) AS "totalBondsSold"',
+          'SUM(bond.loan_amount::numeric) AS "totalLoanAmount"',
+          'SUM(bond.collateral_amount::numeric) AS "totalDepositedCollateral"',
+          'CAST(SUM(bond.volumeBond) AS BIGINT) AS "totalBondsIssued"',
+          'CAST(SUM(bond.totalSold) AS BIGINT) AS "totalBondsSold"',
         ])
-        .where('LOWER(bonds.borrower_address) = LOWER(:walletAddress)', {
+        .where('LOWER(bond.borrower_address) = LOWER(:walletAddress)', {
           walletAddress: user?.walletAddress,
         });
-      const result = await queryBuilder.getRawOne();
 
-      const repaymentAmountTransactionQueryBuilder = this.transactionRepository
+      const bondSummaryResult = await bondSummaryQueryBuilder.getRawOne();
+
+      const repaymentAmountQueryBuilder = this.transactionRepository
         .createQueryBuilder('transaction')
-        .select('SUM(transaction.amount) as "totalRepaymentAmount"')
+        .select('SUM(transaction.amount) AS "totalRepaymentAmount"')
         .where(
-          'LOWER(transaction.user_wallet_address) = LOWER(:userWalletAddress)',
+          'LOWER(transaction.user_wallet_address) = LOWER(:walletAddress)',
           {
-            userWalletAddress: user?.walletAddress,
+            walletAddress: user?.walletAddress,
           },
         )
         .andWhere('transaction.transaction_type IN (:...transactionTypes)', {
@@ -362,34 +363,17 @@ export class BondService {
             TransactionType.REPAYMENT_CLAIMED,
           ],
         });
-      const repaymentAmountTransaction =
-        await repaymentAmountTransactionQueryBuilder.getRawOne();
 
-      // const repaymentCollateralTransactionQueryBuilder =
-      //   this.transactionRepository
-      //     .createQueryBuilder('transaction')
-      //     .select('SUM(transaction.amount) as "totalRepaymentCollateral')
-      //     .where(
-      //       'LOWER(transaction.user_wallet_address) = LOWER(:userWalletAddress)',
-      //       {
-      //         userWalletAddress: user?.walletAddress,
-      //       },
-      //     )
-      //     .andWhere('transaction.transaction_type IN (:...transactionTypes)', {
-      //       transactionTypes: [
-      //         TransactionType.LOAN_REPAYMENT,
-      //         TransactionType.REPAYMENT_CLAIMED,
-      //       ],
-      //     });
+      const repaymentAmountResult =
+        await repaymentAmountQueryBuilder.getRawOne();
+
       return new BorrowBondRequestSummaryDto(
-        Number(result.totalLoanAmount),
-        repaymentAmountTransaction?.totalRepaymentAmount
-          ? Number(repaymentAmountTransaction?.totalRepaymentAmount)
-          : 0,
-        Number(result.totalDepositedCollateral),
-        10,
-        Number(result.totalBondsSold),
-        Number(result.totalBondsIssued),
+        Number(bondSummaryResult.totalLoanAmount),
+        Number(repaymentAmountResult.totalRepaymentAmount),
+        Number(bondSummaryResult.totalDepositedCollateral),
+        10, // Placeholder value, adjust as needed
+        Number(bondSummaryResult.totalBondsSold),
+        Number(bondSummaryResult.totalBondsIssued),
       );
     } catch (error) {
       throw new InternalServerErrorException(error.message);
