@@ -246,12 +246,12 @@ export class BondService {
 
       if (params?.maturityStartDate && params?.maturityEndDate) {
         queryBuilder.andWhere(
-          'bonds.maturity_date BETWEEN :maturityStartDate AND :maturityeEndDate',
+          'bonds.maturity_date BETWEEN :maturityStartDate AND :maturityEndDate',
           {
             maturityStartDate: Math.floor(
               new Date(params.maturityStartDate).getTime() / 1000,
             ),
-            maturityeEndDate: Math.floor(
+            maturityEndDate: Math.floor(
               new Date(params.maturityEndDate).getTime() / 1000 + 86400,
             ),
           },
@@ -347,7 +347,7 @@ export class BondService {
         });
       const result = await queryBuilder.getRawOne();
 
-      const transactionQueryBuilder = this.transactionRepository
+      const repaymentAmountTransactionQueryBuilder = this.transactionRepository
         .createQueryBuilder('transaction')
         .select('SUM(transaction.amount) as "totalRepaymentAmount"')
         .where(
@@ -362,12 +362,29 @@ export class BondService {
             TransactionType.REPAYMENT_CLAIMED,
           ],
         });
-      const transaction = await transactionQueryBuilder.getRawOne();
+      const repaymentAmountTransaction =
+        await repaymentAmountTransactionQueryBuilder.getRawOne();
 
+      // const repaymentCollateralTransactionQueryBuilder =
+      //   this.transactionRepository
+      //     .createQueryBuilder('transaction')
+      //     .select('SUM(transaction.amount) as "totalRepaymentCollateral')
+      //     .where(
+      //       'LOWER(transaction.user_wallet_address) = LOWER(:userWalletAddress)',
+      //       {
+      //         userWalletAddress: user?.walletAddress,
+      //       },
+      //     )
+      //     .andWhere('transaction.transaction_type IN (:...transactionTypes)', {
+      //       transactionTypes: [
+      //         TransactionType.LOAN_REPAYMENT,
+      //         TransactionType.REPAYMENT_CLAIMED,
+      //       ],
+      //     });
       return new BorrowBondRequestSummaryDto(
         Number(result.totalLoanAmount),
-        transaction?.totalRepaymentAmount
-          ? Number(transaction?.totalRepaymentAmount)
+        repaymentAmountTransaction?.totalRepaymentAmount
+          ? Number(repaymentAmountTransaction?.totalRepaymentAmount)
           : 0,
         Number(result.totalDepositedCollateral),
         10,
