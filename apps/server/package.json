@@ -6,7 +6,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-   "compile-contracts": "typechain --target ethers-v5 --out-dir src/abis \"./src/abis/*.json\"",
+    "compile-contracts": "typechain --target ethers-v5 --out-dir src/abis \"./src/abis/*.json\"",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "dev": "nest start --watch",
@@ -53,6 +53,7 @@
     "class-transformer": "~0.5.1",
     "class-validator": "~0.14.0",
     "compression": "^1.7.4",
+    "ethers": "^5.7.2",
     "express": "^4.18.2",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
@@ -67,6 +68,7 @@
     "passport-jwt": "^4.0.1",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.2.1",
+    "rimraf": "^6.0.1",
     "rxjs": "^7.8.1",
     "source-map-support": "^0.5.21",
     "swagger-ui-express": "^5.0.0",
@@ -74,8 +76,7 @@
     "typeorm": "^0.3.19",
     "typeorm-transactional": "~0.5.0",
     "uuid": "^9.0.1",
-    "web3-validator": "^2.0.6",
-    "ethers": "^5.7.2"
+    "web3-validator": "^2.0.6"
   },
   "devDependencies": {
     "@handfish/hygen": "^6.1.6",
