@@ -9,17 +9,19 @@ import {
   BorrowerTransaction,
   LenderTransaction,
   Token,
+  Transaction,
   User,
 } from 'database/entities';
 import { Repository } from 'typeorm';
 import { FindManyLenderTransactionParamsDto } from './dto/findManyLenderTransactionParams.dto';
-import { TokenTypeEnum } from 'shared/enum';
+import { TokenTypeEnum, TransactionType } from 'shared/enum';
 import { getArrayPaginationBuildTotal, getOffset } from 'utils/pagination';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { LenderTransactionItemResponseDto } from './dto/lenderTransactionItemResponse.dto';
 import { BorrowerTransactionItemResponseDto } from './dto/borrowerTransactionItemResponse.dto';
 import { FindManyBorrowerTransactionParams } from './dto/findManyBorrowerTransactionParams.dto';
-
+import { FindManyTransactionParamsDto } from './dto/findManyTransactionParams.dto';
+import { TransactionItemResponseDto } from './dto/transactionItemResponse.dto';
 @Injectable()
 export class TransactionService {
   constructor(
@@ -29,6 +31,8 @@ export class TransactionService {
     private lenderTransactionRepository: Repository<LenderTransaction>,
     @InjectRepository(BorrowerTransaction)
     private borrowerTransactionRepository: Repository<BorrowerTransaction>,
+    @InjectRepository(Transaction)
+    private transactionRepository: Repository<BorrowerTransaction>,
   ) {}
 
   async getLenderTransactionHistoriesWithPageable(
@@ -174,6 +178,99 @@ export class TransactionService {
       return getArrayPaginationBuildTotal<BorrowerTransactionItemResponseDto>(
         selectedBorrowerTransaction,
         totalBorrowerTransaction,
+        { page, limit },
+      );
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+  async getManyTransactionsWithPageable(
+    params: FindManyTransactionParamsDto,
+    user: User,
+  ): Promise<Pagination<TransactionItemResponseDto>> {
+    try {
+      const queryBuilder = this.transactionRepository
+        .createQueryBuilder('transaction')
+        .leftJoinAndSelect(Bond, 'bond', 'bond.bond_id = transaction.bond_id')
+        .leftJoinAndSelect(
+          Token,
+          'loan_token',
+          'bond.loan_token = loan_token.address',
+        )
+        .leftJoinAndSelect(
+          'tokens',
+          'collateral_token',
+          'bond.collateral_token = collateral_token.address',
+        )
+        .select([
+          'transaction.id AS "id"',
+          'transaction.transaction_type AS "transactionType"',
+          'transaction.user_wallet_address AS "userWalletAddress"',
+          'transaction.amount AS "amount"',
+          'transaction.status AS "status"',
+          'transaction.transaction_hash AS "transactionHash"',
+          'transaction.created_at AS "createdAt"',
+          'bond.name AS "bondName"',
+          'bond.bond_id AS "bondId"',
+          'bond.loan_token AS "loanToken"',
+          'loan_token.symbol AS "loanTokenType"',
+          'bond.collateral_token AS "collateralToken"',
+          'collateral_token.symbol AS "collateralTokenType"',
+        ])
+
+        .where(
+          'LOWER(transaction.user_wallet_address) = LOWER(:userWalletAddress)',
+          {
+            userWalletAddress: user.walletAddress,
+          },
+        )
+        .orderBy('transaction.created_at', 'DESC');
+
+      const assetCase = `
+        CASE 
+        WHEN transaction.transaction_type IN('${TransactionType.COLLATERAL_WITHDRAWAL}','${TransactionType.REFUND_COLLATERAL}', '${TransactionType.COLLATERAL_DEPOSITED}' ) THEN collateral_token.symbol
+        ELSE loan_token.symbol
+        END
+        `;
+      queryBuilder.addSelect(assetCase, 'masterAsset');
+
+      if (params?.searchTransactionHash) {
+        queryBuilder.where(
+          'transaction.transaction_hash LIKE :transactionHash',
+          { transactionHash: `%${params.searchTransactionHash}%` },
+        );
+      }
+
+      if (params?.transactionTypes) {
+        const transactionTypes = params.transactionTypes;
+        queryBuilder.andWhere(
+          'transaction.transaction_type IN (:...transactionTypes)',
+          {
+            transactionTypes,
+          },
+        );
+      }
+      if (params?.assets) {
+        const assets = params?.assets;
+        queryBuilder.andWhere(`${assetCase} IN (:...assets)`, {
+          assets,
+        });
+      }
+      const totalTransactions = await queryBuilder.getCount();
+
+      const limit = Number(params?.limit || 10);
+      const page = Number(params?.page || 1);
+      const offset = getOffset({ page, limit });
+      queryBuilder.limit(limit).offset(offset);
+
+      const selectedTransactions = await queryBuilder.execute();
+
+      return getArrayPaginationBuildTotal<TransactionItemResponseDto>(
+        selectedTransactions,
+        totalTransactions,
         { page, limit },
       );
     } catch (error) {

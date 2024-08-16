@@ -17,6 +17,9 @@ export class LenderTransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Get('/')
+  /**
+   * @deprecated will be removed soon
+   */
   @ApiResponse({
     status: 200,
     type: LenderTransactionResponseDto,

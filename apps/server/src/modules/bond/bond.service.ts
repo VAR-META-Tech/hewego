@@ -5,7 +5,13 @@ import {
 } from '@nestjs/common';
 import { FindManyActiveBondsParams } from './dto/findManyActiveBondParams.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { Bond, BondCheckout, LenderTransaction, User } from 'database/entities';
+import {
+  Bond,
+  BondCheckout,
+  LenderTransaction,
+  Transaction,
+  User,
+} from 'database/entities';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { getArrayPaginationBuildTotal, getOffset } from 'utils/pagination';
@@ -17,6 +23,7 @@ import {
   BondStatusEnum,
   HoldingBondStatus,
   RequestBondAction,
+  TransactionType,
 } from 'shared/enum';
 import { FindManyHoldingBondParamsDto } from './dto/findManyHoldingBond.params.dto';
 import { HoldingBondItemResponseDto } from './dto/holdingBondItemResponse.dto';
@@ -32,6 +39,8 @@ export class BondService {
     private bondCheckoutRepository: Repository<BondCheckout>,
     @InjectRepository(LenderTransaction)
     private lenderTransactionRepository: Repository<LenderTransaction>,
+    @InjectRepository(Transaction)
+    private transactionRepository: Repository<Transaction>,
     private readonly configService: ApiConfigService,
   ) {}
   async findActiveBondsWithPageable(
@@ -337,9 +346,29 @@ export class BondService {
           walletAddress: user?.walletAddress,
         });
       const result = await queryBuilder.getRawOne();
+
+      const transactionQueryBuilder = this.transactionRepository
+        .createQueryBuilder('transaction')
+        .select('SUM(transaction.amount) as "totalRepaymentAmount"')
+        .where(
+          'LOWER(transaction.user_wallet_address) = LOWER(:userWalletAddress)',
+          {
+            userWalletAddress: user?.walletAddress,
+          },
+        )
+        .andWhere('transaction.transaction_type IN (:...transactionTypes)', {
+          transactionTypes: [
+            TransactionType.LOAN_REPAYMENT,
+            TransactionType.REPAYMENT_CLAIMED,
+          ],
+        });
+      const transaction = await transactionQueryBuilder.getRawOne();
+
       return new BorrowBondRequestSummaryDto(
         Number(result.totalLoanAmount),
-        1000,
+        transaction?.totalRepaymentAmount
+          ? Number(transaction?.totalRepaymentAmount)
+          : 0,
         Number(result.totalDepositedCollateral),
         10,
         Number(result.totalBondsSold),

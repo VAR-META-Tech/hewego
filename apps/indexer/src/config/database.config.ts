@@ -7,6 +7,7 @@ import {
   Token,
   LenderTransaction,
   BorrowerTransaction,
+  Transaction
 } from "../database/entities";
 
 export const databaseConfig: DataSourceOptions = {
@@ -24,6 +25,7 @@ export const databaseConfig: DataSourceOptions = {
     Token,
     LenderTransaction,
     BorrowerTransaction,
+    Transaction
   ],
   synchronize: process.env.DB_SYNCHRONIZE === "true",
   logging: true,

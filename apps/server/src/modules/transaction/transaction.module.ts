@@ -6,14 +6,25 @@ import {
   Bond,
   BorrowerTransaction,
   LenderTransaction,
+  Transaction,
 } from 'database/entities';
 import { BorrowerTransactionController } from './borrowerTransaction.controller';
+import { TransactionController } from './transaction.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([LenderTransaction, Bond, BorrowerTransaction]),
+    TypeOrmModule.forFeature([
+      LenderTransaction,
+      Bond,
+      BorrowerTransaction,
+      Transaction,
+    ]),
   ],
-  controllers: [LenderTransactionController, BorrowerTransactionController],
+  controllers: [
+    LenderTransactionController,
+    BorrowerTransactionController,
+    TransactionController,
+  ],
   providers: [TransactionService],
   exports: [TransactionService],
 })
