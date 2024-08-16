@@ -102,6 +102,7 @@ export class HederaWorkerService {
           EventType.BondRepaid,
           EventType.BorrowerRefundoanToken,
           EventType.BondLiquidated,
+          EventType.CollateralAdded
         ],
         this.contractId,
         latestBlockInDb ? latestBlockInDb.blockNumber : toBlock,
@@ -147,6 +148,8 @@ export class HederaWorkerService {
       case EventType.BondLiquidated:
         await this.handleBondLiquidated(event, manager);
         break;
+      case EventType.CollateralAdded:
+        await this.handleCollateralAdded(event, manager)
       default:
         this.logger.debug(
           `Unknown event: ${JSON.stringify(event?.event.name)}`
@@ -444,7 +447,6 @@ export class HederaWorkerService {
     manager: EntityManager
   ) {
 
-
     const {
       event: {
         args: [
@@ -463,12 +465,11 @@ export class HederaWorkerService {
     } = eventBondLiquidatedPayload;
 
     const bondIdNumber = BigNumber.from(bondId).toNumber();
-    const excessRefundAmount  = BigNumber.from(excessRefund).toNumber();
 
 
     const newTransaction =  manager.create(Transaction, {
       bondId: bondIdNumber,
-      amount: excessRefundAmount,
+      amount: BigNumber.from(repaymentAmount).toNumber(),
       userWalletAddress: borrower,
       transactionHash,
       status: TransactionStatus.COMPLETED,
@@ -494,6 +495,35 @@ export class HederaWorkerService {
         bondId: BigNumber.from(bondId).toNumber(),
       })
       .execute();
+  }
+  async handleCollateralAdded(eventCollateralAddedPayload,  manager: EntityManager ) {
+    const {
+      event: {
+        args: [bondId,borrower,collateralToken,additionalCollateralAmount,newCollateralAmount ] 
+      },
+      meta :{
+        transaction_hash: transactionHash
+      }
+    } = eventCollateralAddedPayload;
+
+    const newTransaction = manager.create(Transaction, {
+      bondId: BigNumber.from(bondId).toNumber(),
+      userWalletAddress: borrower,
+      amount: BigNumber.from(newCollateralAmount).toNumber(),
+      transactionHash,
+      status: TransactionStatus.COMPLETED,
+      transactionType: TransactionType.COLLATERAL_DEPOSITED
+    });
+    await manager.createQueryBuilder()
+    .insert()
+    .into(Transaction)
+    .values(newTransaction)
+    .orUpdate(
+      ["transaction_hash", "status"],
+      ["transaction_hash", "user_wallet_address", "bond_id"]
+    )
+    .execute();
+
   }
 
   async getEventsFromMirror(

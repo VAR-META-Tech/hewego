@@ -40,6 +40,7 @@ export enum EventType {
   BondRepaid = "BondRepaid",
   BorrowerRefundoanToken = "BorrowerRefundoanToken",
   BondLiquidated = "BondLiquidated",
+  CollateralAdded = "CollateralAdded"
 }
 
 export enum BondRequestTransactionType {
