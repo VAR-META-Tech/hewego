@@ -32,7 +32,12 @@ const WalletPoppover = () => {
                 onClick={() => router.push(ROUTE.MY_PORTFOLIO)}
               />
 
-              <PopoverAction icon={<Icons.copy />} actionName="Copy Address" onClick={() => copy(accountId)} />
+              <PopoverAction
+                disabled={copied}
+                icon={<Icons.copy />}
+                actionName="Copy Address"
+                onClick={() => copy(accountId)}
+              />
 
               <PopoverAction icon={<Icons.link2Off />} actionName="Disconnect" onClick={handleDisconnect} />
             </VStack>
