@@ -1,17 +1,17 @@
 import React from 'react';
 import { HederaWalletsContext } from '@/context/HederaContext';
 import { useConnectWalletStore } from '@/store/useConnectWalletStore';
+import { useUserStore } from '@/store/UserStore';
 import { FCC } from '@/types';
-
-import { useIsomorphicLayout } from '@/hooks/useIsomorphicLayout';
 
 const AuthLayout: FCC = ({ children }) => {
   const { isConnected } = React.useContext(HederaWalletsContext);
+  const status = useUserStore.use.status();
   const onOpen = useConnectWalletStore.use.onOpen();
   const setIsAbleClose = useConnectWalletStore.use.setIsAbleClose();
 
-  useIsomorphicLayout(() => {
-    if (!isConnected) {
+  React.useEffect(() => {
+    if (!isConnected && status === 'ready') {
       setIsAbleClose(false);
       onOpen();
     }
@@ -19,7 +19,7 @@ const AuthLayout: FCC = ({ children }) => {
     return () => {
       setIsAbleClose(true);
     };
-  }, [isConnected, onOpen, setIsAbleClose]);
+  }, [isConnected, onOpen, setIsAbleClose, status]);
 
   return children;
 };

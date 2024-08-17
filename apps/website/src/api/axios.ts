@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { COOKIES_KEY, env } from '@/utils/constants';
-import { getCookies } from '@/utils/cookies';
+import { useUserStore } from '@/store/UserStore';
+import { env } from '@/utils/constants';
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
 
@@ -21,7 +21,7 @@ const handleError = async (error: any) => {
   const data = error?.response?.data as any;
   if (data?.meta?.code === 401) {
     isRefreshPending = true;
-    const token = getCookies(COOKIES_KEY.ACCESS_TOKEN);
+    const token = useUserStore.getState().accessToken;
 
     if (token) isRefreshPending = false;
 
@@ -35,7 +35,7 @@ request.interceptors.response.use(handleSuccess, handleError);
 
 request.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const accessToken = getCookies(COOKIES_KEY.ACCESS_TOKEN);
+    const accessToken = useUserStore.getState().accessToken;
 
     if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
 

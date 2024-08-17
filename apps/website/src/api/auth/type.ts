@@ -16,6 +16,7 @@ export interface ILoginData {
 }
 
 export interface ILoginUserData {
+  accountId: string;
   walletAddress: string;
   id: number;
   createdAt: string;

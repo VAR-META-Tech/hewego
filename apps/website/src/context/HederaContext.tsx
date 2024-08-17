@@ -1,13 +1,11 @@
 import React from 'react';
 import { ILoginResponse } from '@/api/auth/type';
+import { useUserStore } from '@/store/UserStore';
 import { FCC } from '@/types';
-import { COOKIES_KEY } from '@/utils/constants';
 import { HashConnect } from 'hashconnect';
 import { toast } from 'sonner';
 
 import useHashPack, { HashConnectState } from '@/hooks/useHashPack';
-
-import { removeCookies } from '../utils/cookies';
 
 interface HederaWalletsContextType {
   hashConnect?: HashConnect | null;
@@ -49,13 +47,14 @@ export const HederaWalletsContext = React.createContext(HEDERA_CONTEXT);
 
 export const HederaWalletProvider: FCC = ({ children }) => {
   // const { bladeSigner, bladeAccountId, connectBladeWallet, clearConnectedBladeWalletData } = useBladeWallet();
-
+  const user = useUserStore.use.user();
+  const logout = useUserStore.use.logout();
   const { hashConnect, hashConnectState, connectToHashPack, disconnectFromHashPack, isIframeParent, loginData } =
     useHashPack();
 
   const accountId = React.useMemo(() => {
-    if (hashConnectState?.pairingData?.accountIds?.length) {
-      return hashConnectState?.pairingData?.accountIds[0];
+    if (user?.accountId) {
+      return user?.accountId;
     }
 
     // if (bladeAccountId) {
@@ -63,15 +62,15 @@ export const HederaWalletProvider: FCC = ({ children }) => {
     // }
 
     return '';
-  }, [hashConnectState?.pairingData?.accountIds]);
+  }, [user?.accountId]);
 
   const isConnected = React.useMemo(() => {
-    if (accountId) {
+    if (user?.accountId) {
       return true;
     }
 
     return false;
-  }, [accountId]);
+  }, [user?.accountId]);
 
   // Disconnect
   const handleDisconnect = React.useCallback(
@@ -79,15 +78,13 @@ export const HederaWalletProvider: FCC = ({ children }) => {
       disconnectFromHashPack();
 
       // clearConnectedBladeWalletData();
-
-      removeCookies(COOKIES_KEY.ACCESS_TOKEN);
-      removeCookies(COOKIES_KEY.REFRESH_TOKEN);
+      logout();
 
       if (isShowToast) {
         toast.success('Disconnected!');
       }
     },
-    [disconnectFromHashPack]
+    [disconnectFromHashPack, logout]
   );
 
   // Connect to HashPack
