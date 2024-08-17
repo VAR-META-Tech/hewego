@@ -4,7 +4,6 @@ import { HederaWalletsContext } from '@/context/HederaContext';
 import { nFormatter } from '@/utils/common';
 
 import { useGetMetaToken } from '@/hooks/useGetMetaToken';
-import { HStack } from '@/components/Utilities';
 
 import SummaryItem from '../SummaryItem';
 
@@ -34,25 +33,31 @@ const BondRequestsSummary = () => {
   }, [refetch]);
 
   return (
-    <HStack pos={'center'} spacing={32}>
+    <div className="grid grid-cols-3 gap-5">
       <SummaryItem
+        className="col-span-3 xl:col-span-1"
+        titleClassName="text-center"
         title="Total Loan / Repayment Amount"
         firstValue={`${nFormatter(Number(data?.data?.totalLoanAmount || 0))} ${loanTokenLabel}`}
         secondValue={`${nFormatter(Number(data?.data?.totalRepaymentAmount || 0))} ${loanTokenLabel}`}
       />
 
       <SummaryItem
+        className="col-span-3 xl:col-span-1"
+        titleClassName="text-center"
         title="Total deposited / Repayment collateral"
         firstValue={`${nFormatter(Number(data?.data?.totalDepositedCollateral || 0))} ${loanTokenLabel}`}
         secondValue={`${nFormatter(Number(data?.data?.totalRepaymentCollateral || 0))} ${loanTokenLabel}`}
       />
 
       <SummaryItem
+        className="col-span-3 xl:col-span-1"
+        titleClassName="text-center"
         title="Total Sold / iSSUED BONDS"
         firstValue={nFormatter(Number(data?.data?.totalBondsSold || 0))}
         secondValue={nFormatter(Number(data?.data?.totalBondsIssued || 0))}
       />
-    </HStack>
+    </div>
   );
 };
 

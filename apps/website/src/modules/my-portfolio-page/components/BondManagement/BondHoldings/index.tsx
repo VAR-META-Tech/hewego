@@ -31,7 +31,9 @@ const BondHoldings: React.FC<Props> = ({ setTabContainer }) => {
 
   return (
     <BondHoldingsFilterFormWrapper>
-      <BondHoldingsSumary />
+      <div className="container">
+        <BondHoldingsSumary />
+      </div>
 
       <div className="container space-y-10">
         <BondHoldingsFilter handleSearchChange={handleSearchChange} />
