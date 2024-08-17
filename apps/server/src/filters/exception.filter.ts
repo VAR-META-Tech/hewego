@@ -51,8 +51,6 @@ export class ExceptionFilter implements BaseExceptionFilter {
       data: new EmptyObject(),
     };
 
-    response.status(status).json({
-      responseMessage,
-    });
+    response.status(status).json(responseMessage);
   }
 }
