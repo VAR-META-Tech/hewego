@@ -13,7 +13,7 @@ export function useCopy(withToast = true): [boolean, CopyFn] {
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       if (withToast) {
-        toast.success('copied');
+        toast.success('Copied');
       }
       setTimeout(() => {
         setCopied(false);
@@ -32,7 +32,7 @@ export function useCopy(withToast = true): [boolean, CopyFn] {
       setCopied(true);
 
       if (withToast) {
-        toast.success('copied');
+        toast.success('Copied');
       }
       setTimeout(() => {
         setCopied(false);

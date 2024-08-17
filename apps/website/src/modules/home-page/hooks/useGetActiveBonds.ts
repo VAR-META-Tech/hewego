@@ -1,5 +1,7 @@
 import React from 'react';
 import { useGetActiveBondsQuery } from '@/api/bonds/queries';
+import { IGetBondActiveParams, IGetBondActiveResponse } from '@/api/bonds/type';
+import { QueryHookOptions } from 'react-query-kit';
 
 import usePaging from '@/hooks/usePaging';
 
@@ -10,7 +12,9 @@ export interface IGetBondsFilterType {
   borrows: string[];
   collaterals: string[];
 }
-export const useGetActiveBonds = () => {
+export const useGetActiveBonds = (
+  options?: QueryHookOptions<IGetBondActiveResponse, Error, IGetBondActiveResponse, IGetBondActiveParams>
+) => {
   const { paging, filter, onPageChange, handleFilterChange, onTotalItemsChange } = usePaging<IGetBondsFilterType>(
     GET_ACTIVE_BONDS_LIMIT,
     {
@@ -28,6 +32,7 @@ export const useGetActiveBonds = () => {
       borrows: filter.borrows.join(','),
       collaterals: filter.collaterals.join(','),
     },
+    ...options,
   });
 
   React.useEffect(() => {

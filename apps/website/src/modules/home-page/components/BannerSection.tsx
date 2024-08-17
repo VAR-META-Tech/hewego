@@ -22,14 +22,14 @@ const BannerSection = () => {
           <Button
             onPress={() => router.push(ROUTE.ISSUE_BOND)}
             size="lg"
-            radius="sm"
+            radius="full"
             className="text-lg bg-primary-700 text-white"
           >
-            Issue Bond
+            Issue bond
           </Button>
-          <Button size="lg" radius="sm" className="text-lg bg-primary-300 text-primary-700">
-            Buy Bond
-          </Button>
+          {/* <Button size="lg" radius="sm" className="text-lg bg-primary-300 text-primary-700">
+            Buy bond
+          </Button> */}
         </HStack>
       </VStack>
 

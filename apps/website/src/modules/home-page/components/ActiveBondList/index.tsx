@@ -5,27 +5,13 @@ import ActiveBondFilter from './ActiveBondFilter';
 import ActiveBondTable from './ActiveBondTable';
 
 const ActiveBondList = () => {
-  const { bonds, filter, isLoading, handleSearchChange, refetch } = useGetActiveBonds();
-
-  React.useEffect(() => {
-    refetch();
-
-    return () => {
-      refetch();
-    };
-  }, [refetch]);
-
-  React.useEffect(() => {
-    const refetchInterval = setInterval(() => {
-      refetch();
-    }, 4000);
-
-    return () => clearInterval(refetchInterval);
-  }, [refetch]);
+  const { bonds, filter, isLoading, handleSearchChange, refetch } = useGetActiveBonds({
+    refetchInterval: 5000,
+  });
 
   return (
-    <div className="container py-10 min-h-screen">
-      <div className="grid grid-cols-5 gap-8">
+    <div className="container py-10">
+      <div className="grid grid-cols-8 gap-8">
         <ActiveBondFilter filter={filter} handleSearchChange={handleSearchChange} />
 
         <ActiveBondTable bonds={bonds} isLoading={isLoading} refetch={refetch} />

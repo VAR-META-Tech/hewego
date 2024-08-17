@@ -97,17 +97,12 @@ const ActiveBondTable: React.FC<Props> = ({ bonds, isLoading, refetch }) => {
   }, [bonds, refetch]);
 
   return (
-    <div className="col-span-5 xl:col-span-4 space-y-10">
-      <HStack spacing={8} className="w-fit ">
-        <Icons.circle color="#9B7AF2" size={12} />
-
-        <span className="text-primary-700 text-lg">Live</span>
-      </HStack>
-      <Table className="w-full" removeWrapper aria-label="Example table with dynamic content">
+    <div className="col-span-8 xl:col-span-6 space-y-10">
+      <Table className="w-full text-base" removeWrapper>
         <TableHeader columns={HEADER_ACTIVE_BONDS_COLUMNS}>
           {(column) => (
             <TableColumn
-              className={cn({
+              className={cn('text-base !h-14', {
                 'text-right': column.key === HEADER_ACTIVE_BONDS_KEYS.INTEREST_RATE,
               })}
               key={column.key}
@@ -116,6 +111,7 @@ const ActiveBondTable: React.FC<Props> = ({ bonds, isLoading, refetch }) => {
             </TableColumn>
           )}
         </TableHeader>
+
         <TableBody
           isLoading={isLoading}
           loadingContent={<Spinner />}
@@ -129,7 +125,7 @@ const ActiveBondTable: React.FC<Props> = ({ bonds, isLoading, refetch }) => {
         </TableBody>
       </Table>
 
-      {!!bonds?.length && renderModal}
+      {bonds?.length > 0 ? renderModal : null}
     </div>
   );
 };
