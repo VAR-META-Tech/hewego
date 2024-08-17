@@ -381,7 +381,7 @@ export class HederaWorkerService {
     await manager
       .createQueryBuilder()
       .update(Bond)
-      .set({ repaidAt })
+      .set({ repaidAt, repaidAmount: repaymentAmountNumber })
       .where("bond_id = :bondId", {
         bondId: BigNumber.from(bondId).toNumber(),
       })

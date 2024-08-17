@@ -346,7 +346,6 @@ export class BondService {
           'SUM(bond.repaid_amount) AS "totalRepaymentAmount"',
           'SUM(bond.collateral_amount) AS "totalDepositedCollateral"',
           'SUM(bond.liquidated_amount) AS "totalLiquidatedAmount"',
-          'SUM(bond.volumeBond) AS "totalBondsIssued"',
           'SUM(bond.totalSold) AS "totalBondsSold"',
         ])
         .where('LOWER(bond.borrower_address) = :walletAddress', {
@@ -451,7 +450,6 @@ export class BondService {
         { page, limit },
       );
     } catch (error) {
-      console.log({ error });
       if (error instanceof HttpException) {
         throw error;
       }
@@ -512,9 +510,7 @@ export class BondService {
     );
     return new HoldingBondSummaryItemResponseDto(
       totalReceivedAmountOfLender,
-      ethers.BigNumber.from(
-        bondCheckout.totalAmountBondPurchased || 0,
-      ).toNumber(),
+      divideBy10e8(bondCheckout.totalAmountBondPurchased),
       Number(bondCheckout.totalBondPurchased),
     );
   }
