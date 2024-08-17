@@ -23,7 +23,7 @@ interface HederaWalletsContextType {
   accountId: string;
   loginData: ILoginResponse | undefined;
   handleDisconnect: () => void;
-  onConnectHaskPack: () => void;
+  onConnectHashPack: () => void;
   onConnectBladeWallet: () => void;
 }
 
@@ -41,7 +41,7 @@ const HEDERA_CONTEXT: HederaWalletsContextType = {
   accountId: '',
   loginData: undefined,
   handleDisconnect: () => undefined,
-  onConnectHaskPack: () => undefined,
+  onConnectHashPack: () => undefined,
   onConnectBladeWallet: () => undefined,
 };
 
@@ -91,7 +91,7 @@ export const HederaWalletProvider: FCC = ({ children }) => {
   );
 
   // Connect to HashPack
-  const onConnectHaskPack = React.useCallback(() => {
+  const onConnectHashPack = React.useCallback(() => {
     handleDisconnect(false);
 
     connectToHashPack();
@@ -119,7 +119,7 @@ export const HederaWalletProvider: FCC = ({ children }) => {
         isConnected,
         accountId,
         handleDisconnect,
-        onConnectHaskPack,
+        onConnectHashPack,
         onConnectBladeWallet,
         loginData,
       }}
