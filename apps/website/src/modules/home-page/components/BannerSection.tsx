@@ -34,7 +34,7 @@ const BannerSection = () => {
       </VStack>
 
       <div className="hidden flex-1 relative w-full lg:block">
-        <Image src={'/images/banner.webp'} alt="banner" fill quality={100} unoptimized priority />
+        <Image src={'/images/chart-grow-up.png'} alt="banner" fill quality={100} unoptimized priority />
       </div>
     </HStack>
   );

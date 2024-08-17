@@ -14,16 +14,11 @@ const Header: React.FC<Props> = () => {
   return (
     <header className="h-header bg-white fixed top-0 right-0 left-0 z-50">
       <HStack align={'center'} pos={'apart'} spacing={40} className="container h-full">
-        <HStack className="flex-1" spacing={20} noWrap>
-          <Logo />
+        <Logo />
 
-          {/* <SearchInput /> */}
-        </HStack>
-        <HStack spacing={20} pos={'apart'} noWrap className="flex-1">
-          <Navbar />
+        <Navbar />
 
-          <ConnectWallet />
-        </HStack>
+        <ConnectWallet />
       </HStack>
     </header>
   );
