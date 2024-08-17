@@ -32,6 +32,7 @@ export const BOND_REQUESTS_KEYS = {
   loanTerm: 'loanTerm',
   supply: 'supply',
   healthFactor: 'healthFactor',
+  status: 'status',
   action: 'action',
 };
 
@@ -62,6 +63,7 @@ export const HEADER_COLUMNS_BOND_REQUESTS = [
   { key: BOND_REQUESTS_KEYS.loanTerm, label: 'Bond Duration' },
   { key: BOND_REQUESTS_KEYS.supply, label: 'Total Supply / Amount' },
   // { key: BOND_REQUESTS_KEYS.healthFactor, label: 'Health Factor' },
+  { key: BOND_REQUESTS_KEYS.status, label: 'Status' },
   { key: BOND_REQUESTS_KEYS.action, label: 'Action' },
 ];
 
@@ -90,12 +92,12 @@ export const BOND_MANAGEMENT_TAB_VALUE = {
 
 export const BOND_MANAGEMENT_TAB_DATA = [
   {
-    label: 'Bond Holdings',
-    value: BOND_MANAGEMENT_TAB_VALUE.BOND_HOLDINGS,
-  },
-  {
     label: 'Bond Requests',
     value: BOND_MANAGEMENT_TAB_VALUE.BOND_REQUESTS,
+  },
+  {
+    label: 'Bond Holdings',
+    value: BOND_MANAGEMENT_TAB_VALUE.BOND_HOLDINGS,
   },
 ];
 

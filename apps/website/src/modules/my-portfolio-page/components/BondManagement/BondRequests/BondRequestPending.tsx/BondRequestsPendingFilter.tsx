@@ -40,7 +40,7 @@ const BondRequestsPendingFilter: React.FC<Props> = ({ handleSearchChange }) => {
   return (
     <VStack spacing={20}>
       <div className="grid grid-cols-4 gap-5">
-        <div>
+        <div className="col-span-4 md:col-span-4 xl:col-span-1">
           <TextField
             name="search"
             control={control}
@@ -49,9 +49,9 @@ const BondRequestsPendingFilter: React.FC<Props> = ({ handleSearchChange }) => {
             variant="bordered"
           />
         </div>
-        <div className="col-span-1"></div>
+        <div className="hidden xl:block xl:col-span-1"></div>
 
-        <div className="col-span-1">
+        <div className="col-span-4 md:col-span-2 xl:col-span-1">
           <SelectField
             aria-label="Bond Duration"
             selectionMode="multiple"
@@ -65,7 +65,7 @@ const BondRequestsPendingFilter: React.FC<Props> = ({ handleSearchChange }) => {
           />
         </div>
 
-        <div className="col-span-1">
+        <div className="col-span-4 md:col-span-2 xl:col-span-1">
           <DateRangePicker
             variant="bordered"
             placeholder="Select Issuance Date Range"

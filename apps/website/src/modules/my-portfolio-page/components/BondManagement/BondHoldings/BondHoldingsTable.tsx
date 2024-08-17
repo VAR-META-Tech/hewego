@@ -124,7 +124,7 @@ const BondHoldingsTable: React.FC<Props> = ({
             <Button
               disabled={isDisableButton}
               onClick={() => handleClaim(Number(item?.bondInfo?.bondId))}
-              className={cn('bg-primary-500 text-white', {
+              className={cn('bg-primary-500 text-white w-24', {
                 'opacity-50 pointer-events-none': isDisableButton,
               })}
             >
