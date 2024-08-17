@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   Injectable,
   InternalServerErrorException,
@@ -23,13 +24,13 @@ import {
   BondStatusEnum,
   HoldingBondStatus,
   RequestBondAction,
-  TransactionType,
 } from 'shared/enum';
 import { FindManyHoldingBondParamsDto } from './dto/findManyHoldingBond.params.dto';
 import { HoldingBondItemResponseDto } from './dto/holdingBondItemResponse.dto';
 import { HoldingBondSummaryItemResponseDto } from './dto/holdingBondSummaryItemResponse.dto';
 import { ethers } from 'ethers';
 import { ApiConfigService } from 'shared/services/api-config.service';
+import { divideBy10e8 } from '../../utils';
 @Injectable()
 export class BondService {
   constructor(
@@ -330,55 +331,50 @@ export class BondService {
     }
   }
 
+  /**
+   * Get summary of borrow bond request
+   * @param user
+   */
   async getBorrowBondRequestSummary(
     user: User,
   ): Promise<BorrowBondRequestSummaryDto> {
     try {
-      const bondSummaryQueryBuilder = this.bondRepository
+      const bondSummaryResult = await this.bondRepository
         .createQueryBuilder('bond')
         .select([
-          'SUM(bond.loan_amount::numeric) AS "totalLoanAmount"',
-          'SUM(bond.collateral_amount::numeric) AS "totalDepositedCollateral"',
-          'CAST(SUM(bond.volumeBond) AS BIGINT) AS "totalBondsIssued"',
-          'CAST(SUM(bond.totalSold) AS BIGINT) AS "totalBondsSold"',
+          'SUM(bond.loan_amount) AS "totalLoanAmount"',
+          'SUM(bond.repaid_amount) AS "totalRepaymentAmount"',
+          'SUM(bond.collateral_amount) AS "totalDepositedCollateral"',
+          'SUM(bond.liquidated_amount) AS "totalLiquidatedAmount"',
+          'SUM(bond.volumeBond) AS "totalBondsIssued"',
+          'SUM(bond.totalSold) AS "totalBondsSold"',
         ])
-        .where('LOWER(bond.borrower_address) = LOWER(:walletAddress)', {
+        .where('LOWER(bond.borrower_address) = :walletAddress', {
           walletAddress: user?.walletAddress,
-        });
-
-      const bondSummaryResult = await bondSummaryQueryBuilder.getRawOne();
-
-      const repaymentAmountQueryBuilder = this.transactionRepository
-        .createQueryBuilder('transaction')
-        .select('SUM(transaction.amount) AS "totalRepaymentAmount"')
-        .where(
-          'LOWER(transaction.user_wallet_address) = LOWER(:walletAddress)',
-          {
-            walletAddress: user?.walletAddress,
-          },
-        )
-        .andWhere('transaction.transaction_type IN (:...transactionTypes)', {
-          transactionTypes: [
-            TransactionType.LOAN_REPAYMENT,
-            TransactionType.REPAYMENT_CLAIMED,
-          ],
-        });
-
-      const repaymentAmountResult =
-        await repaymentAmountQueryBuilder.getRawOne();
+        })
+        .getRawOne();
 
       return new BorrowBondRequestSummaryDto(
-        Number(bondSummaryResult.totalLoanAmount),
-        Number(repaymentAmountResult.totalRepaymentAmount),
-        Number(bondSummaryResult.totalDepositedCollateral),
-        10, // Placeholder value, adjust as needed
+        divideBy10e8(bondSummaryResult.totalLoanAmount),
+        divideBy10e8(bondSummaryResult.totalRepaymentAmount),
+        divideBy10e8(bondSummaryResult.totalDepositedCollateral),
+        divideBy10e8(bondSummaryResult.totalLiquidatedAmount),
         Number(bondSummaryResult.totalBondsSold),
         Number(bondSummaryResult.totalBondsIssued),
       );
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       throw new InternalServerErrorException(error.message);
     }
   }
+
+  /**
+   * Get holding bonds with pageable
+   * @param params
+   * @param user
+   */
   async getHoldingBondsWithPageble(
     params: FindManyHoldingBondParamsDto,
     user: User,
@@ -516,7 +512,9 @@ export class BondService {
     );
     return new HoldingBondSummaryItemResponseDto(
       totalReceivedAmountOfLender,
-      ethers.BigNumber.from(bondCheckout.totalAmountBondPurchased).toNumber(),
+      ethers.BigNumber.from(
+        bondCheckout.totalAmountBondPurchased || 0,
+      ).toNumber(),
       Number(bondCheckout.totalBondPurchased),
     );
   }

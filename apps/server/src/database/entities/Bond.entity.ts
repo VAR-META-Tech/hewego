@@ -112,6 +112,9 @@ export class Bond {
   @Column({ name: 'liquidated_at', type: 'timestamp', nullable: true })
   liquidatedAt: Date;
 
+  @Column({ name: 'liquidated_amount', type: 'bigint', nullable: true })
+  liquidatedAmount: number;
+
   @Column({ name: 'canceled_at', type: 'timestamp', nullable: true })
   canceledAt: Date;
 
