@@ -1,5 +1,7 @@
 import { request } from '../axios';
 import {
+  IGetAllTransactionHistoryParams,
+  IGetAllTransactionHistoryResponse,
   IGetBondHoldingsParams,
   IGetBondHoldingsResponse,
   IGetBondHoldingsSummaryResponse,
@@ -53,6 +55,19 @@ export const getTransactionHistoryRequest = async (
 ): Promise<IGetTransactionHistoryResponse> => {
   const { data } = await request({
     url: `/api/lender-transactions`,
+    method: 'GET',
+    params,
+  });
+
+  return data;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getAllTransactionHistoryRequest = async (
+  params: IGetAllTransactionHistoryParams
+): Promise<IGetAllTransactionHistoryResponse> => {
+  const { data } = await request({
+    url: `/api/transactions`,
     method: 'GET',
     params,
   });

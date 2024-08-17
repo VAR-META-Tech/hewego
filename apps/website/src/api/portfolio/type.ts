@@ -128,3 +128,33 @@ export interface IGetTransactionHistoryData {
   loanToken: string;
   loanTokenType: string;
 }
+
+export interface IGetAllTransactionHistoryParams {
+  page: string;
+  limit: string;
+  searchTransactionHash?: string;
+  transactionTypes?: string;
+  assets?: string;
+}
+
+export interface IGetAllTransactionHistoryResponse {
+  meta: IMetaPagination;
+  data: IGetAllTransactionHistoryData[];
+}
+
+export interface IGetAllTransactionHistoryData {
+  id: number;
+  transactionType: string;
+  userWalletAddress: string;
+  amount: string;
+  status: string;
+  transactionHash: string;
+  createdAt: string;
+  bondName: string;
+  bondId: number;
+  loanToken: string;
+  loanTokenType: string;
+  collateralToken: string;
+  collateralTokenType: string;
+  masterAsset: string;
+}

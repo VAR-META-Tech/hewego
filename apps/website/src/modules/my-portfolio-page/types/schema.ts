@@ -20,7 +20,8 @@ export type BondHoldingsFilterType = z.infer<typeof bondHoldingsFilterSchema>;
 // Transaction History
 export const transactionHistoryFilterSchema = z.object({
   search: z.string().optional(),
-  supply: z.string().optional(),
+  token: z.string().optional(),
+  transactionType: z.string().optional(),
 });
 
 export type TransactionHistoryFilterType = z.infer<typeof transactionHistoryFilterSchema>;

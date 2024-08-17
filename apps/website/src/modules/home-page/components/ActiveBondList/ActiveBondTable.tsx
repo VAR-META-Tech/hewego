@@ -97,13 +97,13 @@ const ActiveBondTable: React.FC<Props> = ({ bonds, isLoading, refetch }) => {
   }, [bonds, refetch]);
 
   return (
-    <div className="col-span-1 lg:col-span-4 space-y-10">
+    <div className="col-span-5 xl:col-span-4 space-y-10">
       <HStack spacing={8} className="w-fit ">
         <Icons.circle color="#9B7AF2" size={12} />
 
         <span className="text-primary-700 text-lg">Live</span>
       </HStack>
-      <Table removeWrapper aria-label="Example table with dynamic content">
+      <Table className="w-full" removeWrapper aria-label="Example table with dynamic content">
         <TableHeader columns={HEADER_ACTIVE_BONDS_COLUMNS}>
           {(column) => (
             <TableColumn
