@@ -1,5 +1,4 @@
 import React from 'react';
-import { Icons } from '@/assets/icons';
 import { HederaWalletsContext } from '@/context/HederaContext';
 import { useConnectWalletStore } from '@/store/useConnectWalletStore';
 import { Button } from '@nextui-org/react';
@@ -19,7 +18,7 @@ const ConnectWallet = () => {
   const renderWallet = React.useMemo(() => {
     if (!isConnected) {
       return (
-        <Button onPress={onOpen} startContent={<Icons.wallet />} className="bg-primary-700 text-white text-base w-48">
+        <Button onPress={onOpen} radius="full" className="bg-primary-700 text-white text-base w-44">
           Connect Wallet
         </Button>
       );

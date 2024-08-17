@@ -5,7 +5,8 @@ import { HStack } from '@/components/Utilities';
 
 import ConnectWallet from './ConnectWallet';
 import Navbar from './Navbar';
-import SearchInput from './SearchInput';
+
+// import SearchInput from './SearchInput';
 
 interface Props {}
 
@@ -16,7 +17,7 @@ const Header: React.FC<Props> = () => {
         <HStack className="flex-1" spacing={20} noWrap>
           <Logo />
 
-          <SearchInput />
+          {/* <SearchInput /> */}
         </HStack>
         <HStack spacing={20} pos={'apart'} noWrap className="flex-1">
           <Navbar />
