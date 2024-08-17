@@ -36,18 +36,23 @@ export class ExceptionFilter implements BaseExceptionFilter {
       },
     });
 
-    const errorResponse = {
-      statusCode: status,
-      message: exception.message || 'Internal Server Error',
-      error: exception.name,
+    const exceptionResponse: any =
+      exception instanceof HttpException
+        ? exception.getResponse()
+        : exception instanceof Error && exception.message
+          ? exception.message
+          : exception;
+
+    const responseMessage = {
+      meta: {
+        code: status,
+        message: exceptionResponse.message || exceptionResponse,
+      },
+      data: new EmptyObject(),
     };
 
     response.status(status).json({
-      meta: {
-        code: status,
-        message: errorResponse.message,
-      },
-      data: new EmptyObject(),
+      responseMessage,
     });
   }
 }

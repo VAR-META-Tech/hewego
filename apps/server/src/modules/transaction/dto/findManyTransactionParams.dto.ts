@@ -46,7 +46,7 @@ export class FindManyTransactionParamsDto {
   @IsEnum(TransactionType, { each: true })
   @Transform(
     ({ value }) =>
-      value ? value.split(',').map((type: string) => type) : undefined,
+      value ? value.split(',').map((type: string) => type.trim()) : undefined,
     {
       toClassOnly: true,
     },
@@ -65,7 +65,7 @@ export class FindManyTransactionParamsDto {
   @IsEnum(TokenSymbolEnum, { each: true })
   @Transform(
     ({ value }) =>
-      value ? value.split(',').map((type: string) => type) : undefined,
+      value ? value.split(',').map((type: string) => type.trim()) : undefined,
     {
       toClassOnly: true,
     },
