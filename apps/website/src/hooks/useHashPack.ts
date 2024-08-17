@@ -1,8 +1,8 @@
 import React from 'react';
 import { useLoginMutation } from '@/api/auth/mutations';
+import { useUserStore } from '@/store/UserStore';
 import { getAccountByAddressOrAccountId, onMutateError } from '@/utils/common';
-import { COOKIES_KEY, env, HASHCONNECT_DEBUG_MODE, HEDERA_CONFIG } from '@/utils/constants';
-import { setCookies } from '@/utils/cookies';
+import { env, HASHCONNECT_DEBUG_MODE, HEDERA_CONFIG } from '@/utils/constants';
 import { HashConnect, HashConnectTypes, MessageTypes } from 'hashconnect';
 import { HashConnectConnectionState } from 'hashconnect/dist/types';
 import { toast } from 'sonner';
@@ -20,13 +20,16 @@ export interface HashConnectState {
 const useHashPack = () => {
   const [hashConnect, setHashConnect] = React.useState<HashConnect | null>(null);
   const [hashConnectState, setHashConnectState] = React.useState<Partial<HashConnectState>>({});
-
+  const setUser = useUserStore.use.setUser();
+  const setAccessToken = useUserStore.use.setAccessToken();
+  const setRefreshToken = useUserStore.use.setRefreshToken();
   const { isIframeParent } = useHashConnectEvents(hashConnect, setHashConnectState);
 
   const { mutate: login, data: loginData } = useLoginMutation({
     onSuccess: ({ data }) => {
-      setCookies(COOKIES_KEY.ACCESS_TOKEN, data?.tokens?.accessToken);
-      setCookies(COOKIES_KEY.REFRESH_TOKEN, data?.tokens?.refreshToken);
+      setUser(data?.user);
+      setAccessToken(data?.tokens?.accessToken);
+      setRefreshToken(data?.tokens?.refreshToken);
       toast.success('HashPack has been connected!');
     },
     onError: (error) => {
