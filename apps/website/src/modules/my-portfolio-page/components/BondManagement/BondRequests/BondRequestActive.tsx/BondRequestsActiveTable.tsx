@@ -119,6 +119,17 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, o
           return <span>{`${Number(item?.loanTerm || 0)} ${Number(item?.loanTerm || 0) > 1 ? 'weeks' : 'week'}`}</span>;
         case BOND_REQUESTS_KEYS.supply:
           return <span>{`${Number(item?.totalSold || 0)}/${loanAmount / 100}`}</span>;
+        case BOND_REQUESTS_KEYS.status:
+          return (
+            <span
+              className={cn('px-2 py-1 text-nowrap rounded-full', {
+                'bg-gray-200/50': !!item?.repaidAt,
+                'text-green-600 bg-green-400/30': !item?.repaidAt,
+              })}
+            >
+              {item?.repaidAt ? 'Completed' : 'Active'}
+            </span>
+          );
         case BOND_REQUESTS_KEYS.action:
           return (
             <Button
@@ -146,12 +157,7 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, o
 
   return (
     <VStack>
-      <HStack spacing={12}>
-        <span className="border-primary-500 border rounded-full w-2 h-2" />
-        <span className="text-primary-500">Requests with Issued Bonds</span>
-      </HStack>
-
-      <Table removeWrapper aria-label="Example table with dynamic content">
+      <Table removeWrapper aria-label="Example table with dynamic content" className="overflow-auto">
         <TableHeader columns={HEADER_COLUMNS_BOND_REQUESTS}>
           {(column) => (
             <TableColumn

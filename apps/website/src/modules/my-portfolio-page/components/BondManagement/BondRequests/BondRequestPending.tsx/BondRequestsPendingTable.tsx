@@ -37,18 +37,31 @@ const BondRequestsPendingTable: React.FC<Props> = ({ bonds, paging, pagination, 
       switch (columnKey) {
         case BOND_REQUESTS_KEYS.issuanceDate:
           return (
-            <span>
+            <span className="text-nowrap">
               {item?.issuanceDate && format(new Date(Number(item?.issuanceDate) * 1000), DATE_FORMAT.MMM_DD_YYYY)}
             </span>
           );
         case BOND_REQUESTS_KEYS.loanAmount:
-          return <span>{`${prettyNumber(loanAmount || 0)} ${loanTokenLabel}`}</span>;
+          return <span className="text-nowrap">{`${prettyNumber(loanAmount || 0)} ${loanTokenLabel}`}</span>;
         case BOND_REQUESTS_KEYS.interestRate:
-          return <span>{`${Number(item?.interestRate || 0).toFixed(2)}%`}</span>;
+          return <span className="text-nowrap">{`${Number(item?.interestRate || 0).toFixed(2)}%`}</span>;
         case BOND_REQUESTS_KEYS.loanTerm:
-          return <span>{`${Number(item?.loanTerm || 0)} ${Number(item?.loanTerm || 0) > 1 ? 'weeks' : 'week'}`}</span>;
+          return (
+            <span className="text-nowrap">{`${Number(item?.loanTerm || 0)} ${Number(item?.loanTerm || 0) > 1 ? 'weeks' : 'week'}`}</span>
+          );
         case BOND_REQUESTS_KEYS.supply:
-          return <span>{`${Number(item?.totalSold || 0)}/${loanAmount / 100}`}</span>;
+          return <span className="text-nowrap">{`${Number(item?.totalSold || 0)}/${loanAmount / 100}`}</span>;
+        case BOND_REQUESTS_KEYS.status:
+          return (
+            <span
+              className={cn('px-2 py-1 text-nowrap rounded-full', {
+                ' bg-gray-300/70': !!item?.canceledAt,
+                'bg-orange-200/50 text-orange-700': !item?.canceledAt,
+              })}
+            >
+              {item?.canceledAt ? 'Closed' : 'Pending Issuance'}
+            </span>
+          );
         case BOND_REQUESTS_KEYS.action:
           return (
             <Button
@@ -72,17 +85,13 @@ const BondRequestsPendingTable: React.FC<Props> = ({ bonds, paging, pagination, 
 
   return (
     <VStack>
-      <HStack spacing={12}>
-        <span className="border-primary-500 border rounded-full w-2 h-2" />
-        <span className="text-primary-500">Requests Pending Bond Issuance</span>
-      </HStack>
-
-      <Table removeWrapper aria-label="Example table with dynamic content">
+      <Table removeWrapper aria-label="Example table with dynamic content" className="overflow-auto">
         <TableHeader columns={HEADER_COLUMNS_BOND_REQUESTS}>
           {(column) => (
             <TableColumn
               className={cn({
-                'text-right': textRightAlignArray.includes(String(column.key)),
+                'text-right': textRightAlignArray.includes(String(column?.key)),
+                'text-center': String(column?.key) === 'status',
               })}
               key={column.key}
             >
@@ -97,6 +106,7 @@ const BondRequestsPendingTable: React.FC<Props> = ({ bonds, paging, pagination, 
                 <TableCell
                   className={cn({
                     'text-right': textRightAlignArray.includes(String(columnKey)),
+                    'text-center': String(columnKey) === 'status',
                   })}
                 >
                   {renderCell(item, String(columnKey))}

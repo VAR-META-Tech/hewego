@@ -4,7 +4,7 @@ import BondRequestPendingFilterFormWrapper from '@/modules/my-portfolio-page/for
 import { useGetBondRequestsActive } from '@/modules/my-portfolio-page/hooks/useGetBondRequestsActive';
 import { useGetBondRequestsPending } from '@/modules/my-portfolio-page/hooks/useGetBondRequestsPending';
 
-import { VStack } from '@/components/Utilities';
+import { HStack, VStack } from '@/components/Utilities';
 
 import BondRequestsActiveFilter from './BondRequestActive.tsx/BondRequestsActiveFilter';
 import BondRequestsActiveTable from './BondRequestActive.tsx/BondRequestsActiveTable';
@@ -59,6 +59,11 @@ const BondRequests = () => {
         </VStack>
 
         <BondRequestPendingFilterFormWrapper>
+          <HStack spacing={12}>
+            <span className="border-primary-500 border rounded-full w-2 h-2" />
+            <span className="text-primary-500">Requests Pending Bond Issuance</span>
+          </HStack>
+
           <BondRequestsPendingFilter handleSearchChange={handleSearchChange} />
 
           <BondRequestsPendingTable
@@ -72,6 +77,10 @@ const BondRequests = () => {
         </BondRequestPendingFilterFormWrapper>
 
         <BondRequestActiveFilterFormWrapper>
+          <HStack spacing={12}>
+            <span className="border-primary-500 border rounded-full w-2 h-2" />
+            <span className="text-primary-500">Requests with Issued Bonds</span>
+          </HStack>
           <BondRequestsActiveFilter handleSearchChange={handleSearchChangeActive} />
 
           <BondRequestsActiveTable
