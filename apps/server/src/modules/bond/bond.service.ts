@@ -346,6 +346,7 @@ export class BondService {
           'SUM(bond.repaid_amount) AS "totalRepaymentAmount"',
           'SUM(bond.collateral_amount) AS "totalDepositedCollateral"',
           'SUM(bond.liquidated_amount) AS "totalLiquidatedAmount"',
+          'SUM(bond.volumeBond) AS "totalBondsIssued"',
           'SUM(bond.totalSold) AS "totalBondsSold"',
         ])
         .where('LOWER(bond.borrower_address) = :walletAddress', {
