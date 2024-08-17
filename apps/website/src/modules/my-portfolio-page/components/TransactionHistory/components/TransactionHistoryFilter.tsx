@@ -1,6 +1,7 @@
 import React from 'react';
 import { Icons } from '@/assets/icons';
 import { TransactionHistoryFilterType } from '@/modules/my-portfolio-page/types/schema';
+import { TRANSACTION_TYPE_DATA } from '@/modules/my-portfolio-page/utils/const';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useFormContext } from 'react-hook-form';
 
@@ -15,7 +16,9 @@ interface Props {
 
 const TransactionHistoryFilter: React.FC<Props> = ({ handleSearchChange }) => {
   const { control, watch } = useFormContext<TransactionHistoryFilterType>();
-  const { borrowTokenData } = useGetMetaToken();
+  const { tokenData } = useGetMetaToken();
+  const [token, setToken] = React.useState(new Set([]));
+  const [type, setType] = React.useState(new Set([]));
 
   const [search] = watch(['search']);
 
@@ -27,14 +30,26 @@ const TransactionHistoryFilter: React.FC<Props> = ({ handleSearchChange }) => {
     });
   }, [handleSearchChange, searchDebounced]);
 
+  React.useEffect(() => {
+    handleSearchChange({
+      token: Array.from(token).join(', '),
+    });
+  }, [handleSearchChange, token]);
+
+  React.useEffect(() => {
+    handleSearchChange({
+      transactionType: Array.from(type).join(', '),
+    });
+  }, [handleSearchChange, type]);
+
   return (
     <HStack pos={'apart'} spacing={20}>
       <VStack>
-        <span className="text-3xl font-bold">Transaction History </span>
-        <span className="underline">Track your interest and loan maturity payments</span>
+        <span className="text-3xl font-bold">Transaction History</span>
+        <span>View your loan claims, collateral deposits, and repayments</span>
       </VStack>
 
-      <HStack noWrap spacing={20}>
+      <HStack noWrap spacing={20} pos={'apart'} className="w-full">
         <TextField
           name="search"
           control={control}
@@ -44,29 +59,52 @@ const TransactionHistoryFilter: React.FC<Props> = ({ handleSearchChange }) => {
           className="w-96"
         />
 
-        <SelectField
-          aria-label="supply"
-          data={borrowTokenData}
-          variant="bordered"
-          name="supply"
-          control={control}
-          placeholder="Supply"
-          classNames={{
-            trigger: 'w-40',
-            listboxWrapper: 'max-h-[400px]',
-            popoverContent: 'rounded-sm',
-          }}
-          listboxProps={{
-            itemClasses: {
-              base: ['data-[selectable=true]:focus:bg-default-50', 'data-[focus-visible=true]:ring-default-500'],
-            },
-          }}
-          onSelectionChange={(value) => {
-            handleSearchChange({
-              supply: value?.currentKey,
-            });
-          }}
-        />
+        <HStack>
+          <SelectField
+            aria-label="transactionType"
+            selectionMode="multiple"
+            data={TRANSACTION_TYPE_DATA}
+            variant="bordered"
+            name="transactionType"
+            control={control}
+            placeholder="Supply"
+            selectedKeys={type}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onSelectionChange={setType as any}
+            classNames={{
+              trigger: 'w-40',
+              listboxWrapper: 'max-h-[400px]',
+              popoverContent: 'rounded-sm',
+            }}
+            listboxProps={{
+              itemClasses: {
+                base: ['data-[selectable=true]:focus:bg-default-50', 'data-[focus-visible=true]:ring-default-500'],
+              },
+            }}
+          />
+          <SelectField
+            aria-label="token"
+            selectionMode="multiple"
+            name="token"
+            variant="bordered"
+            control={control}
+            placeholder="Borrow"
+            data={tokenData}
+            selectedKeys={token}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onSelectionChange={setToken as any}
+            classNames={{
+              trigger: 'w-40',
+              listboxWrapper: 'max-h-[400px]',
+              popoverContent: 'rounded-sm',
+            }}
+            listboxProps={{
+              itemClasses: {
+                base: ['data-[selectable=true]:focus:bg-default-50', 'data-[focus-visible=true]:ring-default-500'],
+              },
+            }}
+          />
+        </HStack>
       </HStack>
     </HStack>
   );

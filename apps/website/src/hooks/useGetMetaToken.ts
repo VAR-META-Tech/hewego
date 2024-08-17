@@ -51,6 +51,15 @@ export const useGetMetaToken = () => {
     [collateralTokenData, data]
   );
 
+  const tokenData = React.useMemo(() => {
+    if (!data) return [];
+
+    return tokens.map((token) => ({
+      label: token.symbol,
+      value: token.symbol,
+    }));
+  }, [data, tokens]);
+
   return {
     data,
     tokens,
@@ -58,6 +67,7 @@ export const useGetMetaToken = () => {
     collateralTokenData,
     getLoanTokenLabel,
     getCollateralTokenLabel,
+    tokenData,
     ...rest,
   };
 };

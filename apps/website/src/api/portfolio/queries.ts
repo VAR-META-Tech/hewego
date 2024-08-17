@@ -1,6 +1,7 @@
 import { createQuery } from 'react-query-kit';
 
 import {
+  getAllTransactionHistoryRequest,
   getBondHoldingsRequest,
   getBondHoldingsSummaryRequest,
   getBondRequestRequest,
@@ -8,6 +9,8 @@ import {
   getTransactionHistoryRequest,
 } from './request';
 import {
+  IGetAllTransactionHistoryParams,
+  IGetAllTransactionHistoryResponse,
   IGetBondHoldingsParams,
   IGetBondHoldingsResponse,
   IGetBondHoldingsSummaryResponse,
@@ -41,4 +44,12 @@ export const useGetBondHoldingsSummaryQuery = createQuery<IGetBondHoldingsSummar
 export const useGetTransactionHistoryQuery = createQuery<IGetTransactionHistoryResponse, IGetTransactionHistoryParams>({
   queryKey: ['/api/lender-transactions'],
   fetcher: getTransactionHistoryRequest,
+});
+
+export const useGetAllTransactionHistoryQuery = createQuery<
+  IGetAllTransactionHistoryResponse,
+  IGetAllTransactionHistoryParams
+>({
+  queryKey: ['/api/lender-transactions'],
+  fetcher: getAllTransactionHistoryRequest,
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGetTransactionHistoryQuery } from '@/api/portfolio/queries';
+import { useGetAllTransactionHistoryQuery } from '@/api/portfolio/queries';
 import { HederaWalletsContext } from '@/context/HederaContext';
 
 import usePaging from '@/hooks/usePaging';
@@ -13,15 +13,17 @@ export const useGetTransactionHistory = () => {
   const { paging, filter, onPageChange, handleFilterChange, onTotalItemsChange } =
     usePaging<TransactionHistoryFilterType>(GET_BOND_TRANSACTION_HISTORY_LIMIT, {
       search: '',
-      supply: '',
+      token: '',
+      transactionType: '',
     });
 
-  const { data, ...rest } = useGetTransactionHistoryQuery({
+  const { data, ...rest } = useGetAllTransactionHistoryQuery({
     variables: {
       page: String(paging.page),
       limit: String(paging.limit),
       searchTransactionHash: filter?.search || undefined,
-      supplies: filter?.supply || undefined,
+      transactionTypes: filter?.transactionType || undefined,
+      assets: filter?.token || undefined,
     },
     enabled: !!isConnected && !!loginData,
   });

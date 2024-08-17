@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import Link from 'next/link';
-import { IGetTransactionHistoryData } from '@/api/portfolio/type';
-import { HEADER_COLUMNS_TRANSACTION_HISTORY, TRANSACTION_HISTORY_KEYS } from '@/modules/my-portfolio-page/utils/const';
+import { IGetAllTransactionHistoryData } from '@/api/portfolio/type';
+import {
+  HEADER_COLUMNS_TRANSACTION_HISTORY,
+  TRANSACTION_HISTORY_KEYS,
+  TRANSACTION_TYPE_LABEL,
+  TRANSACTION_TYPE_VALUE,
+} from '@/modules/my-portfolio-page/utils/const';
 import { cn, prettyNumber } from '@/utils/common';
 import { IPagination, IPaging } from '@/utils/common.type';
 import { DATE_FORMAT, env, TOKEN_UNIT } from '@/utils/constants';
@@ -17,42 +22,40 @@ interface Props {
   pagination: IPagination | undefined;
   paging: IPaging;
   onPageChange: (newPage: number) => void;
-  transactions: IGetTransactionHistoryData[];
+  transactions: IGetAllTransactionHistoryData[];
   isLoading: boolean;
 }
 
-const CENTER_COLUMNS = [TRANSACTION_HISTORY_KEYS.transactionId, TRANSACTION_HISTORY_KEYS.status];
-const RIGHT_COLUMNS = [
-  TRANSACTION_HISTORY_KEYS.loanAmount,
-  TRANSACTION_HISTORY_KEYS.interestPayment,
-  TRANSACTION_HISTORY_KEYS.receivedAmount,
-];
+const CENTER_COLUMNS = [TRANSACTION_HISTORY_KEYS.status];
 
 const TransactionHistoryTable: React.FC<Props> = ({ pagination, paging, onPageChange, transactions, isLoading }) => {
-  const renderCell = React.useCallback((item: IGetTransactionHistoryData, columnKey: string) => {
+  const renderCell = React.useCallback((item: IGetAllTransactionHistoryData, columnKey: string) => {
+    const transactionType = item?.transactionType || '';
+
+    const typeKey: keyof typeof TRANSACTION_TYPE_VALUE = transactionType as keyof typeof TRANSACTION_TYPE_VALUE;
+    const type: keyof typeof TRANSACTION_TYPE_LABEL = TRANSACTION_TYPE_VALUE[
+      typeKey
+    ] as keyof typeof TRANSACTION_TYPE_LABEL;
+
+    const typeLabel = TRANSACTION_TYPE_LABEL[type];
     switch (columnKey) {
       case TRANSACTION_HISTORY_KEYS.dateTime:
-        return <span>{item?.createdAt && format(new Date(item?.createdAt), DATE_FORMAT.YYYY_MM_DD_HH_MM)}</span>;
+        return <span>{!!item?.createdAt && format(new Date(item?.createdAt), DATE_FORMAT.YYYY_MM_DD_HH_MM)}</span>;
       case TRANSACTION_HISTORY_KEYS.transactionType:
-        return <span>Receive Loan Amount </span>;
-      case TRANSACTION_HISTORY_KEYS.loanAmount:
+        return <span>{!!transactionType && typeLabel}</span>;
+      case TRANSACTION_HISTORY_KEYS.amount:
         return (
-          <span>{`${prettyNumber(Number(formatUnits(BigInt(item?.loanAmount || 0), Number(TOKEN_UNIT))))} ${item?.loanTokenType || ''}`}</span>
+          <span>{!!item?.amount && prettyNumber(Number(formatUnits(BigInt(item?.amount), Number(TOKEN_UNIT))))}</span>
         );
-      case TRANSACTION_HISTORY_KEYS.interestPayment:
-        return (
-          <span>{`${prettyNumber(Number(formatUnits(BigInt(item?.receivedAmount || 0), Number(TOKEN_UNIT))))} ${item?.loanTokenType || ''}`}</span>
-        );
-      case TRANSACTION_HISTORY_KEYS.receivedAmount:
-        return (
-          <span>{`${prettyNumber(Number(formatUnits(BigInt(item?.receivedAmount || 0), Number(TOKEN_UNIT))))} ${item?.loanTokenType || ''}`}</span>
-        );
+      case TRANSACTION_HISTORY_KEYS.asset:
+        return <span>{!!item?.masterAsset && item?.masterAsset}</span>;
       case TRANSACTION_HISTORY_KEYS.status:
         return (
-          <span className="text-white py-1 px-2 bg-green-700 rounded-full">
+          <span className="bg-green-600 text-white py-1 px-2 rounded-full">
             {item?.status === 'COMPLETED' ? 'Completed' : 'Failed'}
           </span>
         );
+
       case TRANSACTION_HISTORY_KEYS.action:
         return (
           <Link
@@ -64,7 +67,7 @@ const TransactionHistoryTable: React.FC<Props> = ({ pagination, paging, onPageCh
           </Link>
         );
       default:
-        return item[columnKey as keyof IGetTransactionHistoryData] as React.ReactNode;
+        return item[columnKey as keyof IGetAllTransactionHistoryData] as React.ReactNode;
     }
   }, []);
 
@@ -77,7 +80,6 @@ const TransactionHistoryTable: React.FC<Props> = ({ pagination, paging, onPageCh
               key={column.key}
               className={cn({
                 'text-center': CENTER_COLUMNS.includes(column.key),
-                'text-right': RIGHT_COLUMNS.includes(column.key),
               })}
             >
               {column.label}
@@ -96,7 +98,6 @@ const TransactionHistoryTable: React.FC<Props> = ({ pagination, paging, onPageCh
                 <TableCell
                   className={cn({
                     'text-center': CENTER_COLUMNS.includes(String(columnKey)),
-                    'text-right': RIGHT_COLUMNS.includes(String(columnKey)),
                   })}
                 >
                   {renderCell(item, String(columnKey))}
