@@ -121,6 +121,7 @@ const ActiveBondTable: React.FC<Props> = ({ bonds, isLoading, refetch }) => {
           loadingContent={<Spinner />}
           items={[...bonds]}
           emptyContent="No data to display."
+          className="max-h-screen overflow-hidden"
         >
           {(item) => (
             <TableRow key={1}>{(columnKey) => <TableCell>{renderCell(item, String(columnKey))}</TableCell>}</TableRow>

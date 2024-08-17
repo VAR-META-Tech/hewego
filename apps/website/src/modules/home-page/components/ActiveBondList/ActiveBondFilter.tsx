@@ -61,23 +61,8 @@ const ActiveBondFilter: React.FC<Props> = ({ filter, handleSearchChange }) => {
     [filter, handleSearchChange]
   );
 
-  // const handleCollateralChange = React.useCallback(
-  //   (value: string) => {
-  //     const isIncludeCollateral = filter.collaterals.includes(String(value));
-  //     const newCollateral = isIncludeCollateral
-  //       ? filter.collaterals.filter((loan) => loan !== String(value))
-  //       : [...filter.collaterals, String(value)];
-
-  //     handleSearchChange({
-  //       ...filter,
-  //       collaterals: newCollateral,
-  //     });
-  //   },
-  //   [filter, handleSearchChange]
-  // );
-
   return (
-    <div className="col-span-1 space-y-10">
+    <div className="col-span-5 xl:col-span-1 space-y-10">
       <HStack pos={'apart'}>
         <span className="text-xl font-bold">Filter</span>
 
@@ -86,7 +71,7 @@ const ActiveBondFilter: React.FC<Props> = ({ filter, handleSearchChange }) => {
         </button>
       </HStack>
 
-      <div className="w-full space-y-10">
+      <HStack className="xl:flex-col gap-5" noWrap align={'start'}>
         <Accordion defaultSelectedKeys={['Loan Term']} itemClasses={itemClasses}>
           <AccordionItem key="Loan Term" aria-label="Loan Term" title="Loan Term">
             <VStack className="p-4 rounded-md shadow-[0_6px_16px_rgb(0,0,0,0.2)]">
@@ -126,26 +111,7 @@ const ActiveBondFilter: React.FC<Props> = ({ filter, handleSearchChange }) => {
             </VStack>
           </AccordionItem>
         </Accordion>
-
-        {/* <Accordion defaultSelectedKeys={['Collateral']} itemClasses={itemClasses}>
-          <AccordionItem key="Collateral" aria-label="Collateral" title="Collateral">
-            <VStack className="p-4 rounded-md border border-border">
-              {collateralTokenData.map((collateral, index) => {
-                return (
-                  <Checkbox
-                    isSelected={filter.collaterals.includes(String(collateral.value))}
-                    onValueChange={() => handleCollateralChange(collateral.value)}
-                    color="default"
-                    key={index}
-                  >
-                    {collateral.label}
-                  </Checkbox>
-                );
-              })}
-            </VStack>
-          </AccordionItem>
-        </Accordion> */}
-      </div>
+      </HStack>
     </div>
   );
 };
