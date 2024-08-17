@@ -23,6 +23,7 @@ const SummaryItem: React.FC<Props> = ({
     <VStack
       {...props}
       align={'center'}
+      justify={'between'}
       className={cn('bg-primary-700 py-5 px-10 rounded-md text-white uppercase', props.className)}
     >
       <span className={cn('text-xl font-semibold', titleClassName)}>{title}</span>

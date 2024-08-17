@@ -5,8 +5,6 @@ import { nFormatter, prettyNumber } from '@/utils/common';
 import { TOKEN_UNIT } from '@/utils/constants';
 import { formatUnits } from 'viem';
 
-import { HStack } from '@/components/Utilities';
-
 import SummaryItem from '../SummaryItem';
 
 const BondHoldingsSumary = () => {
@@ -25,9 +23,10 @@ const BondHoldingsSumary = () => {
   }, [refetch]);
 
   return (
-    <HStack spacing={20} pos={'center'}>
+    <div className="grid grid-cols-2 gap-5">
       <SummaryItem
-        className="py-10"
+        titleClassName="text-center"
+        className="py-10 col-span-2 xl:col-span-1"
         title="Total Number of Bonds Purchased"
         firstValue={`${data?.data?.totalBondPurchased || 0} bonds~${nFormatter(Number(formatUnits(BigInt(data?.data?.totalAmountBondPurchased || 0), Number(TOKEN_UNIT))))} USDC`}
         secondValue={''}
@@ -35,13 +34,14 @@ const BondHoldingsSumary = () => {
       />
 
       <SummaryItem
-        className="py-10"
+        titleClassName="text-center"
+        className="py-10 col-span-2 xl:col-span-1"
         title=" Total Capital and Interest Received "
         firstValue={`${prettyNumber(Number(data?.data?.totalCapitalAndInterestRecieved || 0).toFixed(2))} USDC`}
         secondValue={''}
         isShowDivider={false}
       />
-    </HStack>
+    </div>
   );
 };
 

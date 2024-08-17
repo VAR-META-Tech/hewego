@@ -48,7 +48,9 @@ const BondRequests = () => {
 
   return (
     <div className="space-y-10">
-      <BondRequestsSummary />
+      <div className="container">
+        <BondRequestsSummary />
+      </div>
 
       <div className="container space-y-10">
         <VStack>
