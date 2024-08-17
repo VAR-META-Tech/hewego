@@ -24,7 +24,7 @@ const ActiveBondList = () => {
   }, [refetch]);
 
   return (
-    <div className="container">
+    <div className="container py-10">
       <div className="grid grid-cols-5 gap-8">
         <ActiveBondFilter filter={filter} handleSearchChange={handleSearchChange} />
 

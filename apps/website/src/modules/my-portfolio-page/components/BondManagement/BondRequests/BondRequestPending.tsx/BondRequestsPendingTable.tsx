@@ -107,7 +107,7 @@ const BondRequestsPendingTable: React.FC<Props> = ({ bonds, paging, pagination, 
         </TableBody>
       </Table>
 
-      {bonds?.length &&
+      {!!bonds?.length &&
         bonds?.map((bond, index) => {
           return (
             <CancelModal
