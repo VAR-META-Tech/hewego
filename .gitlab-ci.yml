@@ -29,8 +29,8 @@ deploy-vm:
   stage: deploy
   tags:
     - vm
-  # script: 
-  #   - sh ./scripts/deploy.sh
+  script: 
+    - sh ./scripts/deploy.sh
   only:
     - dev
   when: on_success
