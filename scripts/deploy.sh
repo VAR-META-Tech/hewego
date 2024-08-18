@@ -12,14 +12,16 @@ cp $ENV_FILE .env
 # - sh ./health-check.sh
 # # kill main process
 # - echo "Backup deployment complete. Remove main containers"
-echo "remove existing container and image"
-docker stop $IMAGE_NAME || true
-docker rm $IMAGE_NAME || true
-docker rmi $(docker images | grep 'imagename') || true
-echo "rebuilding new image"
-docker run -d --name $IMAGE_NAME --env-file .env -p 3030:3030 $REGISTRY:$CI_COMMIT_SHORT_SHA 
-docker ps -a | grep $IMAGE_NAME
-docker logs $IMAGE_NAME || true
+
+# echo "remove existing container and image"
+# docker stop $IMAGE_NAME || true
+# docker rm $IMAGE_NAME || true
+# docker rmi $(docker images | grep 'imagename') || true
+# echo "rebuilding new image"
+# docker run -d --name $IMAGE_NAME --env-file .env -p 3030:3030 $REGISTRY:$CI_COMMIT_SHORT_SHA 
+# docker ps -a | grep $IMAGE_NAME
+# docker logs $IMAGE_NAME || true
+
 ## remove backup process
 
 
