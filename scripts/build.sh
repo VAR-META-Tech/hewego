@@ -2,5 +2,5 @@
 set -eu
 
 npm i -g pnpm
-yarn build
+pnpm build
 zip -r artifacts.zip dist
