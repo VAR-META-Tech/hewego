@@ -21,7 +21,7 @@ const Footer = () => {
             </Link>
 
             <Link target="_blank" href={'/#'} className="hover:opacity-50 p-1.5">
-              <Icons.send color="blue" />
+              <Icons.send color="#377ff5" />
             </Link>
           </HStack>
         </div>

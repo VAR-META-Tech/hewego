@@ -1,9 +1,10 @@
 import React from 'react';
+import { HederaWalletsContext } from '@/context/HederaContext';
 import BondHoldingsFilterFormWrapper from '@/modules/my-portfolio-page/form/BondHoldingsFilterFormWrapper';
 import { useGetBondHoldings } from '@/modules/my-portfolio-page/hooks/useGetBondHoldings';
 
 import BondHoldingsFilter from './BondHoldingsFilter';
-import BondHoldingsSumary from './BondHoldingsSumary';
+import BondHoldingsSummary from './BondHoldingsSummary';
 import BondHoldingsTable from './BondHoldingsTable';
 
 interface Props {
@@ -11,28 +12,23 @@ interface Props {
 }
 
 const BondHoldings: React.FC<Props> = ({ setTabContainer }) => {
+  const { isConnected } = React.useContext(HederaWalletsContext);
   const { bonds, paging, onPageChange, pagination, handleSearchChange, refetch, isLoading } = useGetBondHoldings();
 
   React.useEffect(() => {
-    refetch();
+    if (!isConnected) return;
 
-    return () => {
-      refetch();
-    };
-  }, [refetch]);
-
-  React.useEffect(() => {
     const refetchInterval = setInterval(() => {
       refetch();
     }, 4000);
 
     return () => clearInterval(refetchInterval);
-  }, [refetch]);
+  }, [isConnected, refetch]);
 
   return (
     <BondHoldingsFilterFormWrapper>
       <div className="container">
-        <BondHoldingsSumary />
+        <BondHoldingsSummary />
       </div>
 
       <div className="container space-y-10">

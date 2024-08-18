@@ -23,6 +23,10 @@ const handleError = async (error: any) => {
     isRefreshPending = true;
     const token = useUserStore.getState().accessToken;
 
+    if (!token) {
+      return Promise.reject(data?.meta || data || error);
+    }
+
     if (token) isRefreshPending = false;
 
     return request(originalRequest);

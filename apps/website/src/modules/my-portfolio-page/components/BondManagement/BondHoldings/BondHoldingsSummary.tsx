@@ -7,7 +7,7 @@ import { formatUnits } from 'viem';
 
 import SummaryItem from '../SummaryItem';
 
-const BondHoldingsSumary = () => {
+const BondHoldingsSummary = () => {
   const { isConnected, loginData } = React.useContext(HederaWalletsContext);
 
   const { data, refetch } = useGetBondHoldingsSummaryQuery({
@@ -15,12 +15,14 @@ const BondHoldingsSumary = () => {
   });
 
   React.useEffect(() => {
+    if (!isConnected) return;
+
     const refetchInterval = setInterval(() => {
       refetch();
     }, 4000);
 
     return () => clearInterval(refetchInterval);
-  }, [refetch]);
+  }, [isConnected, refetch]);
 
   return (
     <div className="grid grid-cols-2 gap-5">
@@ -45,4 +47,4 @@ const BondHoldingsSumary = () => {
   );
 };
 
-export default BondHoldingsSumary;
+export default BondHoldingsSummary;
