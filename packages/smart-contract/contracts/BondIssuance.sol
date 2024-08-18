@@ -35,6 +35,7 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
 
     bool public useErc20Mode = false;
     uint256 public platformFeePercent = 50; // 5%
+    uint256 public issuanceDateWaitingLoan;
 
     IPriceFeed public priceFeed;
     BondERC1155Token public bondToken;
@@ -140,6 +141,7 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
 
         bondToken = new BondERC1155Token("https://hedera.com/ipfs/vincent");
         vault = address(this);
+        issuanceDateWaitingLoan = 7 minutes;
     }
 
     modifier onlyAdmin() {
@@ -167,6 +169,10 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         uint256 oldFee = platformFeePercent;
         platformFeePercent = _newFee;
         emit PlatformFeeUpdated(oldFee, _newFee);
+    }
+
+    function setIssuanceDateWaitingLoan(uint256 _waitingPeriod) external onlyAdmin {
+        issuanceDateWaitingLoan = _waitingPeriod;
     }
 
     function calculateLoanTokenToBondToken(address _loanToken, uint256 _loanAmount) public view returns (uint256) {
@@ -204,20 +210,15 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
     function calculateBondDates(
         uint256 _bondDuration
     ) private view returns (uint256 issuanceDate, uint256 maturityDate) {
-        if (useErc20Mode) {
-            issuanceDate = block.timestamp + 7 days;
-            maturityDate = issuanceDate + (_bondDuration * 1 weeks);
-        } else {
-            issuanceDate = block.timestamp + 7 minutes;
-            maturityDate = issuanceDate + (_bondDuration * 1 hours);
-        }
+        issuanceDate = block.timestamp + issuanceDateWaitingLoan;
+        maturityDate = issuanceDate + (_bondDuration * 1 hours);
     }
 
     function createBond(
         string memory _name,
         address _loanToken,
         uint256 _loanAmount,
-        uint256 _bondDuration, // in weeks
+        uint256 _bondDuration, // in hours
         uint256 _borrowerInterestRate,
         uint256 _lenderInterestRate,
         address _collateralToken

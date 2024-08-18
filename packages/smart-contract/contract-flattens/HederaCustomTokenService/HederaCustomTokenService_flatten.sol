@@ -1995,9 +1995,6 @@ abstract contract HederaTokenService {
 
 // Original license: SPDX_License_Identifier: Apache-2.0
 pragma solidity >=0.4.9 <0.9.0;
-
-
-
 contract HederaCustomTokenService is HederaTokenService {
     function tokenAssociate(address sender, address tokenAddress) external {
         int response = HederaTokenService.associateToken(sender, tokenAddress);

@@ -602,8 +602,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
 // Original license: SPDX_License_Identifier: MIT
 pragma solidity ^0.8.16;
-
-
 contract ERC20Token is ERC20, Ownable {
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
 

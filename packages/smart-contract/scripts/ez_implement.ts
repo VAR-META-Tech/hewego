@@ -54,6 +54,9 @@ async function main() {
         accountId: "0.0.4673011",
     };
 
+    const priceFeedEvmAddress = "0xbe354fe8EA98dc9eE6684e4fD835780EfA946DB6";
+    const tokenManageEvmAddress = "0x1682d11948e374F13203ab16DAbFaB2a95CD2066";
+
     // Deploy PriceFeed contract
     const HederaERC20TokenManageFactory = await ethers.getContractFactory("HederaERC20TokenManage");
 
@@ -63,7 +66,7 @@ async function main() {
     // const priceFeed: PriceFeed = (await PriceFeedFactory.deploy()) as PriceFeed;
     // await priceFeed.waitForDeployment();
 
-    const priceFeed: PriceFeed = PriceFeedFactory.attach("0xbe354fe8EA98dc9eE6684e4fD835780EfA946DB6") as PriceFeed;
+    const priceFeed: PriceFeed = PriceFeedFactory.attach(priceFeedEvmAddress) as PriceFeed;
     console.log("PriceFeed deployed to:", await priceFeed.getAddress());
 
     // Deploy ERC20Token contracts
@@ -72,7 +75,7 @@ async function main() {
     // await collateralToken.waitForDeployment();
 
     const HederaERC20TokenManageContract: HederaERC20TokenManage = (await HederaERC20TokenManageFactory.attach(
-        "0x1682d11948e374F13203ab16DAbFaB2a95CD2066",
+        tokenManageEvmAddress,
     )) as HederaERC20TokenManage;
     // // const collateralToken = await deployHederaERC20TokenManage(admin, "Collateral Token", "CTK", 8);
     const TokenFactory = await ethers.getContractFactory("ERC20Token");
@@ -207,7 +210,7 @@ async function main() {
     const bondDetails = {
         name: "Development Bond",
         loanAmount: ethers.parseUnits("100", 8),
-        bondDuration: 12, // weeks
+        bondDuration: 24 * 7 * 12, //12 weeks
         borrowerInterestRate: 100, // 10%
         lenderInterestRate: 50, // 5%
         collateralTokenAddress: collateralTokenInfo.address,
@@ -290,6 +293,9 @@ async function main() {
     const repaymentAmount = ethers.parseUnits("200", 8); // Original plus interest
     // tx = await loanToken.connect(borrower).approve(bondIssuance.target, repaymentAmount);
 
+    tx = await bondIssuance.addCollateral(0, 0);
+    await tx.wait();
+
     await approveTokenAllowance(
         clientBorrower,
         TokenId.fromString(loanTokenInfo.accountId),
@@ -298,8 +304,8 @@ async function main() {
         +repaymentAmount.toString(),
         operatorKeyBorrower,
     );
-
     await tx.wait();
+
     tx = await bondIssuance.connect(borrower).repayBond(bondId);
     await tx.wait();
 

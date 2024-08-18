@@ -4236,6 +4236,7 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
 
     bool public useErc20Mode = false;
     uint256 public platformFeePercent = 50; // 5%
+    uint256 public issuanceDateWaitingLoan;
 
     IPriceFeed public priceFeed;
     BondERC1155Token public bondToken;
@@ -4341,6 +4342,7 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
 
         bondToken = new BondERC1155Token("https://hedera.com/ipfs/vincent");
         vault = address(this);
+        issuanceDateWaitingLoan = 7 minutes;
     }
 
     modifier onlyAdmin() {
@@ -4368,6 +4370,10 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         uint256 oldFee = platformFeePercent;
         platformFeePercent = _newFee;
         emit PlatformFeeUpdated(oldFee, _newFee);
+    }
+
+    function setIssuanceDateWaitingLoan(uint256 _waitingPeriod) external onlyAdmin {
+        issuanceDateWaitingLoan = _waitingPeriod;
     }
 
     function calculateLoanTokenToBondToken(address _loanToken, uint256 _loanAmount) public view returns (uint256) {
@@ -4405,20 +4411,15 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
     function calculateBondDates(
         uint256 _bondDuration
     ) private view returns (uint256 issuanceDate, uint256 maturityDate) {
-        if (useErc20Mode) {
-            issuanceDate = block.timestamp + 7 days;
-            maturityDate = issuanceDate + (_bondDuration * 1 weeks);
-        } else {
-            issuanceDate = block.timestamp + 7 minutes;
-            maturityDate = issuanceDate + (_bondDuration * 1 hours);
-        }
+        issuanceDate = block.timestamp + issuanceDateWaitingLoan;
+        maturityDate = issuanceDate + (_bondDuration * 1 hours);
     }
 
     function createBond(
         string memory _name,
         address _loanToken,
         uint256 _loanAmount,
-        uint256 _bondDuration, // in weeks
+        uint256 _bondDuration, // in hours
         uint256 _borrowerInterestRate,
         uint256 _lenderInterestRate,
         address _collateralToken
@@ -4532,18 +4533,19 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
 
         bond.isBorrowerClaimed = true;
 
-        emit BorrowerClaimLoanToken(bondId, msg.sender, bond.loanToken, bond.totalLend);
+        emit BorrowerClaimLoanToken(bondId, bond.borrower, bond.loanToken, bond.totalLend);
     }
 
     function borrowerRefund(uint256 bondId) external nonReentrant {
         require(bondId < bonds.length, "Bond does not exist.");
         Bond storage bond = bonds[bondId];
-        require(bond.borrower == msg.sender, "Caller is not the borrower for this bond.");
         require(bond.isActive, "Bond must be active for this operation.");
         require(!bond.readyToRepay, "Bond is already repaid.");
         require(!bond.isBorrowerClaimed, "Claimed before");
         require(bond.totalLend == 0, "Refund must be no lender participation.");
-
+        if (block.timestamp <= bond.issuanceDate) {
+            require(bond.borrower == msg.sender, "Only borrower refund in issuance date time.");
+        }
         if (useErc20Mode) {
             IERC20 collateralToken = IERC20(bond.collateralToken);
             require(
@@ -4557,7 +4559,7 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         bond.isBorrowerClaimed = true;
         bond.isActive = false;
 
-        emit BorrowerRefundoanToken(bondId, msg.sender, bond.collateralToken, bond.collateralAmount);
+        emit BorrowerRefundoanToken(bondId, bond.borrower, bond.collateralToken, bond.collateralAmount);
     }
 
     function repayBond(uint256 bondId) external nonReentrant {
@@ -4588,7 +4590,7 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
 
         bond.readyToRepay = true;
 
-        emit BondRepaid(bondId, msg.sender, bond.totalLend, repaymentAmount, interestPaid, bond.collateralAmount);
+        emit BondRepaid(bondId, bond.borrower, bond.totalLend, repaymentAmount, interestPaid, bond.collateralAmount);
     }
 
     function lenderClaim(uint256 bondId) external nonReentrant {
@@ -4716,7 +4718,7 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
 
         emit CollateralAdded(
             bondId,
-            msg.sender,
+            bond.borrower,
             bond.collateralToken,
             additionalCollateralAmount,
             bond.collateralAmount

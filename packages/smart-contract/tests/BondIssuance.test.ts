@@ -54,7 +54,7 @@ describe("BondIssuance", () => {
             const bondDetails = {
                 name: "Development Bond",
                 loanAmount: ethers.parseUnits("100", 8),
-                bondDuration: 12, // weeks
+                bondDuration: 24 * 7 * 12, //12 weeks
                 borrowerInterestRate: 100, // 10%
                 lenderInterestRate: 50, // 5%
                 collateralTokenAddress: collateralToken.target,
@@ -151,7 +151,7 @@ describe("BondIssuance", () => {
             const bondDetails = {
                 name: "Development Bond",
                 loanAmount: ethers.parseUnits("100", 8),
-                bondDuration: 12, // weeks
+                bondDuration: 24 * 7 * 12, //12 weeks
                 borrowerInterestRate: 100, // 10%
                 lenderInterestRate: 50, // 5%
                 collateralTokenAddress: collateralToken.target,
