@@ -52,6 +52,14 @@
   body {
     @apply bg-background text-foreground scroll-smooth font-sans font-normal;
   }
+
+  ::placeholder {
+    @apply !text-gray-400 opacity-100;
+  }
+  
+  ::-ms-input-placeholder {
+    @apply !text-gray-400;
+  }
 }
 
 @layer components {

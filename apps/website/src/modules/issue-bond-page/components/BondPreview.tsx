@@ -3,7 +3,6 @@ import { useFormContext } from 'react-hook-form';
 
 import { useGetMetaToken } from '@/hooks/useGetMetaToken';
 import BondCard from '@/components/BondCard';
-import { HStack } from '@/components/Utilities';
 
 import { IssueBondFormType } from '../types/schema';
 
@@ -11,14 +10,30 @@ const BondPreview = () => {
   const { watch } = useFormContext<IssueBondFormType>();
   const { getCollateralTokenLabel, getLoanTokenLabel } = useGetMetaToken();
 
-  const [name, loanToken, volumeBond, durationBond, lenderInterestRate, collateralToken, maturityDate] = watch([
+  const [
+    name,
+    loanToken,
+    volumeBond,
+    durationBond,
+    borrowInterestRate,
+    collateralToken,
+    maturityDate,
+    totalRepaymentAmount,
+    issuanceDate,
+    lenderInterestRate,
+    minimumCollateralAmount,
+  ] = watch([
     'name',
     'loanToken',
     'volumeBond',
     'durationBond',
-    'lenderInterestRate',
+    'borrowInterestRate',
     'collateralToken',
     'maturityDate',
+    'totalRepaymentAmount',
+    'issuanceDate',
+    'lenderInterestRate',
+    'minimumCollateralAmount',
   ]);
 
   const loanTokenLabel = React.useMemo(() => {
@@ -30,18 +45,20 @@ const BondPreview = () => {
   }, [getCollateralTokenLabel, collateralToken]);
 
   return (
-    <HStack className="flex-1" align={'start'} pos={'center'}>
-      <BondCard
-        name={name}
-        loanToken={loanTokenLabel || ''}
-        volumeBond={String(volumeBond || '')}
-        durationBond={durationBond}
-        borrowInterestRate={String(lenderInterestRate || '')}
-        collateralToken={collateralTokenLabel || ''}
-        maturityDate={maturityDate}
-        className="w-96"
-      />
-    </HStack>
+    <BondCard
+      name={name}
+      loanToken={loanTokenLabel || ''}
+      volumeBond={String(volumeBond || '')}
+      durationBond={durationBond}
+      borrowInterestRate={String(borrowInterestRate ?? 0)}
+      lenderInterestRate={String(lenderInterestRate ?? 0)}
+      collateralToken={collateralTokenLabel || ''}
+      maturityDate={maturityDate}
+      issuanceDate={issuanceDate}
+      className="w-96"
+      totalRepaymentAmount={totalRepaymentAmount}
+      minimumCollateralAmount={minimumCollateralAmount ?? 0}
+    />
   );
 };
 

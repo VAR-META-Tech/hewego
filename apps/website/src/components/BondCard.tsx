@@ -1,9 +1,9 @@
 import React from 'react';
-import Image from 'next/image';
+import IssueBondAction from '@/modules/issue-bond-page/components/IssueBondAction';
 import { cn } from '@/utils/common';
 
 import PreviewRow from './PreviewRow';
-import { VStack } from './Utilities';
+import { HStack, VStack } from './Utilities';
 
 interface Props extends Omit<React.HTMLAttributes<HTMLDivElement>, 'prefix' | 'suffix'> {
   name: string;
@@ -13,8 +13,10 @@ interface Props extends Omit<React.HTMLAttributes<HTMLDivElement>, 'prefix' | 's
   loanToken: string;
   volumeBond: string;
   borrowInterestRate: string;
-  prefix?: React.ReactNode;
-  suffix?: React.ReactNode;
+  lenderInterestRate: string;
+  totalRepaymentAmount: string;
+  issuanceDate: string;
+  minimumCollateralAmount: string;
 }
 
 const BondCard: React.FC<Props> = ({
@@ -25,37 +27,72 @@ const BondCard: React.FC<Props> = ({
   loanToken,
   volumeBond,
   borrowInterestRate,
-  prefix,
-  suffix,
+  lenderInterestRate,
+  totalRepaymentAmount,
+  issuanceDate,
+  minimumCollateralAmount,
   ...props
 }) => {
   return (
-    <VStack {...props} className={cn('shadow-lg p-8 rounded-md w-full', props.className)}>
-      {prefix && prefix}
+    <VStack {...props} className={cn('flex-1 w-full', props.className)}>
+      <VStack>
+        <HStack align={'center'} pos="apart" className="text-xl font-bold">
+          <label>{name}</label>
+        </HStack>
 
-      <VStack align={'center'}>
-        <div className="relative w-52 h-52">
-          <Image src="/images/bond.webp" alt="preview" fill priority unoptimized quality={100} />
-        </div>
+        <HStack align={'center'} pos="apart" className="text-base font-bold">
+          <label>Total Repayment Amount</label>
 
-        <span className="text-center font-bold">{name}</span>
+          <p>{`${totalRepaymentAmount ?? '0.00'} ${loanToken}`}</p>
+        </HStack>
       </VStack>
+
+      <hr />
 
       <VStack>
-        <PreviewRow label="Maturity Date" value={maturityDate || ''} />
+        <PreviewRow label="Collateral & Type" value={`${minimumCollateralAmount} ${collateralToken}`} />
+        <PreviewRow label="Bond Volume" value={volumeBond} />
+        <PreviewRow label="Bond Term" value={durationBond} />
 
-        <PreviewRow label="Duration" value={durationBond} />
+        <hr />
 
-        <PreviewRow label="Collateral" value={collateralToken} />
+        <PreviewRow label="Lender Rate Rate" value={lenderInterestRate ? `${lenderInterestRate}%` : ''} />
+        <PreviewRow
+          tooltip={
+            <div className="text-center">
+              <div>On close 90% of the borrow side interest</div>
+              <div>is paid to the lender, and 10% is paid to platform</div>
+            </div>
+          }
+          label="Borrow Interest Rate"
+          value={borrowInterestRate ? `${borrowInterestRate}%` : ''}
+        />
 
-        <PreviewRow label="Supply/Borrow" value={loanToken} />
+        <hr />
 
-        <PreviewRow label="Volume" value={volumeBond} />
+        <PreviewRow
+          tooltip={
+            <div className="text-center">
+              <div>The issuance date will be</div>
+              <div>7 days after the creation date</div>
+            </div>
+          }
+          label="Issuance Date"
+          value={issuanceDate}
+        />
+        <PreviewRow
+          tooltip={
+            <div className="text-center">
+              <div>The maturity date of a bond is calculated </div>
+              <div>by adding the bond duration to the issuance date</div>
+            </div>
+          }
+          label="Maturity Date"
+          value={maturityDate}
+        />
 
-        <PreviewRow label="Interest Rate" value={borrowInterestRate ? `${borrowInterestRate}%` : ''} />
+        <IssueBondAction />
       </VStack>
-
-      {suffix && suffix}
     </VStack>
   );
 };
