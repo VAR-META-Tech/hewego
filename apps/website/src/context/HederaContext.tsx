@@ -48,6 +48,7 @@ export const HederaWalletsContext = React.createContext(HEDERA_CONTEXT);
 export const HederaWalletProvider: FCC = ({ children }) => {
   // const { bladeSigner, bladeAccountId, connectBladeWallet, clearConnectedBladeWalletData } = useBladeWallet();
   const user = useUserStore.use.user();
+  const status = useUserStore.use.status();
   const logout = useUserStore.use.logout();
   const { hashConnect, hashConnectState, connectToHashPack, disconnectFromHashPack, isIframeParent, loginData } =
     useHashPack();
@@ -65,12 +66,12 @@ export const HederaWalletProvider: FCC = ({ children }) => {
   }, [user?.accountId]);
 
   const isConnected = React.useMemo(() => {
-    if (user?.accountId) {
+    if (user?.accountId && status === 'ready') {
       return true;
     }
 
     return false;
-  }, [user?.accountId]);
+  }, [status, user?.accountId]);
 
   // Disconnect
   const handleDisconnect = React.useCallback(

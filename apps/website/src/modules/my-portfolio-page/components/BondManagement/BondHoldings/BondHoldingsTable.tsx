@@ -2,6 +2,7 @@
 import React from 'react';
 import { IGetBondHoldingsData } from '@/api/portfolio/type';
 import { HederaWalletsContext } from '@/context/HederaContext';
+import { useBondClaimStore } from '@/modules/my-portfolio-page/store/useBondClaimStore';
 import { useBondHoldingsStore } from '@/modules/my-portfolio-page/store/useBondHoldingsStore';
 import { cn, currentNo, prettyNumber, roundNumber } from '@/utils/common';
 import { IPagination, IPaging } from '@/utils/common.type';
@@ -18,6 +19,7 @@ import PaginationList from '@/components/ui/paginationList';
 import { HStack } from '@/components/Utilities';
 
 import { BOND_HOLDINGS_KEYS, HEADER_COLUMNS_BOND_HOLDINGS, HOLDING_BOND_STATUS_BUTTON } from '../../../utils/const';
+import BondClaimModal from './BondClaimModal';
 import DetailBondModal from './DetailBondModal';
 
 interface Props {
@@ -45,6 +47,7 @@ const BondHoldingsTable: React.FC<Props> = ({
   const { getLoanTokenLabel } = useGetMetaToken();
   const { hashConnect, accountId } = React.useContext(HederaWalletsContext);
   const setBondDetailId = useBondHoldingsStore.use.setBondDetailId();
+  const setBondClaimId = useBondClaimStore.use.setBondClaimId();
 
   const provider = hashConnect?.getProvider(env.NETWORK_TYPE, hashConnect?.hcData?.topic ?? '', accountId ?? '');
 
@@ -72,14 +75,14 @@ const BondHoldingsTable: React.FC<Props> = ({
           .catch((e) => console.error(e));
 
         if (contractExecSubmit?.transactionId) {
+          setBondClaimId(String(bondId));
           refetch();
-          toast.success('Claim bond successfully!');
         }
       } catch (error) {
         toast.error(error as string);
       }
     },
-    [refetch, signer]
+    [refetch, setBondClaimId, signer]
   );
 
   const renderCell = React.useCallback(
@@ -174,6 +177,18 @@ const BondHoldingsTable: React.FC<Props> = ({
 
       {bonds?.map((item, index) => (
         <DetailBondModal bond={item} key={`${item?.bondInfo?.bondId}-${index}`} setTabContainer={setTabContainer} />
+      ))}
+
+      {bonds?.map((item, index) => (
+        <BondClaimModal
+          key={`${item?.bondInfo?.bondId}-${index}`}
+          bondId={item?.bondInfo?.bondId}
+          duration={item?.bondInfo?.loanTerm}
+          interestRate={String(item?.bondInfo?.interestRate)}
+          loanAmount={item?.purchasedAmount}
+          loanToken={item?.bondInfo?.loanToken}
+          refetch={refetch}
+        />
       ))}
 
       {pagination && (

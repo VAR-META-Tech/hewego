@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { HederaWalletsContext } from '@/context/HederaContext';
 import { useConnectWalletStore } from '@/store/useConnectWalletStore';
 import { ROUTE } from '@/types';
@@ -15,6 +16,7 @@ interface Props {
 }
 
 const WalletModal: React.FC<Props> = ({ isOpen, onOpenChange }) => {
+  const router = useRouter();
   const isAbleClose = useConnectWalletStore.use.isAbleClose();
 
   const { onConnectHashPack } = React.useContext(HederaWalletsContext);
@@ -24,15 +26,17 @@ const WalletModal: React.FC<Props> = ({ isOpen, onOpenChange }) => {
     setIsChecked(false);
   }, [isOpen]);
 
+  const handleClear = () => {
+    onOpenChange();
+    if (isAbleClose) {
+      return;
+    }
+
+    return router.push(ROUTE.HOME);
+  };
+
   return (
-    <Modal
-      closeButton={isAbleClose ? undefined : <></>}
-      size="xl"
-      backdrop={'blur'}
-      isOpen={isOpen}
-      placement={'auto'}
-      onOpenChange={isAbleClose ? onOpenChange : () => {}}
-    >
+    <Modal size="xl" backdrop={'blur'} isOpen={isOpen} placement={'auto'} onOpenChange={handleClear}>
       <ModalContent>
         {() => (
           <>

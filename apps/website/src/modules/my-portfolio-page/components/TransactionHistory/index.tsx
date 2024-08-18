@@ -1,4 +1,5 @@
 import React from 'react';
+import { HederaWalletsContext } from '@/context/HederaContext';
 
 import TransactionHistoryFilterFormWrapper from '../../form/TransactionHistoryFilterFormWrapper';
 import { useGetTransactionHistory } from '../../hooks/useGetTransactionHistory';
@@ -6,24 +7,19 @@ import TransactionHistoryFilter from './components/TransactionHistoryFilter';
 import TransactionHistoryTable from './components/TransactionHistoryTable';
 
 const TransactionHistory = () => {
+  const { isConnected } = React.useContext(HederaWalletsContext);
   const { refetch, handleSearchChange, paging, pagination, onPageChange, transactions, isLoading } =
     useGetTransactionHistory();
 
   React.useEffect(() => {
-    refetch();
+    if (!isConnected) return;
 
-    return () => {
-      refetch();
-    };
-  }, [refetch]);
-
-  React.useEffect(() => {
     const refetchInterval = setInterval(() => {
       refetch();
     }, 4000);
 
     return () => clearInterval(refetchInterval);
-  }, [refetch]);
+  }, [isConnected, refetch]);
 
   return (
     <TransactionHistoryFilterFormWrapper>

@@ -1,15 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback } from 'react';
 import { IGetBorrowRequestData } from '@/api/portfolio/type';
-import { HederaWalletsContext } from '@/context/HederaContext';
+import { useBondRepayStore } from '@/modules/my-portfolio-page/store/useBondRepayStore';
 import { cn, prettyNumber } from '@/utils/common';
 import { IPagination, IPaging } from '@/utils/common.type';
-import { CONTRACT_ID, DATE_FORMAT, env, TOKEN_UNIT } from '@/utils/constants';
-import { ContractExecuteTransaction, ContractFunctionParameters } from '@hashgraph/sdk';
-import { Signer } from '@hashgraph/sdk/lib/Signer';
+import { DATE_FORMAT, TOKEN_UNIT } from '@/utils/constants';
 import { Button, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
 import { formatUnits } from 'viem';
 
 import { useGetMetaToken } from '@/hooks/useGetMetaToken';
@@ -17,6 +14,7 @@ import PaginationList from '@/components/ui/paginationList';
 import { HStack, VStack } from '@/components/Utilities';
 
 import { BOND_REQUEST_ACTIVE_ACTIONS, BOND_REQUESTS_KEYS, HEADER_COLUMNS_BOND_REQUESTS } from '../../../../utils/const';
+import RepayModal from './RepayModal';
 
 interface Props {
   bonds: IGetBorrowRequestData[];
@@ -31,72 +29,8 @@ const CENTER_COLUMNS = [BOND_REQUESTS_KEYS.action];
 const RIGHT_COLUMNS = [BOND_REQUESTS_KEYS.loanAmount, BOND_REQUESTS_KEYS.interestRate];
 
 const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, onPageChange, refetch, isLoading }) => {
+  const setBondRepayId = useBondRepayStore.use.setBondRepayId();
   const { getLoanTokenLabel } = useGetMetaToken();
-  const { hashConnect, accountId } = React.useContext(HederaWalletsContext);
-
-  const provider = hashConnect?.getProvider(env.NETWORK_TYPE, hashConnect?.hcData?.topic ?? '', accountId ?? '');
-
-  const signer = React.useMemo(() => {
-    if (!provider) return null;
-
-    return hashConnect?.getSigner(provider);
-  }, [hashConnect, provider]);
-
-  const handleClaim = React.useCallback(
-    async (bondId: number) => {
-      try {
-        if (!signer) return;
-
-        const contractExecTx = await new ContractExecuteTransaction()
-          .setContractId(CONTRACT_ID)
-          .setGas(1000000)
-          .setFunction('borrowerClaim', new ContractFunctionParameters().addUint256(bondId))
-          .freezeWithSigner(signer as unknown as Signer);
-
-        const contractExecSign = await contractExecTx?.signWithSigner(signer as unknown as Signer);
-
-        const contractExecSubmit = await contractExecSign
-          ?.executeWithSigner(signer as unknown as Signer)
-          .catch((e) => console.error(e));
-
-        if (contractExecSubmit?.transactionId) {
-          console.log('contractExecSubmit', contractExecSubmit?.transactionId);
-        }
-      } catch (error) {
-        toast.error(error as string);
-      }
-    },
-    [signer]
-  );
-
-  const handleRepay = React.useCallback(
-    async (bondId: number) => {
-      try {
-        if (!signer) return;
-
-        const contractExecTx = await new ContractExecuteTransaction()
-          .setContractId(CONTRACT_ID)
-          .setGas(1000000)
-          .setFunction('repayBond', new ContractFunctionParameters().addUint256(bondId))
-          .freezeWithSigner(signer as unknown as Signer);
-
-        const contractExecSign = await contractExecTx?.signWithSigner(signer as unknown as Signer);
-
-        const contractExecSubmit = await contractExecSign
-          ?.executeWithSigner(signer as unknown as Signer)
-          .catch((e) => console.error(e));
-
-        if (contractExecSubmit?.transactionId) {
-          setTimeout(() => {
-            refetch();
-          }, 500);
-        }
-      } catch (error) {
-        toast.error(error as string);
-      }
-    },
-    [refetch, signer]
-  );
 
   const renderCell = useCallback(
     (item: IGetBorrowRequestData, columnKey: string) => {
@@ -138,11 +72,7 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, o
               })}
               disabled={item?.action === BOND_REQUEST_ACTIVE_ACTIONS.CLOSED}
               onPress={() => {
-                if (item?.action === BOND_REQUEST_ACTIVE_ACTIONS.CLAIM) {
-                  handleClaim(item?.bondId);
-                  return;
-                }
-                handleRepay(item?.bondId);
+                setBondRepayId(String(item?.bondId));
               }}
             >
               {item?.action === BOND_REQUEST_ACTIVE_ACTIONS.CLAIM ? 'Claim' : 'Repay'}
@@ -152,7 +82,7 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, o
           return item[columnKey as keyof IGetBorrowRequestData] as React.ReactNode;
       }
     },
-    [getLoanTokenLabel, handleClaim, handleRepay]
+    [getLoanTokenLabel, setBondRepayId]
   );
 
   return (
@@ -188,6 +118,18 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, o
           ))}
         </TableBody>
       </Table>
+
+      {bonds?.map((item, index) => (
+        <RepayModal
+          key={`${item?.bondId}-${index}`}
+          bondId={item?.bondId}
+          collateralAmount={item?.collateralAmount}
+          refetch={refetch}
+          collateralToken={item?.collateralToken}
+          interestRate={item?.interestRate}
+          maturityDate={item?.maturityDate}
+        />
+      ))}
 
       {!!pagination?.itemCount && (
         <HStack pos={'center'}>

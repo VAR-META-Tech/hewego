@@ -1,4 +1,5 @@
 import React from 'react';
+import { HederaWalletsContext } from '@/context/HederaContext';
 import BondRequestActiveFilterFormWrapper from '@/modules/my-portfolio-page/form/BondRequestActiveFilterFormWrapper';
 import BondRequestPendingFilterFormWrapper from '@/modules/my-portfolio-page/form/BondRequestPendingFilterFormWrapper';
 import { useGetBondRequestsActive } from '@/modules/my-portfolio-page/hooks/useGetBondRequestsActive';
@@ -13,6 +14,8 @@ import BondRequestsPendingTable from './BondRequestPending.tsx/BondRequestsPendi
 import BondRequestsSummary from './BondRequestsSummary';
 
 const BondRequests = () => {
+  const { isConnected } = React.useContext(HederaWalletsContext);
+
   const { bonds, refetch, handleSearchChange, onPageChange, pagination, paging, isLoading } =
     useGetBondRequestsPending();
   const {
@@ -31,20 +34,14 @@ const BondRequests = () => {
   }, [refetch, refetchActive]);
 
   React.useEffect(() => {
-    handleRefetch();
+    if (!isConnected) return;
 
-    return () => {
-      handleRefetch();
-    };
-  }, [handleRefetch]);
-
-  React.useEffect(() => {
     const refetchInterval = setInterval(() => {
       handleRefetch();
     }, 4000);
 
     return () => clearInterval(refetchInterval);
-  }, [handleRefetch]);
+  }, [handleRefetch, isConnected]);
 
   return (
     <div className="space-y-10">

@@ -8,7 +8,7 @@ import { TransactionHistoryFilterType } from '../types/schema';
 import { GET_BOND_TRANSACTION_HISTORY_LIMIT } from '../utils/const';
 
 export const useGetTransactionHistory = () => {
-  const { isConnected, loginData } = React.useContext(HederaWalletsContext);
+  const { isConnected } = React.useContext(HederaWalletsContext);
 
   const { paging, filter, onPageChange, handleFilterChange, onTotalItemsChange } =
     usePaging<TransactionHistoryFilterType>(GET_BOND_TRANSACTION_HISTORY_LIMIT, {
@@ -25,7 +25,7 @@ export const useGetTransactionHistory = () => {
       transactionTypes: filter?.transactionType || undefined,
       assets: filter?.token || undefined,
     },
-    enabled: !!isConnected && !!loginData,
+    enabled: !!isConnected,
   });
 
   React.useEffect(() => {
