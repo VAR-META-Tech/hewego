@@ -4,7 +4,7 @@ include:
 
 stages:
   - dockerize
-  #- deploy
+  - deploy
 
 ##### Dockerize template
 .dockerize_template: &dockerize
@@ -25,12 +25,12 @@ dockerize:dev:
   only: # update this for staging
     - dev
 
-# deploy-vm:
-#   stage: deploy
-#   tags:
-#     - vm
-#   script: 
-#     - sh ./scripts/deploy.sh
-#   only:
-#     - dev
-#   when: on_success
+deploy-vm:
+  stage: deploy
+  tags:
+    - vm
+  # script: 
+  #   - sh ./scripts/deploy.sh
+  only:
+    - dev
+  when: on_success
