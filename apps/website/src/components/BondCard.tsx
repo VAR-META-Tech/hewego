@@ -56,7 +56,7 @@ const BondCard: React.FC<Props> = ({
 
         <hr />
 
-        <PreviewRow label="Lender Rate Rate" value={lenderInterestRate ? `${lenderInterestRate}%` : ''} />
+        <PreviewRow label="Lender's Interest Rate" value={lenderInterestRate ? `${lenderInterestRate}%` : ''} />
         <PreviewRow
           tooltip={
             <div className="text-center">
@@ -64,7 +64,7 @@ const BondCard: React.FC<Props> = ({
               <div>is paid to the lender, and 10% is paid to platform</div>
             </div>
           }
-          label="Borrow Interest Rate"
+          label="Borrower's Interest Rate"
           value={borrowInterestRate ? `${borrowInterestRate}%` : ''}
         />
 
