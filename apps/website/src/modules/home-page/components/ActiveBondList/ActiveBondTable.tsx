@@ -6,7 +6,17 @@ import { HederaWalletsContext } from '@/context/HederaContext';
 import { useConnectWalletStore } from '@/store/useConnectWalletStore';
 import { cn } from '@/utils/common';
 import { DATE_FORMAT } from '@/utils/constants';
-import { Button, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
+import {
+  Button,
+  Progress,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from '@nextui-org/react';
 import { format } from 'date-fns';
 
 import { HStack } from '@/components/Utilities';
@@ -63,7 +73,27 @@ const ActiveBondTable: React.FC<Props> = ({ bonds, isLoading, refetch }) => {
             <div className="text-right w-full">{item?.interestRate && `${Number(item?.interestRate).toFixed(2)}%`}</div>
           );
         case HEADER_ACTIVE_BONDS_KEYS.SOLD_AND_VOLUME:
-          return <span>{`${item?.totalSold || 0}/${item?.volumeBond || 0}`}</span>;
+          return (
+            <div>
+              <Progress
+                aria-label="Progress..."
+                size="md"
+                value={Number(item?.totalSold ?? 0)}
+                maxValue={Number(item?.volumeBond ?? 0)}
+                color={
+                  Number(Number(item?.totalSold ?? 0) / Number(item?.volumeBond ?? 0)) < 0.8 ? 'success' : 'warning'
+                }
+                showValueLabel={true}
+                className="w-32"
+                classNames={{
+                  label: 'text-xs',
+                  value: 'text-xs',
+                }}
+                label={`${Number(item?.totalSold ?? 0)}/${Number(item?.volumeBond ?? 0)}`}
+              />
+            </div>
+          );
+        // return <span>{`${item?.totalSold || 0}/${item?.volumeBond || 0}`}</span>;
         case HEADER_ACTIVE_BONDS_KEYS.ACTION:
           return (
             <Button
