@@ -43,24 +43,23 @@ const BondRequestsSummary = () => {
     return () => clearInterval(refetchInterval);
   }, [isConnected, refetch]);
 
-  const totalLoan = Number(data?.data?.totalLoanAmount ?? 0);
-  const repaymentAmount = Number(data?.data?.totalRepaymentAmount ?? 0);
   const totalDeposited = Number(data?.data?.totalDepositedCollateral ?? 0);
-  const liquidatedCollateral = Number(data?.data?.totalRepaymentCollateral ?? 0);
-  const totalIssued = Number(data?.data?.totalBondsSold ?? 0);
-  const requestBond = Number(data?.data?.totalBondsIssued ?? 0);
+  const liquidatedCollateral = Number(data?.data?.totalLiquidatedAmount ?? 0);
+  const totalIssuedBonds = Number(data?.data?.totalBondsIssued ?? 0);
+  const totalBondIssuedValue = Number(data?.data?.totalBondIssuedValue ?? 0);
+  const totalRepaymentInterestRate = Number(data?.data?.totalRepaymentInterestRate ?? 0);
 
   return (
     <div className="grid grid-cols-3 gap-8">
       <SummaryItem
         className="col-span-3 xl:col-span-1 bg-[#007BFF]"
         titleClassName="text-left"
-        firstValue={`${nFormatter(totalLoan)} ${loanTokenLabel}`}
-        secondValue={`${nFormatter(repaymentAmount)} ${loanTokenLabel}`}
+        firstValue={`${nFormatter(totalIssuedBonds)}`}
+        secondValue={`~ ${nFormatter(totalBondIssuedValue)} ${loanTokenLabel}`}
+        isShowDivider={false}
       >
         <HStack align="baseline">
-          <span className="text-2xl font-bold">Total loan</span>
-          <span className="text-sm">/ Repayment amount</span>
+          <span className="text-2xl font-bold">Total issued bonds</span>
         </HStack>
       </SummaryItem>
 
@@ -79,12 +78,11 @@ const BondRequestsSummary = () => {
       <SummaryItem
         className="col-span-3 xl:col-span-1 bg-[#FFA500]"
         titleClassName="text-center"
-        firstValue={nFormatter(totalIssued) + ` ISSUE${totalIssued > 1 ? 'S' : ''}`}
-        secondValue={nFormatter(requestBond)}
+        firstValue={`${nFormatter(totalRepaymentInterestRate)} ${loanTokenLabel}`}
+        secondValue={''}
       >
         <HStack align="baseline">
-          <span className="text-2xl font-bold">Total issued</span>
-          <span className="text-sm">/ Request bond</span>
+          <span className="text-2xl font-bold">Total Repayment Interest Rate</span>
         </HStack>
       </SummaryItem>
     </div>

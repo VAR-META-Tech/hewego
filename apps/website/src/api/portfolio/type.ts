@@ -6,12 +6,11 @@ export interface IGetBondRequestSummaryResponse {
 }
 
 export interface IGetBondRequestSummaryData {
-  totalLoanAmount: number;
-  totalRepaymentAmount: number;
-  totalDepositedCollateral: number;
-  totalRepaymentCollateral: number;
-  totalBondsSold: number;
   totalBondsIssued: number;
+  totalBondIssuedValue: number;
+  totalDepositedCollateral: number;
+  totalLiquidatedAmount: number;
+  totalRepaymentInterestRate: number;
 }
 
 export interface IGetBorrowRequestParams {
