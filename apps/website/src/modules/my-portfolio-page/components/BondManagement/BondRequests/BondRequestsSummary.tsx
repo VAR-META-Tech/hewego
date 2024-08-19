@@ -15,7 +15,7 @@ const BondRequestsSummary = () => {
     enabled: !!isConnected,
   });
 
-  const { getCollateralTokenLabel, collateralTokenData } = useGetMetaToken();
+  const { getCollateralTokenLabel, collateralTokenData, borrowTokenData, getLoanTokenLabel } = useGetMetaToken();
 
   const collateralTokenLabel = React.useMemo(() => {
     if (!collateralTokenData?.length) return '';
@@ -24,6 +24,14 @@ const BondRequestsSummary = () => {
 
     return getCollateralTokenLabel(loanToken);
   }, [collateralTokenData, getCollateralTokenLabel]);
+
+  const loanTokenLabel = React.useMemo(() => {
+    if (!borrowTokenData?.length) return '';
+
+    const loanToken = borrowTokenData[0]?.value;
+
+    return getLoanTokenLabel(loanToken);
+  }, [borrowTokenData, getLoanTokenLabel]);
 
   React.useEffect(() => {
     if (!isConnected) return;
@@ -40,8 +48,8 @@ const BondRequestsSummary = () => {
       <SummaryItem
         className="col-span-3 xl:col-span-1"
         titleClassName="text-center"
-        firstValue={`${nFormatter(Number(data?.data?.totalLoanAmount || 0))} ${collateralTokenLabel}`}
-        secondValue={`${nFormatter(Number(data?.data?.totalRepaymentAmount || 0))} ${collateralTokenLabel}`}
+        firstValue={`${nFormatter(Number(data?.data?.totalLoanAmount || 0))} ${loanTokenLabel}`}
+        secondValue={`${nFormatter(Number(data?.data?.totalRepaymentAmount || 0))} ${loanTokenLabel}`}
       >
         <VStack align={'center'} spacing={2} className="text-base">
           <span>Total Loan</span>
