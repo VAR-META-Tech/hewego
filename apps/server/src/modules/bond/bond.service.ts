@@ -335,6 +335,7 @@ export class BondService {
     user: User,
   ): Promise<BorrowBondRequestSummaryDto> {
     try {
+      const currentTimestamp = Math.floor(Date.now() / 1000);
       const bondSummaryResult = await this.bondRepository
         .createQueryBuilder('bond')
         .select([
@@ -348,15 +349,37 @@ export class BondService {
         .where('LOWER(bond.borrower_address) = :walletAddress', {
           walletAddress: user?.walletAddress,
         })
+        .andWhere('bond.canceled_at IS NULL')
+        .getRawOne();
+      const issueBondResult = await this.bondRepository
+        .createQueryBuilder('bond')
+        .select([
+          'SUM(bond.loan_amount) AS "totalBondIssuedValue"',
+          'SUM(bond.volumeBond) AS "totalBondsIssued"',
+        ])
+        .where('LOWER(bond.borrower_address) = :walletAddress', {
+          walletAddress: user?.walletAddress,
+        })
+        .andWhere(
+          'bond.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp',
+          {
+            currentTimestamp,
+          },
+        )
         .getRawOne();
 
+      // const interestRates = await this.bondRepository
+      //   .createQueryBuilder('bond')
+      //   .select(['bond.lender_interest_rate AS "interestRate"',
+      //     ""
+      //   ]);
+
       return new BorrowBondRequestSummaryDto(
-        divideBy10e8(bondSummaryResult.totalLoanAmount),
-        divideBy10e8(bondSummaryResult.totalRepaymentAmount),
+        divideBy10e8(issueBondResult.totalBondsIssued),
+        divideBy10e8(issueBondResult.totalBondIssuedValue),
         divideBy10e8(bondSummaryResult.totalDepositedCollateral),
         divideBy10e8(bondSummaryResult.totalLiquidatedAmount),
         Number(bondSummaryResult.totalBondsSold),
-        Number(bondSummaryResult.totalBondsIssued),
       );
     } catch (error) {
       if (error instanceof BadRequestException) {

@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 export class BorrowBondRequestSummaryDto {
-  @ApiProperty({ description: 'Total amount of the loan', type: Number })
-  totalLoanAmount: number;
-
   @ApiProperty({ description: 'Total amount repaid', type: Number })
-  totalRepaymentAmount: number;
+  totalBondsIssued: number;
+
+  @ApiProperty({ description: 'Total amount of the loan', type: Number })
+  totalBondIssuedValue: number;
 
   @ApiProperty({
     description: 'Total amount of collateral deposited',
@@ -16,27 +16,25 @@ export class BorrowBondRequestSummaryDto {
     description: 'Total amount of collateral repaid',
     type: Number,
   })
-  totalRepaymentCollateral: number;
+  totalLiquidatedAmount: number;
 
   @ApiProperty({ description: 'Total number of bonds sold', type: Number })
   totalBondsSold: number;
 
   @ApiProperty({ description: 'Total number of bonds issued', type: Number })
-  totalBondsIssued: number;
+  totalRepaymentInterestRate: number;
 
   constructor(
-    totalLoanAmount: number,
-    totalRepaymentAmount: number,
-    totalDepositedCollateral: number,
-    totalRepaymentCollateral: number,
-    totalBondsSold: number,
     totalBondsIssued: number,
+    totalBondIssuedValue: number,
+    totalDepositedCollateral: number,
+    totalLiquidatedAmount: number,
+    totalRepaymentInterestRate: number,
   ) {
-    this.totalLoanAmount = totalLoanAmount;
-    this.totalRepaymentAmount = totalRepaymentAmount;
-    this.totalDepositedCollateral = totalDepositedCollateral;
-    this.totalRepaymentCollateral = totalRepaymentCollateral;
-    this.totalBondsSold = totalBondsSold;
     this.totalBondsIssued = totalBondsIssued;
+    this.totalBondIssuedValue = totalBondIssuedValue;
+    this.totalDepositedCollateral = totalDepositedCollateral;
+    this.totalLiquidatedAmount = totalLiquidatedAmount;
+    this.totalRepaymentInterestRate = totalRepaymentInterestRate;
   }
 }

@@ -123,7 +123,7 @@ export class TransactionService {
         .leftJoinAndSelect(
           Bond,
           'bond',
-          'bond.bodn_id = borrower_transaction.bond_id',
+          'bond.bond_id = borrower_transaction.bond_id',
         )
         .leftJoinAndSelect(
           'tokens',
