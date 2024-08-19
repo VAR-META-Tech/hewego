@@ -291,13 +291,6 @@ export class BondService {
                 currentTimestamp,
               },
             );
-            // .orWhere(
-            //   '(bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp)',
-            //   {
-            //     currentTimestamp,
-            //     gracePeriodInSeconds,
-            //   },
-            // );
           }),
         );
         const actionCase = `
