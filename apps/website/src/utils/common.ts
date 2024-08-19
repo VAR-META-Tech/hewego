@@ -94,7 +94,7 @@ export const onMutateError = (err: any) => {
   toast.error(getMutateError(err));
 };
 
-export const convertMarutiryDateToISO = (value: number, type: 'month' | 'week' = 'month') => {
+export const convertMaturityDateToISO = (value: number, type: 'month' | 'week' = 'month') => {
   const today = new Date(new Date().setDate(new Date().getDate() + 7));
 
   const newDate = new Date(today);

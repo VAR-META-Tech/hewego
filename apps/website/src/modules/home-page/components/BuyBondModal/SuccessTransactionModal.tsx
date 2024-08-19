@@ -57,17 +57,23 @@ const SuccessTransactionModal: React.FC<Props> = ({ bondId, opened, onClose, ref
 
         <ul className="list-disc pl-4">
           <li className="space-x-5">
-            <span className="text-gray-700">Bond Name:</span>
-            <span className="text-gray-700">{bond?.bondName || ''}</span>
+            <HStack spacing={20} pos={'apart'}>
+              <span className="text-gray-700">Bond Name:</span>
+              <span className="text-gray-700 font-bold">{bond?.bondName || ''}</span>
+            </HStack>
           </li>
           <li className="space-x-5">
-            <span className="text-gray-700">Quantity Purchased:</span>
-            <span className="text-gray-700">{numberOfBond || 0}</span>
+            <HStack spacing={20} pos={'apart'}>
+              <span className="text-gray-700">Quantity Purchased:</span>
+              <span className="text-gray-700 font-bold">{numberOfBond || 0}</span>
+            </HStack>
           </li>
 
           <li className="space-x-5">
-            <span className="text-gray-700">Total Amount:</span>
-            <span className="text-gray-700">{`${prettyNumber(String(Number(numberOfBond || 0) * 100))} ${loanTokenLabel}`}</span>
+            <HStack spacing={20} pos={'apart'}>
+              <span className="text-gray-700">Total Amount:</span>
+              <span className="text-gray-700 font-bold">{`${prettyNumber(String(Number(numberOfBond || 0) * 100))} ${loanTokenLabel}`}</span>
+            </HStack>
           </li>
         </ul>
 

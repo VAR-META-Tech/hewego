@@ -26,6 +26,7 @@ export const BOND_REQUEST_STATUS = {
 
 export const BOND_REQUESTS_KEYS = {
   issuanceDate: 'issuanceDate',
+  maturityDate: 'maturityDate',
   name: 'name',
   loanAmount: 'loanAmount',
   interestRate: 'interestRate',
@@ -57,6 +58,18 @@ export const TRANSACTION_HISTORY_KEYS = {
 
 export const HEADER_COLUMNS_BOND_REQUESTS = [
   { key: BOND_REQUESTS_KEYS.issuanceDate, label: 'Issuance Date' },
+  { key: BOND_REQUESTS_KEYS.name, label: 'Bond Name' },
+  { key: BOND_REQUESTS_KEYS.loanAmount, label: 'Loan Amount' },
+  { key: BOND_REQUESTS_KEYS.interestRate, label: 'Interest Rate' },
+  { key: BOND_REQUESTS_KEYS.loanTerm, label: 'Bond Duration' },
+  { key: BOND_REQUESTS_KEYS.supply, label: 'Total Supply / Amount' },
+  // { key: BOND_REQUESTS_KEYS.healthFactor, label: 'Health Factor' },
+  { key: BOND_REQUESTS_KEYS.status, label: 'Status' },
+  { key: BOND_REQUESTS_KEYS.action, label: 'Action' },
+];
+
+export const HEADER_COLUMNS_BOND_REQUESTS_ACTIVE = [
+  { key: BOND_REQUESTS_KEYS.maturityDate, label: 'Maturity Date' },
   { key: BOND_REQUESTS_KEYS.name, label: 'Bond Name' },
   { key: BOND_REQUESTS_KEYS.loanAmount, label: 'Loan Amount' },
   { key: BOND_REQUESTS_KEYS.interestRate, label: 'Interest Rate' },

@@ -13,7 +13,11 @@ import { useGetMetaToken } from '@/hooks/useGetMetaToken';
 import PaginationList from '@/components/ui/paginationList';
 import { HStack, VStack } from '@/components/Utilities';
 
-import { BOND_REQUEST_ACTIVE_ACTIONS, BOND_REQUESTS_KEYS, HEADER_COLUMNS_BOND_REQUESTS } from '../../../../utils/const';
+import {
+  BOND_REQUEST_ACTIVE_ACTIONS,
+  BOND_REQUESTS_KEYS,
+  HEADER_COLUMNS_BOND_REQUESTS_ACTIVE,
+} from '../../../../utils/const';
 import RepayModal from './RepayModal';
 
 interface Props {
@@ -39,10 +43,10 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, o
 
       // getPriceFeed(item?.loanToken, item?.collateralToken, item?.loanAmount);
       switch (columnKey) {
-        case BOND_REQUESTS_KEYS.issuanceDate:
+        case BOND_REQUESTS_KEYS.maturityDate:
           return (
             <span>
-              {item?.issuanceDate && format(new Date(Number(item?.issuanceDate) * 1000), DATE_FORMAT.MMM_DD_YYYY)}
+              {item?.maturityDate && format(new Date(Number(item?.maturityDate) * 1000), DATE_FORMAT.MMM_DD_YYYY)}
             </span>
           );
         case BOND_REQUESTS_KEYS.loanAmount:
@@ -88,7 +92,7 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, o
   return (
     <VStack>
       <Table removeWrapper aria-label="Example table with dynamic content" className="overflow-auto">
-        <TableHeader columns={HEADER_COLUMNS_BOND_REQUESTS}>
+        <TableHeader columns={HEADER_COLUMNS_BOND_REQUESTS_ACTIVE}>
           {(column) => (
             <TableColumn
               className={cn({
