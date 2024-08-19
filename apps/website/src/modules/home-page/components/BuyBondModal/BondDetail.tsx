@@ -1,13 +1,13 @@
 import React from 'react';
-import Image from 'next/image';
 import { DATE_FORMAT } from '@/utils/constants';
 import { format } from 'date-fns';
 
 import { useGetMetaToken } from '@/hooks/useGetMetaToken';
 import PreviewRow from '@/components/PreviewRow';
-import { HStack, VStack } from '@/components/Utilities';
+import { VStack } from '@/components/Utilities';
 
 import { useGetBondDetail } from '../../hooks/useGetDetailBond';
+import { SupplyProgress } from './SupplyProgress';
 
 interface Props {
   bondId: number;
@@ -39,16 +39,11 @@ const BondDetail: React.FC<Props> = ({ bondId }) => {
 
   return (
     <VStack align={'center'} className="flex-1">
-      <VStack className="shadow-lg p-8 rounded-md w-96">
-        <HStack pos={'right'} className="w-full">
-          <span className="text-white bg-[#555c69] px-2 py-1 rounded-full text-sm">{`${bond?.totalSold || 0}/${bond?.volumeBond || 0}`}</span>
-        </HStack>
+      <VStack className="shadow-lg p-8 rounded-md w-96 bg-gray-50 border">
         <VStack align={'center'}>
-          <div className="relative w-52 h-52">
-            <Image src="/images/bond.webp" alt="preview" fill priority unoptimized quality={100} />
-          </div>
+          <SupplyProgress progress={Number(bond?.totalSold ?? 0)} total={bond?.volumeBond ?? 0} />
 
-          <span className="text-center font-bold">{bond?.bondName}</span>
+          <p className="text-center font-bold">{bond?.bondName}</p>
         </VStack>
 
         <VStack>

@@ -16,12 +16,7 @@ interface Props {
 }
 
 const BuyBondForm: React.FC<Props> = ({ bondId }) => {
-  const {
-    watch,
-    control,
-    setValue,
-    formState: { errors },
-  } = useFormContext<BuyBondFormType>();
+  const { watch, control, setValue } = useFormContext<BuyBondFormType>();
   const { getLoanTokenLabel } = useGetMetaToken();
   const { volumeLeft, lenderInterestRate, bond, refetch } = useGetBondDetail(bondId);
   const isLoadingCheckBalance = useBuyBondStore.use.isLoadingCheckBalance();
@@ -71,29 +66,29 @@ const BuyBondForm: React.FC<Props> = ({ bondId }) => {
   return (
     <HStack pos={'center'} className="flex-1 py-10">
       <VStack className="w-[25rem]">
-        <span className="text-xl font-semibold">Summary</span>
+        <p className="text-xl font-semibold">Summary</p>
 
-        <HStack spacing={0} align={'center'} className="h-16">
-          <VStack spacing={0} className="flex-1 border-border border rounded-md px-4 pt-1.5 h-full overflow-hidden">
-            <span className="leading-none font-semibold">Number of bond tokens to buy</span>
-
-            <TextField
-              control={control}
-              name="numberOfBond"
-              placeholder={String(volumeLeft)}
-              variant="underlined"
-              classNames={{
-                input: ['placeholder:text-default-700/50'],
-                inputWrapper: ['translate-y-1', '!px-0'],
-              }}
-            />
-          </VStack>
-
-          <Button onClick={handleClickMax} className="bg-primary-100 text-primary-700 h-full">
-            MAX
-          </Button>
-        </HStack>
-        {errors?.numberOfBond && <span className="text-red-500">{errors?.numberOfBond?.message}</span>}
+        <TextField
+          control={control}
+          name="numberOfBond"
+          placeholder={String(volumeLeft)}
+          className="w-full"
+          inputLabel="Number of bond tokens to buy"
+          prefix="/^\d+$/"
+          classNames={{
+            input: ['placeholder:text-default-700/50 text-xl font-medium'],
+            inputWrapper: ['!h-16 bg-white border shadow-md'],
+          }}
+          endContent={
+            <Button onClick={handleClickMax} className="bg-primary-100 text-primary-700 ">
+              MAX
+            </Button>
+          }
+          onChange={(e) => {
+            const value = e.target.value;
+            if (!value || /^\d+$/.test(value)) setValue('numberOfBond', Number(value), { shouldValidate: true });
+          }}
+        />
 
         <VStack className="pb-6 border-b border-b-border">
           <BuyDetailRow title="Price" value={`${priceValue} ${loanTokenLabel}`} />
@@ -106,9 +101,9 @@ const BuyBondForm: React.FC<Props> = ({ bondId }) => {
         <Button
           isLoading={isLoadingCheckBalance || isLoadingTransaction}
           type="submit"
-          radius="sm"
+          radius="full"
           size="lg"
-          className="bg-primary-700 text-white text-lg"
+          className="bg-primary-700 text-white text-lg h-16"
         >
           Supply
         </Button>

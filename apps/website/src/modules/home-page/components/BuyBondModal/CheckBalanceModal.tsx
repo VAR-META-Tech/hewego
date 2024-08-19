@@ -1,9 +1,8 @@
 import React from 'react';
-import Image from 'next/image';
 import { Icons } from '@/assets/icons';
 import { HederaWalletsContext } from '@/context/HederaContext';
 import { cn, convertEvmAddressToAccountId, getBalance } from '@/utils/common';
-import { Button, Modal, ModalBody, ModalContent } from '@nextui-org/react';
+import { Button, CircularProgress, Modal, ModalBody, ModalContent } from '@nextui-org/react';
 import { useFormContext } from 'react-hook-form';
 
 import { useGetMetaToken } from '@/hooks/useGetMetaToken';
@@ -57,12 +56,11 @@ const CheckBalanceModal: React.FC<Props> = ({ bondId }) => {
   const renderBody = React.useMemo(() => {
     if (isLoadingCheckBalance) {
       return (
-        <div>
-          <div className="relative w-full h-32">
-            <Image src="/images/loadingBg.webp" alt="loading-background" fill quality={100} priority unoptimized />
+        <VStack className="p-4" align={'center'} justify="center" spacing={24}>
+          <div className="text-center">
+            <CircularProgress label="We are counting your token, hang on!" />
           </div>
-          <span className="text-center font-semibold">We are counting your token, hang on!</span>
-        </div>
+        </VStack>
       );
     }
 
@@ -102,18 +100,19 @@ const CheckBalanceModal: React.FC<Props> = ({ bondId }) => {
   return (
     <>
       <Modal
-        size={!isEnoughBalance ? 'md' : 'xs'}
+        className="z-50"
+        size={'md'}
         closeButton={!isEnoughBalance ? undefined : <></>}
         isOpen={isLoadingCheckBalance || !isEnoughBalance}
         onOpenChange={!isEnoughBalance ? handleClear : () => {}}
       >
-        <ModalContent className="pb-5">
+        <ModalContent className="py-5">
           <ModalBody
             className={cn({
-              'pt-0 px-0 pb-5': isLoadingCheckBalance,
+              '': isLoadingCheckBalance,
             })}
           >
-            {renderBody}{' '}
+            {renderBody}
           </ModalBody>
         </ModalContent>
       </Modal>

@@ -12,6 +12,7 @@ export interface TextFieldProps<T extends FieldValues = FieldValues> extends Inp
   name: FieldPath<T>;
   defaultValue?: FieldPathValue<T, FieldPath<T>>;
   label?: string;
+  inputLabel?: string;
   labelClassName?: string;
   required?: boolean;
   containerClassName?: string;
@@ -24,6 +25,7 @@ const TextField = <T extends FieldValues>({
   control,
   defaultValue,
   label,
+  inputLabel,
   required,
   containerClassName,
   requiredClassName,
@@ -43,7 +45,7 @@ const TextField = <T extends FieldValues>({
                   {label} {required && <span className={cn('text-red-500', requiredClassName)}>*</span>}
                 </label>
               </Show>
-              <Input {...field} {...props} className={className} />
+              <Input {...field} {...props} className={className} label={inputLabel} />
               <FormMessage className="mt-1 text-xs" />
             </div>
           </FormControl>
