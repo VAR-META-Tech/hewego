@@ -361,25 +361,53 @@ export class BondService {
           walletAddress: user?.walletAddress,
         })
         .andWhere(
-          'bond.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp',
+          'bond.issuanceDate <= :currentTimestamp AND bond.maturityDate > :currentTimestamp',
           {
             currentTimestamp,
           },
         )
         .getRawOne();
 
-      // const interestRates = await this.bondRepository
-      //   .createQueryBuilder('bond')
-      //   .select(['bond.lender_interest_rate AS "interestRate"',
-      //     ""
-      //   ]);
+      const interestRates = await this.bondRepository
+        .createQueryBuilder('bond')
+        .select([
+          'bond.lender_interest_rate AS "interestRate"',
+          'bond.loan_term AS "loanTerm"',
+          'bond.loan_amount AS "loanAmount"',
+        ])
+        .where('LOWER(bond.borrower_address) = :walletAddress', {
+          walletAddress: user?.walletAddress,
+        })
+        .andWhere('bond.canceled_at IS NULL')
+        .execute();
+
+      const totalRepaymentInterestRate = interestRates.reduce(
+        (
+          total: number,
+          item: {
+            loanAmount: number;
+            loanTerm: number;
+            interestRate: number;
+          },
+        ) => {
+          const currentLoanAmount = parseFloat(
+            ethers.utils.formatUnits(ethers.BigNumber.from(item.loanAmount), 8),
+          );
+          console.log({ currentLoanAmount });
+          const weekRate = item.loanTerm / 52;
+          const totalInterest =
+            (currentLoanAmount * item.interestRate * weekRate) / 100;
+          return total + totalInterest;
+        },
+        0,
+      );
 
       return new BorrowBondRequestSummaryDto(
         divideBy10e8(issueBondResult.totalBondsIssued),
         divideBy10e8(issueBondResult.totalBondIssuedValue),
         divideBy10e8(bondSummaryResult.totalDepositedCollateral),
         divideBy10e8(bondSummaryResult.totalLiquidatedAmount),
-        Number(bondSummaryResult.totalBondsSold),
+        totalRepaymentInterestRate,
       );
     } catch (error) {
       if (error instanceof BadRequestException) {
