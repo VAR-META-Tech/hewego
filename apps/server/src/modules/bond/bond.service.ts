@@ -180,7 +180,7 @@ export class BondService {
   ): Promise<Pagination<RequestBondItemResponseDto>> {
     try {
       const currentTimestamp = Math.floor(Date.now() / 1000);
-      const gracePeriodInSeconds = 3 * 24 * 60 * 60; // 3 days in seconds
+      // const gracePeriodInSeconds = 3 * 24 * 60 * 60; // 3 days in seconds
 
       const queryBuilder = this.bondRepository
         .createQueryBuilder('bonds')
@@ -290,18 +290,18 @@ export class BondService {
               {
                 currentTimestamp,
               },
-            ).orWhere(
-              '(bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp)',
-              {
-                currentTimestamp,
-                gracePeriodInSeconds,
-              },
             );
+            // .orWhere(
+            //   '(bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate + :gracePeriodInSeconds >= :currentTimestamp)',
+            //   {
+            //     currentTimestamp,
+            //     gracePeriodInSeconds,
+            //   },
+            // );
           }),
         );
         const actionCase = `
           CASE
-            WHEN bonds.repaidAt IS NULL AND bonds.maturityDate <= ${currentTimestamp} AND bonds.maturityDate + ${gracePeriodInSeconds} >= ${currentTimestamp} THEN '${RequestBondAction.REPAY}'
             WHEN bonds.repaidAt IS NULL THEN '${RequestBondAction.REPAY}'
             WHEN bonds.liquidatedAt IS NOT NULL THEN '${RequestBondAction.CLOSED}'
             ELSE '${RequestBondAction.CLOSED}'
