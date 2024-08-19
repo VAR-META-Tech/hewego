@@ -201,7 +201,7 @@ async function main() {
     tx = await priceFeed.setPrice(collateralTokenInfo.address, loanTokenInfo.address, ethers.parseUnits("1", 8));
     await tx.wait();
 
-    tx = await bondIssuance.connect(admin).setRateTokenPerBond(loanTokenInfo.address, ethers.parseUnits("10", 8));
+    tx = await bondIssuance.connect(admin).setRateTokenPerBond(loanTokenInfo.address, ethers.parseUnits("100", 8));
     await tx.wait();
     tx = await bondIssuance.connect(admin).setUpScaleCollateral(collateralTokenInfo.address, 1500);
     await tx.wait();
