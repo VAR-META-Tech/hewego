@@ -17,8 +17,8 @@ const bondsApi = "https://conquer2earn.dev.api.var-meta.com/api/internal/bonds";
 const routerSwapEvmAddress = "0x0000000000000000000000000000000000004b40";
 
 const contractIdPriceFeedString = "0.0.4679277";
-const bondIssuanceEvmAddress = "0xd7CA28e08BEcFB6DA9B7515b12f14704C305D25B";
-const bondIssuanceContractIdString = "0.0.4689576";
+const bondIssuanceEvmAddress = "0xC83442b46A03309af2058D0A5A1AB9F83D98ebd9";
+const bondIssuanceContractIdString = "0.0.4689688";
 const pairTokens = [
     { tokenA: "0x0000000000000000000000000000000000474Df2", tokenB: "0x0000000000000000000000000000000000474df3" },
 ];

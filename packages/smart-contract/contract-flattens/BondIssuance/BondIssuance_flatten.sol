@@ -4237,6 +4237,7 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
     bool public useErc20Mode = false;
     uint256 public platformFeePercent = 50; // 5%
     uint256 public issuanceDateWaitingLoan;
+    address public platformFeeAddress;
 
     IPriceFeed public priceFeed;
     BondERC1155Token public bondToken;
@@ -4255,6 +4256,7 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         uint256 bondDuration; // in weeks
         uint256 borrowerInterestRate;
         uint256 lenderInterestRate;
+        uint256 platformFeePercent;
         address collateralToken;
         uint256 collateralAmount;
         uint256 issuanceDate;
@@ -4339,6 +4341,7 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(ADMIN_ROLE, msg.sender);
         priceFeed = IPriceFeed(_priceFeed);
+        platformFeeAddress = msg.sender;
 
         bondToken = new BondERC1155Token("https://hedera.com/ipfs/vincent");
         vault = address(this);
@@ -4348,6 +4351,11 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
     modifier onlyAdmin() {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         _;
+    }
+
+    function setPlatformFeeAddress(address _newFeeAddress) external onlyAdmin {
+        require(_newFeeAddress != address(0), "Invalid address");
+        platformFeeAddress = _newFeeAddress;
     }
 
     function setRateTokenPerBond(address _token, uint256 _rate) external onlyAdmin {
@@ -4444,6 +4452,7 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
             volumeBond: volumeBond,
             bondDuration: _bondDuration,
             borrowerInterestRate: _borrowerInterestRate,
+            platformFeePercent: platformFeePercent,
             lenderInterestRate: _lenderInterestRate,
             collateralToken: _collateralToken,
             collateralAmount: collateralAmount,
@@ -4569,8 +4578,10 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         require(!bond.readyToRepay, "Bond is already repaid");
         require(block.timestamp > bond.issuanceDate, "Repay Bond be in issuance date");
 
-        uint256 repaymentAmount = bond.totalLend + ((bond.totalLend * bond.borrowerInterestRate) / 1000);
+        uint256 repaymentAmount = bond.totalLend + (bond.totalLend * bond.borrowerInterestRate) / 1000;
         uint256 interestPaid = repaymentAmount - bond.totalLend;
+
+        uint256 platformFee = ((bond.totalLend * bond.platformFeePercent) / 1000) - 1;
 
         IERC20 loanToken = IERC20(bond.loanToken);
         IERC20 collateralToken = IERC20(bond.collateralToken);
@@ -4583,9 +4594,11 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
                 collateralToken.transfer(bond.borrower, bond.collateralAmount),
                 "Transfer of collateral to borrower failed"
             );
+            require(loanToken.transfer(platformFeeAddress, platformFee), "Transfer of platform fee failed");
         } else {
             safeTransferToken(bond.collateralToken, vault, bond.borrower, bond.collateralAmount);
             safeTransferToken(bond.loanToken, msg.sender, vault, repaymentAmount);
+            safeTransferToken(bond.loanToken, vault, platformFeeAddress, platformFee);
         }
 
         bond.readyToRepay = true;
@@ -4668,7 +4681,8 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
             swapLoanTokenReceive = amounts[1];
         }
 
-        uint256 repaymentAmount = bond.totalLend + ((bond.totalLend * bond.borrowerInterestRate) / 1000);
+        uint256 repaymentAmount = bond.totalLend + (bond.totalLend * bond.borrowerInterestRate) / 1000;
+        uint256 platformFee = ((bond.totalLend * bond.platformFeePercent) / 1000) - 1;
 
         uint256 excessRefund = 0;
         if (swapLoanTokenReceive > repaymentAmount) {
@@ -4684,6 +4698,12 @@ contract BondIssuance is AccessControl, ReentrancyGuard, SafeHederaTokenService 
         bond.liquidationLoanTokenAmount = bond.liquidationLoanTokenAmount > bond.totalLend
             ? bond.totalLend
             : swapLoanTokenReceive - excessRefund;
+
+        if (useErc20Mode) {
+            require(loanToken.transfer(platformFeeAddress, platformFee), "Transfer of platform fee failed");
+        } else {
+            safeTransferToken(bond.loanToken, vault, platformFeeAddress, platformFee); //transfer fee
+        }
 
         bond.readyToRepay = true;
 
