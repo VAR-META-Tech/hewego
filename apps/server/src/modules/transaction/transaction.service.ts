@@ -231,7 +231,7 @@ export class TransactionService {
 
       const assetCase = `
         CASE 
-        WHEN transaction.transaction_type IN('${TransactionType.COLLATERAL_WITHDRAWAL}','${TransactionType.REFUND_COLLATERAL}', '${TransactionType.COLLATERAL_DEPOSITED}' ) THEN collateral_token.symbol
+        WHEN transaction.transaction_type IN('${TransactionType.CANCELED}','${TransactionType.COLLATERAL_REFUNDED}' ) THEN collateral_token.symbol
         ELSE loan_token.symbol
         END
         `;
