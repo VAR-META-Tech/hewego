@@ -45,7 +45,10 @@ const TransactionHistoryTable: React.FC<Props> = ({ pagination, paging, onPageCh
         return <span>{!!transactionType && typeLabel}</span>;
       case TRANSACTION_HISTORY_KEYS.amount:
         return (
-          <span>{!!item?.amount && prettyNumber(Number(formatUnits(BigInt(item?.amount), Number(TOKEN_UNIT))))}</span>
+          <span>
+            {!!item?.amount &&
+              prettyNumber(Number(Number(formatUnits(BigInt(item?.amount), Number(TOKEN_UNIT))).toFixed(2)))}
+          </span>
         );
       case TRANSACTION_HISTORY_KEYS.asset:
         return <span>{!!item?.masterAsset && item?.masterAsset}</span>;
