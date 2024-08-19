@@ -64,7 +64,7 @@ const BondDetail: React.FC<Props> = ({ bondId }) => {
 
           <PreviewRow
             label="Interest Rate"
-            value={bond?.interestRate ? `${Number(bond?.interestRate).toFixed(1)}%` : ''}
+            value={bond?.lenderInterestRate ? `${Number(bond?.lenderInterestRate || 0).toFixed(1)}%` : ''}
           />
         </VStack>
       </VStack>

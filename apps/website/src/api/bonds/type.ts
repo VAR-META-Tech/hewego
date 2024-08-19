@@ -49,6 +49,7 @@ export interface IGetBondDetailData {
   loanAmount: string | null;
   loanToken: string;
   interestRate: string | null;
+  lenderInterestRate: string | null;
   collateralToken: string | null;
   volumeBond: number;
   issuanceDate: string;
