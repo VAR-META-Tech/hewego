@@ -40,7 +40,11 @@ const TransactionHistoryTable: React.FC<Props> = ({ pagination, paging, onPageCh
     const typeLabel = TRANSACTION_TYPE_LABEL[type];
     switch (columnKey) {
       case TRANSACTION_HISTORY_KEYS.dateTime:
-        return <span>{!!item?.createdAt && format(new Date(item?.createdAt), DATE_FORMAT.YYYY_MM_DD_HH_MM)}</span>;
+        return (
+          <span className="text-nowrap">
+            {!!item?.createdAt && format(new Date(item?.createdAt), DATE_FORMAT.YYYY_MM_DD_HH_MM)}
+          </span>
+        );
       case TRANSACTION_HISTORY_KEYS.transactionType:
         return <span>{!!transactionType && typeLabel}</span>;
       case TRANSACTION_HISTORY_KEYS.amount:
@@ -63,7 +67,7 @@ const TransactionHistoryTable: React.FC<Props> = ({ pagination, paging, onPageCh
         return (
           <Link
             href={`${env.HASHSCAN_URL}/${env.NETWORK_TYPE}/transaction/${item?.transactionHash}`}
-            className="text-blue-400 underline hover:opacity-50"
+            className="text-blue-400 underline hover:opacity-50 text-nowrap"
             target="_blank"
           >
             Transaction Hash
@@ -76,7 +80,7 @@ const TransactionHistoryTable: React.FC<Props> = ({ pagination, paging, onPageCh
 
   return (
     <>
-      <Table removeWrapper aria-label="Example table with dynamic content">
+      <Table removeWrapper aria-label="Example table with dynamic content" className="overflow-auto">
         <TableHeader columns={HEADER_COLUMNS_TRANSACTION_HISTORY}>
           {(column) => (
             <TableColumn
