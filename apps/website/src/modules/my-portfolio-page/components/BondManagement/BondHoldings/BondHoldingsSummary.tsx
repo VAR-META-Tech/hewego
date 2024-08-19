@@ -2,8 +2,6 @@ import React from 'react';
 import { useGetBondHoldingsSummaryQuery } from '@/api/portfolio/queries';
 import { HederaWalletsContext } from '@/context/HederaContext';
 import { nFormatter, prettyNumber } from '@/utils/common';
-import { TOKEN_UNIT } from '@/utils/constants';
-import { formatUnits } from 'viem';
 
 import SummaryItem from '../SummaryItem';
 
@@ -34,8 +32,8 @@ const BondHoldingsSummary = () => {
         title="Total Bond Purchases"
         firstValue={`${totalBondPurchased} BOND${totalBondPurchased > 1 ? 'S' : ''}`}
         secondValue={
-          <div className="text-[#FFFFFF] font-semibold text-xl underline underline-offset-4">
-            {`~ ${nFormatter(Number(formatUnits(BigInt(data?.data?.totalAmountBondPurchased || 0), Number(TOKEN_UNIT))))} USDC`}
+          <div className="text-[#FFFFFF] font-semibold text-xl">
+            {`~ ${nFormatter(Number(data?.data?.totalAmountBondPurchased || 0))} USDC`}
           </div>
         }
       />

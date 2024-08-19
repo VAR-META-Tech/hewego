@@ -44,7 +44,7 @@ const BondRequestsSummary = () => {
   }, [isConnected, refetch]);
 
   const totalDeposited = Number(data?.data?.totalDepositedCollateral ?? 0);
-  const liquidatedCollateral = Number(data?.data?.totalLiquidatedAmount ?? 0);
+  // const liquidatedCollateral = Number(data?.data?.totalLiquidatedAmount ?? 0);
   const totalIssuedBonds = Number(data?.data?.totalBondsIssued ?? 0);
   const totalBondIssuedValue = Number(data?.data?.totalBondIssuedValue ?? 0);
   const totalRepaymentInterestRate = Number(data?.data?.totalRepaymentInterestRate ?? 0);
@@ -59,7 +59,7 @@ const BondRequestsSummary = () => {
         isShowDivider={false}
       >
         <HStack align="baseline">
-          <span className="text-2xl font-bold">Total issued bonds</span>
+          <span className="text-2xl font-bold">Total Active Bonds</span>
         </HStack>
       </SummaryItem>
 
@@ -67,11 +67,10 @@ const BondRequestsSummary = () => {
         className="col-span-3 xl:col-span-1 bg-[#32CD32]"
         titleClassName="text-center"
         firstValue={`${nFormatter(Number(totalDeposited))} ${collateralTokenLabel}`}
-        secondValue={`${nFormatter(liquidatedCollateral)} ${collateralTokenLabel}`}
+        secondValue={''}
       >
         <HStack align="baseline">
-          <span className="text-2xl font-bold">Total deposited</span>
-          <span className="text-sm">/ Liquidated collateral</span>
+          <span className="text-2xl font-bold">Total Locked Collateral</span>
         </HStack>
       </SummaryItem>
 
@@ -82,7 +81,7 @@ const BondRequestsSummary = () => {
         secondValue={''}
       >
         <HStack align="baseline">
-          <span className="text-2xl font-bold">Total Repayment Interest Rate</span>
+          <span className="text-2xl font-bold">Total Repayment Interest</span>
         </HStack>
       </SummaryItem>
     </div>
