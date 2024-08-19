@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from '@/utils/common';
+import { cn, prettyNumber } from '@/utils/common';
 import { Button } from '@nextui-org/react';
 import { useFormContext } from 'react-hook-form';
 
@@ -91,12 +91,22 @@ const BuyBondForm: React.FC<Props> = ({ bondId }) => {
         />
 
         <VStack className="pb-6 border-b border-b-border">
-          <BuyDetailRow title="Price" value={`${priceValue} ${loanTokenLabel}`} />
-          <BuyDetailRow title="Interest Payment" value={`${interestPaymentValue} ${loanTokenLabel}`} />
-          <BuyDetailRow title="Receive Maturity " value={`${receiveMaturityValue} ${loanTokenLabel}`} />
+          <BuyDetailRow title="Price" value={`${prettyNumber(Number(priceValue).toFixed(2))} ${loanTokenLabel}`} />
+          <BuyDetailRow
+            title="Interest Payment"
+            value={`${prettyNumber(Number(interestPaymentValue).toFixed(2))} ${loanTokenLabel}`}
+          />
+          <BuyDetailRow
+            title="Receive Maturity "
+            value={`${prettyNumber(Number(receiveMaturityValue).toFixed(2))} ${loanTokenLabel}`}
+          />
         </VStack>
 
-        <BuyDetailRow titleClassName="font-bold" title="Total" value={`${priceValue} ${loanTokenLabel}`} />
+        <BuyDetailRow
+          titleClassName="font-bold"
+          title="Total"
+          value={`${prettyNumber(Number(priceValue).toFixed(2))} ${loanTokenLabel}`}
+        />
 
         <Button
           isLoading={isLoadingCheckBalance || isLoadingTransaction}

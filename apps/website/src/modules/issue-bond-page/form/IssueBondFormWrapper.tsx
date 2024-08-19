@@ -1,9 +1,10 @@
 import React from 'react';
+import { useGetPlatformFeesQuery } from '@/api/fee-platform/queries';
 import { useGetPriceFeedQuery } from '@/api/price-feed/queries';
 import { useIssueBondStore } from '@/store/useIssueBondStore';
 import { FCC } from '@/types';
-import { convertMarutiryDateToISO, parseUnits } from '@/utils/common';
-import { DATE_FORMAT, PLATFORM_FEE, TOKEN_UNIT } from '@/utils/constants';
+import { convertMaturityDateToISO, parseUnits } from '@/utils/common';
+import { DATE_FORMAT, TOKEN_UNIT } from '@/utils/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebouncedValue } from '@mantine/hooks';
 import { format } from 'date-fns';
@@ -34,11 +35,19 @@ const IssueBondFormWrapper: FCC = ({ children }) => {
   const [borrowInterestRateDebounced] = useDebouncedValue(borrowInterestRate, 300);
   const [loanAmountDebounced] = useDebouncedValue(loanAmount, 300);
 
+  const { data } = useGetPlatformFeesQuery();
+
+  const platformFee = React.useMemo(() => {
+    if (!data) return 0;
+
+    return Number(data?.data?.platformFee);
+  }, [data]);
+
   React.useEffect(() => {
     if (borrowInterestRateDebounced) {
-      form.setValue('lenderInterestRate', borrowInterestRateDebounced - Number(PLATFORM_FEE));
+      form.setValue('lenderInterestRate', borrowInterestRateDebounced - Number(platformFee));
     }
-  }, [borrowInterestRateDebounced, form]);
+  }, [borrowInterestRateDebounced, form, platformFee]);
 
   React.useEffect(() => {
     form.setValue(
@@ -52,7 +61,7 @@ const IssueBondFormWrapper: FCC = ({ children }) => {
 
     const type = durationBond.includes('month') ? 'month' : 'week';
     const dayCount = type === 'month' ? 1 : 7;
-    const newDate = convertMarutiryDateToISO(Number(durationBond.split(' ')[0]) * dayCount, type);
+    const newDate = convertMaturityDateToISO(Number(durationBond.split(' ')[0]) * dayCount, type);
 
     form.setValue('maturityDate', format(new Date(newDate).toISOString().slice(0, 10), DATE_FORMAT.DD_MM_YYYY));
   }, [durationBond, form]);

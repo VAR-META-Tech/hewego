@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
-import Image from 'next/image';
 import { IGetBondHoldingsData } from '@/api/portfolio/type';
+import { SupplyProgress } from '@/modules/home-page/components/BuyBondModal/SupplyProgress';
 import { useBondHoldingsStore } from '@/modules/my-portfolio-page/store/useBondHoldingsStore';
 import { TAB_VALUE } from '@/modules/my-portfolio-page/utils/const';
 import { roundNumber } from '@/utils/common';
@@ -68,9 +68,10 @@ const DetailBondModal: React.FC<Props> = ({ bond, setTabContainer }) => {
             <ModalBody>
               <VStack className="shadow-lg p-8 rounded-md w-full">
                 <VStack align={'center'}>
-                  <div className="relative w-52 h-52">
-                    <Image src="/images/bond.webp" alt="preview" fill priority unoptimized quality={100} />
-                  </div>
+                  <SupplyProgress
+                    progress={Number(bond?.bondInfo?.totalSold ?? 0)}
+                    total={bond?.bondInfo?.volumeBond ?? 0}
+                  />
 
                   <span className="text-center font-bold">{bond?.bondInfo?.name}</span>
                 </VStack>

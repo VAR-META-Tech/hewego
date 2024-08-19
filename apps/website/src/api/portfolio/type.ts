@@ -89,6 +89,8 @@ export interface BondInfo {
   loanTerm: number;
   issuanceDate: number;
   status?: string;
+  totalSold: number;
+  volumeBond: number;
 }
 
 export interface IGetBondHoldingsSummaryResponse {

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { PLATFORM_FEE } from '@/utils/constants';
 import { z } from 'zod';
 
 import { validationMessages } from '@/lib/validations/validation.utility';
@@ -50,14 +49,11 @@ export const issueBondSchema = z.object({
       if (Number.isNaN(Number(data))) return false;
       return true;
     }, validationMessages.number())
-    .refine(
-      (data) => {
-        if (Number(data) <= Number(PLATFORM_FEE)) return false;
+    .refine((data) => {
+      if (Number(data) < 3) return false;
 
-        return true;
-      },
-      validationMessages.gte(Number(PLATFORM_FEE))
-    )
+      return true;
+    }, validationMessages.gte(3))
     .refine((data) => {
       if (Number(data) > 20) return false;
 

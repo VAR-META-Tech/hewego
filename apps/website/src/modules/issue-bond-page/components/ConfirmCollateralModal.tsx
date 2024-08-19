@@ -190,7 +190,7 @@ const ConfirmCollateralModal: React.FC<Props> = ({ isOpen, onOpenChange }) => {
               {step === STEP_DEPOSIT_COLLATERAL.DEPOSIT.value && (
                 <>
                   <span className="font-bold">Required Collateral</span>
-                  <span className="text-2xl font-medium">{`${prettyNumber(minimumCollateralAmount)} ${getCollateralTokenLabel(collateralToken)}`}</span>
+                  <span className="text-2xl font-semibold">{`${prettyNumber(minimumCollateralAmount)} ${getCollateralTokenLabel(collateralToken)}`}</span>
                 </>
               )}
             </ModalBody>

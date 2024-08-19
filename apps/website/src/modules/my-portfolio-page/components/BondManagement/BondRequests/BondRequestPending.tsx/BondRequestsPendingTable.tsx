@@ -50,7 +50,7 @@ const BondRequestsPendingTable: React.FC<Props> = ({ bonds, paging, pagination, 
             <span className="text-nowrap">{`${Number(item?.loanTerm || 0)} ${Number(item?.loanTerm || 0) > 1 ? 'weeks' : 'week'}`}</span>
           );
         case BOND_REQUESTS_KEYS.supply:
-          return <span className="text-nowrap">{`${Number(item?.totalSold || 0)}/${loanAmount / 100}`}</span>;
+          return <span className="text-nowrap">{`${Number(item?.totalSold || 0)}/${item?.volumeBond}`}</span>;
         case BOND_REQUESTS_KEYS.status:
           return (
             <span

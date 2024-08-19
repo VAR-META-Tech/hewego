@@ -16,7 +16,10 @@ const BannerSection = () => {
           <span>potential bonds </span>
         </VStack>
 
-        <span>Occaecat est ipsum reprehenderit reprehenderit veniam anim laborum est esse duis occaecat </span>
+        <span>
+          Unlock secure, transparent, and innovative investment opportunities through the issuance and purchase of
+          potential bonds
+        </span>
 
         <HStack spacing={16}>
           <Button
