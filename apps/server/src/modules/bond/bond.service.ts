@@ -285,6 +285,7 @@ export class BondService {
         queryBuilder.andWhere('bonds.total_sold > :minTotalSold', {
           minTotalSold: 0,
         });
+        queryBuilder.andWhere('bonds.repaid_at IS NULL');
         queryBuilder.andWhere(
           new Brackets((qb) => {
             qb.where(
