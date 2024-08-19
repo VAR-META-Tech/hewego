@@ -60,8 +60,8 @@ const BondCard: React.FC<Props> = ({
         <PreviewRow
           tooltip={
             <div className="text-center">
-              <div>On close 90% of the borrow side interest</div>
-              <div>is paid to the lender, and 10% is paid to platform</div>
+              <div>On close 99% of the borrow side interest</div>
+              <div>is paid to the lender, and 1% is paid to platform</div>
             </div>
           }
           label="Borrower's Interest Rate"
