@@ -122,8 +122,8 @@ const IssueBondForm = () => {
             control={control}
             step={1}
             maxValue={20}
-            minValue={0}
-            defaultValue={1}
+            minValue={3}
+            defaultValue={3}
             size="md"
           />
         </div>
