@@ -477,6 +477,7 @@ export class BondService {
         .where('LOWER(users.wallet_address) = LOWER(:walletAddress)', {
           walletAddress: user.walletAddress,
         })
+        .andWhere('bond_checkout.claimed_at IS NULL')
         .orderBy('bonds.maturity_date', 'DESC');
 
       if (params?.name) {
@@ -517,7 +518,8 @@ export class BondService {
       ])
       .where('LOWER(bond_checkout.lender_address) = LOWER(:walletAddress)', {
         walletAddress: user.walletAddress,
-      });
+      })
+      .andWhere('bond_checkout.claimed_at IS NULL');
 
     const bondCheckout = await bondCheckoutQueryBuilder.getRawOne();
 
@@ -531,7 +533,8 @@ export class BondService {
       ])
       .where('LOWER(bond_checkout.lender_address) = LOWER(:walletAddress)', {
         walletAddress: user.walletAddress,
-      });
+      })
+      .andWhere('bond_checkout.claimed_at IS NULL');
     const lenderCheckout = await queryBuilder.execute();
 
     const totalReceivedAmountOfLender = lenderCheckout.reduce(
@@ -557,9 +560,12 @@ export class BondService {
       },
       0,
     );
+    const totalAmountBondPurchased = divideBy10e8(
+      bondCheckout.totalAmountBondPurchased,
+    );
     return new HoldingBondSummaryItemResponseDto(
-      totalReceivedAmountOfLender,
-      divideBy10e8(bondCheckout.totalAmountBondPurchased),
+      totalReceivedAmountOfLender - totalAmountBondPurchased,
+      totalAmountBondPurchased,
       Number(bondCheckout.totalBondPurchased),
     );
   }
