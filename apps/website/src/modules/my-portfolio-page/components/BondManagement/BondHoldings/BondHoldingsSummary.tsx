@@ -41,7 +41,7 @@ const BondHoldingsSummary = () => {
       <SummaryItem
         titleClassName="text-left text-2xl font-bold text-white"
         className="col-span-3 transition-all bg-[#32CD32] xl:col-span-1"
-        title="Capital & Interest Received"
+        title="Total interest to be received"
         firstValue={`${prettyNumber(Number(data?.data?.totalCapitalAndInterestRecieved || 0).toFixed(2))} USDC`}
         secondValue={null}
       />
