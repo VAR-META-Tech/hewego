@@ -15,12 +15,14 @@ import { HStack, VStack } from '@/components/Utilities';
 
 interface Props {
   bondId: number;
-  collateralAmount: string;
-  collateralToken: string;
   maturityDate: string;
   interestRate: string;
   refetch: () => void;
+  loanAmount: string;
+  loanToken: string;
+  loanTerm: number;
 }
+
 const STEP_VALUE = {
   CONFIRM: 'CONFIRM',
   REPAY: 'REPAY',
@@ -29,23 +31,24 @@ const STEP_VALUE = {
 const RepayModal: React.FC<Props> = ({
   bondId,
   refetch,
-  collateralAmount,
-  collateralToken,
   maturityDate,
   interestRate,
+  loanAmount,
+  loanToken,
+  loanTerm,
 }) => {
   const [step, setStep] = React.useState(STEP_VALUE.CONFIRM);
   const [isLoading, setIsLoading] = React.useState(false);
   const bondRepayId = useBondRepayStore.use.bondRepayId();
   const setBondRepayId = useBondRepayStore.use.setBondRepayId();
 
-  const { getCollateralTokenLabel } = useGetMetaToken();
+  const { getLoanTokenLabel } = useGetMetaToken();
 
-  const collateralTokenLabel = React.useMemo(() => {
-    if (!collateralToken) return '';
+  const loanTokenLabel = React.useMemo(() => {
+    if (!loanToken) return '';
 
-    return getCollateralTokenLabel(collateralToken);
-  }, [getCollateralTokenLabel, collateralToken]);
+    return getLoanTokenLabel(loanToken);
+  }, [getLoanTokenLabel, loanToken]);
 
   const handleClear = () => {
     setBondRepayId('');
@@ -94,6 +97,18 @@ const RepayModal: React.FC<Props> = ({
     }
   }, [bondId, refetch, signer]);
 
+  const loanAmountValue = Number(formatUnits(BigInt(loanAmount || 0), Number(TOKEN_UNIT)));
+
+  const interestRateValue = Number(interestRate || 0) / 100;
+
+  const durationRate = Number(loanTerm || 0) / 52;
+
+  const totalAmount = React.useMemo(() => {
+    if (!loanAmountValue || !interestRateValue || !durationRate) return 0;
+
+    return loanAmountValue + loanAmountValue * interestRateValue * durationRate;
+  }, [durationRate, interestRateValue, loanAmountValue]);
+
   const renderContent = React.useMemo(() => {
     if (step === STEP_VALUE.CONFIRM) {
       return (
@@ -101,10 +116,7 @@ const RepayModal: React.FC<Props> = ({
           <span>You are about to repay your loan. Please review the details below:</span>
 
           <ul className="list-disc pl-2">
-            <li>
-              Total Amount Paid:{' '}
-              {`${prettyNumber(Number(formatUnits(BigInt(collateralAmount || 0), Number(TOKEN_UNIT))).toFixed(2))} ${collateralTokenLabel}`}
-            </li>
+            <li>Total Amount Paid: {`${prettyNumber(Number(Number(totalAmount).toFixed(2)))} ${loanTokenLabel}`}</li>
             <li>Total Interest: {`${Number(interestRate || 0).toFixed(2)}%`}</li>
             <li>Maturity Date: {format(new Date(Number(maturityDate) * 1000), DATE_FORMAT.YYYY_MM_DD_HH_MM)}</li>
           </ul>
@@ -120,7 +132,7 @@ const RepayModal: React.FC<Props> = ({
         <span>Your collateral has been already. Please claim it into your portfolio</span>
       </VStack>
     );
-  }, [collateralAmount, collateralTokenLabel, interestRate, maturityDate, step]);
+  }, [interestRate, loanTokenLabel, maturityDate, step, totalAmount]);
 
   return (
     <Modal

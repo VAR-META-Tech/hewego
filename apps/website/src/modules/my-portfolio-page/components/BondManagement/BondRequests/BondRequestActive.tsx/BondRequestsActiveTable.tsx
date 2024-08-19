@@ -141,11 +141,12 @@ const BondRequestsActiveTable: React.FC<Props> = ({ bonds, paging, pagination, o
         <RepayModal
           key={`${item?.bondId}-${index}`}
           bondId={item?.bondId}
-          collateralAmount={item?.collateralAmount}
           refetch={refetch}
-          collateralToken={item?.collateralToken}
           interestRate={item?.interestRate}
           maturityDate={item?.maturityDate}
+          loanAmount={item?.loanAmount}
+          loanTerm={item?.loanTerm}
+          loanToken={item?.loanToken}
         />
       ))}
 
