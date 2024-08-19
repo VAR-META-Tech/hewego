@@ -148,7 +148,8 @@ export class BondService {
           'bond.loanToken AS "loanToken"',
           'bond.collateralAmount AS "collateralAmount"',
           'bond.collateralToken AS "collateralToken"',
-          'bond.lenderInterestRate AS "interestRate"',
+          'bond.borrower_interest_rate AS "interestRate"',
+          'bond.lender_interest_rate AS "lenderInterestRate"',
           'bond.volumeBond AS "volumeBond"',
           'bond.issuanceDate AS "issuanceDate"',
           'bond.maturityDate AS "maturityDate"',
@@ -203,7 +204,8 @@ export class BondService {
           'bonds.collateralAmount as "collateralAmount"',
           'bonds.collateralToken as "collateralToken"',
           'bonds.volumeBond as "volumeBond"',
-          'bonds.lenderInterestRate as "interestRate"',
+          'bond.borrower_interest_rate AS "interestRate"',
+          'bond.lender_interest_rate AS "lenderInterestRate"',
           'bonds.issuanceDate as "issuanceDate"',
           'bonds.maturityDate as "maturityDate"',
           'bonds.borrowerAddress as "borrowerAddress"',
@@ -367,7 +369,6 @@ export class BondService {
           },
         )
         .getRawOne();
-      console.log({ issueBondResult });
 
       const interestRates = await this.bondRepository
         .createQueryBuilder('bond')
