@@ -46,4 +46,16 @@ export class ContractService {
       throw error;
     }
   }
+
+  async getPlatformFeePercent(): Promise<number> {
+    const platformFeePercentQuery = new ContractCallQuery()
+      .setContractId(this._bondIssuanceContractId)
+      .setGas(100000)
+      .setFunction('platformFeePercent', new ContractFunctionParameters());
+
+    const platformFeePercentExec = await platformFeePercentQuery.execute(
+      this._client,
+    );
+    return platformFeePercentExec.getUint8(0) / 10;
+  }
 }
