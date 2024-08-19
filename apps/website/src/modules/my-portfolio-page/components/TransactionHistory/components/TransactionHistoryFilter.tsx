@@ -67,12 +67,12 @@ const TransactionHistoryFilter: React.FC<Props> = ({ handleSearchChange }) => {
             variant="bordered"
             name="transactionType"
             control={control}
-            placeholder="Supply"
+            placeholder="Select Transaction Type"
             selectedKeys={type}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onSelectionChange={setType as any}
             classNames={{
-              trigger: 'w-40',
+              trigger: 'w-60',
               listboxWrapper: 'max-h-[400px]',
               popoverContent: 'rounded-sm',
             }}
@@ -88,7 +88,7 @@ const TransactionHistoryFilter: React.FC<Props> = ({ handleSearchChange }) => {
             name="token"
             variant="bordered"
             control={control}
-            placeholder="Borrow"
+            placeholder="Asset Type"
             data={tokenData}
             selectedKeys={token}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
