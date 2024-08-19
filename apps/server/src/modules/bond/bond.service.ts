@@ -408,6 +408,8 @@ export class BondService {
           'loanTerm', bonds.loan_term,
           'issuanceDate', bonds.issuance_date,
           'maturityDate', bonds.maturity_date,
+          'totalSold', bonds.total_sold,
+          'volumeBond', bonds.volume_bond,
           'status', CASE 
               WHEN bonds.issuanceDate >${currentTimestamp} THEN '${BondStatusEnum.PENDING_ISSUANCE}'
               WHEN bonds.issuanceDate <=${currentTimestamp} AND bonds.maturityDate >${currentTimestamp} THEN '${BondStatusEnum.ACTIVE}'
@@ -425,7 +427,7 @@ export class BondService {
         .where('LOWER(users.wallet_address) = LOWER(:walletAddress)', {
           walletAddress: user.walletAddress,
         })
-        .orderBy('bond_checkout.created_at', 'DESC');
+        .orderBy('bonds.maturity_date', 'DESC');
 
       if (params?.name) {
         queryBuilder.andWhere('bonds.name ILIKE :name', {
