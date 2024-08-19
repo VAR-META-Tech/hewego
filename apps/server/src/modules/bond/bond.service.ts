@@ -367,6 +367,7 @@ export class BondService {
           },
         )
         .getRawOne();
+      console.log({ issueBondResult });
 
       const interestRates = await this.bondRepository
         .createQueryBuilder('bond')
@@ -402,7 +403,7 @@ export class BondService {
       );
 
       return new BorrowBondRequestSummaryDto(
-        divideBy10e8(issueBondResult.totalBondsIssued),
+        Number(issueBondResult.totalBondsIssued),
         divideBy10e8(issueBondResult.totalBondIssuedValue),
         divideBy10e8(bondSummaryResult.totalDepositedCollateral),
         divideBy10e8(bondSummaryResult.totalLiquidatedAmount),
