@@ -393,7 +393,6 @@ export class BondService {
           const currentLoanAmount = parseFloat(
             ethers.utils.formatUnits(ethers.BigNumber.from(item.loanAmount), 8),
           );
-          console.log({ currentLoanAmount });
           const weekRate = item.loanTerm / 52;
           const totalInterest =
             (currentLoanAmount * item.interestRate * weekRate) / 100;
