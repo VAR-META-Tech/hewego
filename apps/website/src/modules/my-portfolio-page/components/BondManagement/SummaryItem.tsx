@@ -9,9 +9,18 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   titleClassName?: string;
   firstValue: string;
   secondValue: string | ReactNode;
+  isShowDivider?: boolean;
 }
 
-const SummaryItem: FCC<Props> = ({ children, title, firstValue, secondValue, titleClassName, ...props }) => {
+const SummaryItem: FCC<Props> = ({
+  children,
+  title,
+  firstValue,
+  secondValue,
+  titleClassName,
+  isShowDivider = true,
+  ...props
+}) => {
   const titleElement = children || title;
 
   return (
@@ -27,7 +36,7 @@ const SummaryItem: FCC<Props> = ({ children, title, firstValue, secondValue, tit
 
         {!!secondValue && typeof secondValue === 'string' ? (
           <HStack>
-            <span className="text-center text-base font-semibold">/</span>
+            {!!isShowDivider && <span className="text-center text-base font-semibold">/</span>}
 
             <span className="text-center text-2xl font-semibold">{secondValue}</span>
           </HStack>
