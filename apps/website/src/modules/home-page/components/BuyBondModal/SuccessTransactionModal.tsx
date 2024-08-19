@@ -1,9 +1,10 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Icons } from '@/assets/icons';
+import { BOND_MANAGEMENT_TAB_VALUE } from '@/modules/my-portfolio-page/utils/const';
 import { ROUTE } from '@/types';
 import { prettyNumber } from '@/utils/common';
-import { Button, Modal, ModalBody, ModalContent } from '@nextui-org/react';
+import { Button, Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/react';
 import { useFormContext } from 'react-hook-form';
 
 import { useGetMetaToken } from '@/hooks/useGetMetaToken';
@@ -81,30 +82,32 @@ const SuccessTransactionModal: React.FC<Props> = ({ bondId, opened, onClose, ref
           Your bonds will be available for you to claim on the issuance date. You can view them in your account
           portfolio once they are issued.
         </span>
-        <HStack pos="center" spacing={20}>
-          <Button
-            variant="bordered"
-            onPress={() => {
-              handleClear();
-              router.push(ROUTE.MY_PORTFOLIO);
-            }}
-          >
-            View Portfolio
-          </Button>
-
-          <Button onPress={handleClear} className="bg-primary-700 text-white">
-            Continue Shopping
-          </Button>
-        </HStack>
       </VStack>
     );
-  }, [bond?.bondName, handleClear, loanTokenLabel, numberOfBond, router]);
+  }, [bond?.bondName, loanTokenLabel, numberOfBond]);
 
   return (
     <>
       <Modal size="md" isOpen={opened} onOpenChange={handleClear}>
         <ModalContent className="pb-5">
           <ModalBody>{renderBody} </ModalBody>
+          <ModalFooter>
+            <HStack spacing={8}>
+              <Button
+                variant="bordered"
+                onPress={() => {
+                  handleClear();
+                  router.push(`${ROUTE.MY_PORTFOLIO}?redirect=${BOND_MANAGEMENT_TAB_VALUE.BOND_HOLDINGS}`);
+                }}
+              >
+                View Portfolio
+              </Button>
+
+              <Button onPress={handleClear} className="bg-primary-700 text-white">
+                Continue Shopping
+              </Button>
+            </HStack>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </>

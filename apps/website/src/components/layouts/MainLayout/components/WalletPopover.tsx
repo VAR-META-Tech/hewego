@@ -8,7 +8,7 @@ import { Button, ButtonProps, Popover, PopoverContent, PopoverTrigger } from '@n
 import { useCopy } from '@/hooks/useCopy';
 import { HStack, VStack } from '@/components/Utilities';
 
-const WalletPoppover = () => {
+const WalletPopover = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const router = useRouter();
   const [copied, copy] = useCopy();
@@ -18,7 +18,10 @@ const WalletPoppover = () => {
     <HStack noWrap pos={'apart'}>
       <Popover size="lg" isOpen={isOpen} onOpenChange={(open) => setIsOpen(open)} placement="bottom-end">
         <PopoverTrigger>
-          <Button className="inline-flex items-center bg-primary-700 text-white text-base w-44 rounded-full">
+          <Button
+            startContent={<Icons.wallet size={20} />}
+            className="inline-flex items-center bg-primary-700 text-white text-base w-44 rounded-full"
+          >
             <span className="text-white">{accountId}</span>
           </Button>
         </PopoverTrigger>
@@ -48,7 +51,7 @@ const WalletPoppover = () => {
   );
 };
 
-export default WalletPoppover;
+export default WalletPopover;
 
 type PopoverActionProps = ButtonProps & {
   icon: React.ReactNode;

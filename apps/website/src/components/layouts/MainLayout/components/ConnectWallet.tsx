@@ -6,7 +6,7 @@ import { Button } from '@nextui-org/react';
 import { HStack } from '@/components/Utilities';
 
 import WalletModal from './WalletModal';
-import WalletPoppover from './WalletPoppover';
+import WalletPopover from './WalletPopover';
 
 const ConnectWallet = () => {
   const isOpen = useConnectWalletStore.use.isOpen();
@@ -24,7 +24,7 @@ const ConnectWallet = () => {
       );
     }
 
-    return <WalletPoppover />;
+    return <WalletPopover />;
   }, [isConnected, onOpen]);
 
   return (

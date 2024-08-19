@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback } from 'react';
+import Link from 'next/link';
 import { IGetBorrowRequestData } from '@/api/portfolio/type';
 import { useBondCancelStore } from '@/modules/my-portfolio-page/store/useBondCancelStore';
+import { ROUTE } from '@/types';
 import { cn, prettyNumber } from '@/utils/common';
 import { IPagination, IPaging } from '@/utils/common.type';
 import { DATE_FORMAT, TOKEN_UNIT } from '@/utils/constants';
@@ -99,7 +101,19 @@ const BondRequestsPendingTable: React.FC<Props> = ({ bonds, paging, pagination, 
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody isLoading={isLoading} loadingContent={<Spinner />} items={bonds} emptyContent="No data to display.">
+        <TableBody
+          isLoading={isLoading}
+          loadingContent={<Spinner />}
+          items={bonds}
+          emptyContent={
+            <span>
+              You have not created any borrow requests yet. Please create a new borrow request to see it listed{' '}
+              <Link href={ROUTE.ISSUE_BOND} className="underline text-blue-500 hover:opacity-50">
+                here
+              </Link>
+            </span>
+          }
+        >
           {bonds?.map((item, index) => (
             <TableRow key={`${item?.bondId}-${index}`}>
               {(columnKey) => (
