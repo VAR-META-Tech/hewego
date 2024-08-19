@@ -41,7 +41,7 @@ const MyPortfolioPage = () => {
 
   return (
     <AuthLayout>
-      <div className="py-20 space-y-12 overflow-hidden">
+      <div className="py-10 space-y-12 overflow-hidden">
         <div className="container">
           <Back title="My Portfolio" />
 

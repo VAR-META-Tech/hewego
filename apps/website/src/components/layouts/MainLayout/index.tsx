@@ -13,7 +13,7 @@ const MainLayout: FCC<Props> = ({ children }) => {
     <div className="relative">
       <Header />
 
-      <main className="min-h-screen bg-white pt-20">{children}</main>
+      <main className="min-h-screen bg-white">{children}</main>
 
       <Footer />
     </div>

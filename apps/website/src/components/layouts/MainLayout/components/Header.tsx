@@ -12,7 +12,7 @@ interface Props {}
 
 const Header: React.FC<Props> = () => {
   return (
-    <header className="h-header bg-white fixed top-0 right-0 left-0 z-50">
+    <header className="min-h-header sticky py-2 top-0 right-0 left-0 z-50 bg-white/50 backdrop-blur-lg">
       <HStack align={'center'} pos={'apart'} spacing={40} className="container h-full">
         <Logo />
 
