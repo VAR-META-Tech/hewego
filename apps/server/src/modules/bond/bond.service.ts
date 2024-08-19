@@ -221,8 +221,8 @@ export class BondService {
         ])
         .where('LOWER(bonds.borrowerAddress) = LOWER(:walletAddress)', {
           walletAddress: user.walletAddress,
-        })
-        .orderBy('bonds.createdAt', 'DESC');
+        });
+      // .orderBy('bonds.createdAt', 'DESC');
 
       if (params?.bondDuration) {
         const loanTerms = params.bondDuration;
@@ -268,13 +268,15 @@ export class BondService {
         queryBuilder.andWhere('bonds.issuanceDate > :currentTimestamp', {
           currentTimestamp,
         });
+        queryBuilder.andWhere('bonds.canceled_at IS NULL');
         const actionCase = `
           CASE 
-            WHEN bonds.canceledAt IS NOT NULL THEN '${RequestBondAction.TO_BE_CANCEL}'
+            WHEN bonds.canceledAt IS NULL THEN '${RequestBondAction.TO_BE_CANCEL}'
             ELSE '${RequestBondAction.CLOSED}'
           END
           `;
         queryBuilder.addSelect(actionCase, 'action');
+        queryBuilder.orderBy('bonds.issuance_date', 'DESC');
       }
 
       if (params?.status === BondStatusEnum.ACTIVE) {
@@ -307,6 +309,7 @@ export class BondService {
         `;
 
         queryBuilder.addSelect(actionCase, 'action');
+        queryBuilder.orderBy('bonds.maturity_date', 'DESC');
       }
 
       const totalRequestBonds = await queryBuilder.getCount();
