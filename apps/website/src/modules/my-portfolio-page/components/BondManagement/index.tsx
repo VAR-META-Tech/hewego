@@ -15,8 +15,8 @@ const BondManagement: React.FC<Props> = ({ setTab: setTabContainer }) => {
   const [tab, setTab] = React.useState(BOND_MANAGEMENT_TAB_VALUE.BOND_REQUESTS);
 
   return (
-    <div className="space-y-16">
-      <div className="w-3/4 xl:w-1/4 mx-auto">
+    <div className="space-y-8">
+      <div className="container">
         <BondManagementTab
           layoutId="bond-management-tabs"
           data={BOND_MANAGEMENT_TAB_DATA}
@@ -24,7 +24,6 @@ const BondManagement: React.FC<Props> = ({ setTab: setTabContainer }) => {
           onChange={setTab}
         />
       </div>
-
       {tab === BOND_MANAGEMENT_TAB_VALUE.BOND_HOLDINGS && (
         <TransitionLayout>
           <BondHoldings setTabContainer={setTabContainer} />

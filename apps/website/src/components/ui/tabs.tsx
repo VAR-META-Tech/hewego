@@ -13,7 +13,7 @@ interface TabsProps<T extends string | number> extends Omit<React.HTMLAttributes
 const Tabs = <T extends string | number>({ layoutId, data, value, onChange, ...props }: TabsProps<T>) => {
   return (
     <div
-      className="flex flex-1 gap-2 rounded-lg bg-primary-700 p-0.5 shadow-[0rem_0rem_1.25rem_.125rem_rgba(185_185_185_0.25)] md:flex-none overflow-x-auto md:overflow-hidden"
+      className="inline-flex gap-2 rounded-lg bg-gray-100 p-1 shadow-sm md:flex-none overflow-x-auto md:overflow-hidden"
       {...props}
     >
       {data.map((tabItem) => (
@@ -21,16 +21,16 @@ const Tabs = <T extends string | number>({ layoutId, data, value, onChange, ...p
           key={tabItem.value}
           onClick={() => onChange(tabItem.value)}
           className={cn(
-            'relative z-0 py-2 text-nowrap text-primary-700 flex min-w-[8rem] flex-1 items-center justify-center shadow-[0px_0px_20px_2px_rgba(185_185_185_0.25)] transition-all',
+            'relative z-0 text-gray-400 py-2 px-8 text-nowrap font-semibold flex min-w-[8rem] flex-1 items-center justify-center transition-all',
             {
-              'text-white': value !== tabItem.value,
+              'text-gray-700': value === tabItem.value,
             }
           )}
         >
           {tabItem.label}
 
           {value === tabItem.value && (
-            <motion.div layoutId={layoutId} className="absolute z-[-1] h-full w-full rounded-md bg-white" />
+            <motion.div layoutId={layoutId} className="absolute z-[-1] h-full w-full shadow-md rounded-md bg-white" />
           )}
         </button>
       ))}

@@ -4,7 +4,7 @@ import { HederaWalletsContext } from '@/context/HederaContext';
 import { nFormatter } from '@/utils/common';
 
 import { useGetMetaToken } from '@/hooks/useGetMetaToken';
-import { VStack } from '@/components/Utilities';
+import { HStack } from '@/components/Utilities';
 
 import SummaryItem from '../SummaryItem';
 
@@ -43,42 +43,49 @@ const BondRequestsSummary = () => {
     return () => clearInterval(refetchInterval);
   }, [isConnected, refetch]);
 
+  const totalLoan = Number(data?.data?.totalLoanAmount ?? 0);
+  const repaymentAmount = Number(data?.data?.totalRepaymentAmount ?? 0);
+  const totalDeposited = Number(data?.data?.totalDepositedCollateral ?? 0);
+  const liquidatedCollateral = Number(data?.data?.totalRepaymentCollateral ?? 0);
+  const totalIssued = Number(data?.data?.totalBondsSold ?? 0);
+  const requestBond = Number(data?.data?.totalBondsIssued ?? 0);
+
   return (
-    <div className="grid grid-cols-3 gap-5">
+    <div className="grid grid-cols-3 gap-8">
       <SummaryItem
-        className="col-span-3 xl:col-span-1"
-        titleClassName="text-center"
-        firstValue={`${nFormatter(Number(data?.data?.totalLoanAmount || 0))} ${loanTokenLabel}`}
-        secondValue={`${nFormatter(Number(data?.data?.totalRepaymentAmount || 0))} ${loanTokenLabel}`}
+        className="col-span-3 xl:col-span-1 bg-[#007BFF]"
+        titleClassName="text-left"
+        firstValue={`${nFormatter(totalLoan)} ${loanTokenLabel}`}
+        secondValue={`${nFormatter(repaymentAmount)} ${loanTokenLabel}`}
       >
-        <VStack align={'center'} spacing={2} className="text-base">
-          <span>Total Loan</span>
-          <span>Repayment Amount</span>
-        </VStack>
+        <HStack align="baseline">
+          <span className="text-2xl font-bold">Total loan</span>
+          <span className="text-sm">/ Repayment amount</span>
+        </HStack>
       </SummaryItem>
 
       <SummaryItem
-        className="col-span-3 xl:col-span-1"
+        className="col-span-3 xl:col-span-1 bg-[#32CD32]"
         titleClassName="text-center"
-        firstValue={`${nFormatter(Number(data?.data?.totalDepositedCollateral || 0))} ${collateralTokenLabel}`}
-        secondValue={`${nFormatter(Number(data?.data?.totalRepaymentCollateral || 0))} ${collateralTokenLabel}`}
+        firstValue={`${nFormatter(Number(totalDeposited))} ${collateralTokenLabel}`}
+        secondValue={`${nFormatter(liquidatedCollateral)} ${collateralTokenLabel}`}
       >
-        <VStack align={'center'} spacing={2} className="text-base">
-          <span>Total Deposited</span>
-          <span>Liquidated Collateral</span>
-        </VStack>
+        <HStack align="baseline">
+          <span className="text-2xl font-bold">Total deposited</span>
+          <span className="text-sm">/ Liquidated collateral</span>
+        </HStack>
       </SummaryItem>
 
       <SummaryItem
-        className="col-span-3 xl:col-span-1"
+        className="col-span-3 xl:col-span-1 bg-[#FFA500]"
         titleClassName="text-center"
-        firstValue={nFormatter(Number(data?.data?.totalBondsSold || 0))}
-        secondValue={nFormatter(Number(data?.data?.totalBondsIssued || 0))}
+        firstValue={nFormatter(totalIssued) + ` ISSUE${totalIssued > 1 ? 'S' : ''}`}
+        secondValue={nFormatter(requestBond)}
       >
-        <VStack align={'center'} spacing={2} className="text-base">
-          <span>Total issued</span>
-          <span>Request bond</span>
-        </VStack>
+        <HStack align="baseline">
+          <span className="text-2xl font-bold">Total issued</span>
+          <span className="text-sm">/ Request bond</span>
+        </HStack>
       </SummaryItem>
     </div>
   );

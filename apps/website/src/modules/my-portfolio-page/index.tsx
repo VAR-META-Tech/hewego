@@ -41,11 +41,11 @@ const MyPortfolioPage = () => {
 
   return (
     <AuthLayout>
-      <div className="py-10 space-y-12 overflow-hidden">
-        <div className="container">
+      <div className="py-10 space-y-8 overflow-hidden">
+        <div className="container space-y-4">
           <Back title="My Portfolio" />
 
-          <div className="w-full md:w-3/5 mx-auto">{memoizedTabs}</div>
+          <div className="">{memoizedTabs}</div>
         </div>
 
         <TabContent tab={tab} setTab={setTab} />

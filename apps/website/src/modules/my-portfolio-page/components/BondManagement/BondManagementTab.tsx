@@ -19,25 +19,22 @@ const BondManagementTab = <T extends string | number>({
   ...props
 }: BondManagementTabProps<T>) => {
   return (
-    <div
-      className="flex flex-1 gap-2 p-0.5 shadow-[0rem_0rem_1.25rem_.125rem_rgba(185_185_185_0.25)] md:flex-none overflow-x-auto md:overflow-hidden"
-      {...props}
-    >
+    <div className="inline-flex gap-2 p-0.5 md:flex-none overflow-x-auto md:overflow-hidden" {...props}>
       {data.map((tabItem) => (
         <button
           key={tabItem.value}
           onClick={() => onChange(tabItem.value)}
           className={cn(
-            'relative z-0 py-2 text-nowrap text-primary-700 flex min-w-[8rem] flex-1 items-center justify-center shadow-[0px_0px_20px_2px_rgba(185_185_185_0.25)] transition-all',
+            'relative z-0 font-bold px-8 py-2 text-nowrap text-primary-700 flex min-w-[8rem] flex-1 items-center justify-center transition-all',
             {
-              'text-black': value !== tabItem.value,
+              'text-gray-700': value !== tabItem.value,
             }
           )}
         >
           {tabItem.label}
 
           {value === tabItem.value && (
-            <motion.div layoutId={layoutId} className="absolute z-[-1] h-0.5 bottom-0 w-full bg-primary-700" />
+            <motion.div layoutId={layoutId} className="absolute z-[-1] h-[.125rem] bottom-0 w-full bg-primary-700" />
           )}
         </button>
       ))}

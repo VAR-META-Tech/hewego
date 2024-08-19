@@ -15,7 +15,7 @@ const IssueBondPage = () => {
 
   return (
     <AuthLayout>
-      <div className="container py-10 space-y-5">
+      <div className="container py-10 space-y-4">
         <Back title="Issue Bond" />
 
         <IssueBondFormWrapper>

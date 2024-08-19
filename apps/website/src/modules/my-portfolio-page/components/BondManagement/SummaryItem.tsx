@@ -1,42 +1,40 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { FCC } from '@/types';
 import { cn } from '@/utils/common';
 
-import { VStack } from '@/components/Utilities';
+import { HStack, VStack } from '@/components/Utilities';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
   titleClassName?: string;
   firstValue: string;
-  secondValue: string;
-  isShowDivider?: boolean;
+  secondValue: string | ReactNode;
 }
 
-const SummaryItem: FCC<Props> = ({
-  children,
-  title,
-  firstValue,
-  secondValue,
-  titleClassName,
-  isShowDivider = true,
-  ...props
-}) => {
+const SummaryItem: FCC<Props> = ({ children, title, firstValue, secondValue, titleClassName, ...props }) => {
   const titleElement = children || title;
 
   return (
     <VStack
       {...props}
-      align={'center'}
       justify={'between'}
-      className={cn('bg-primary-700 py-5 px-10 rounded-md text-white uppercase', props.className)}
+      className={cn('py-5 min-h-40 px-8 rounded-xl shadow-md text-white', props.className)}
     >
-      <span className={cn('text-xl font-semibold', titleClassName)}>{titleElement}</span>
+      <div className={cn('text-left', titleClassName)}>{titleElement}</div>
 
-      <VStack justify={'center'} className="w-fit" spacing={4}>
-        <span className="text-center text-2xl font-semibold">{firstValue}</span>
-        {isShowDivider && <span className="bg-border w-full h-[1px]" />}
-        <span className="text-center text-2xl font-semibold">{secondValue}</span>
-      </VStack>
+      <HStack align={'end'} spacing={16}>
+        <span className="text-3xl font-bold bg-white text-primary-700 rounded-md p-1 shadow-md">{firstValue}</span>
+
+        {!!secondValue && typeof secondValue === 'string' ? (
+          <HStack>
+            <span className="text-center text-base font-semibold">/</span>
+
+            <span className="text-center text-2xl font-semibold">{secondValue}</span>
+          </HStack>
+        ) : (
+          secondValue
+        )}
+      </HStack>
     </VStack>
   );
 };

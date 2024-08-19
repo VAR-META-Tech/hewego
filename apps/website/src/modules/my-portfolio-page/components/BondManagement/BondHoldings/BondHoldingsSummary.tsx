@@ -24,24 +24,28 @@ const BondHoldingsSummary = () => {
     return () => clearInterval(refetchInterval);
   }, [isConnected, refetch]);
 
+  const totalBondPurchased = Number(data?.data?.totalBondPurchased ?? 0);
+
   return (
-    <div className="grid grid-cols-2 gap-5">
+    <div className="grid grid-cols-3 gap-8">
       <SummaryItem
-        titleClassName="text-center"
-        className="py-10 col-span-2 xl:col-span-1"
-        title="Total Number of Bonds Purchased"
-        firstValue={`${data?.data?.totalBondPurchased || 0} bonds~${nFormatter(Number(formatUnits(BigInt(data?.data?.totalAmountBondPurchased || 0), Number(TOKEN_UNIT))))} USDC`}
-        secondValue={''}
-        isShowDivider={false}
+        titleClassName="text-left text-2xl font-bold text-white"
+        className="col-span-3 transition-all bg-[#007BFF] xl:col-span-1"
+        title="Total Bond Purchases"
+        firstValue={`${totalBondPurchased} BOND${totalBondPurchased > 1 ? 'S' : ''}`}
+        secondValue={
+          <div className="text-[#FFFFFF] font-semibold text-xl underline underline-offset-4">
+            {`~ ${nFormatter(Number(formatUnits(BigInt(data?.data?.totalAmountBondPurchased || 0), Number(TOKEN_UNIT))))} USDC`}
+          </div>
+        }
       />
 
       <SummaryItem
-        titleClassName="text-center"
-        className="py-10 col-span-2 xl:col-span-1"
-        title=" Total Capital and Interest Received "
+        titleClassName="text-left text-2xl font-bold text-white"
+        className="col-span-3 transition-all bg-[#32CD32] xl:col-span-1"
+        title="Capital & Interest Received"
         firstValue={`${prettyNumber(Number(data?.data?.totalCapitalAndInterestRecieved || 0).toFixed(2))} USDC`}
-        secondValue={''}
-        isShowDivider={false}
+        secondValue={null}
       />
     </div>
   );

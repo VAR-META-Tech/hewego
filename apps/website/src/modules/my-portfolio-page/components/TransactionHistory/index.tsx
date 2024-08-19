@@ -23,7 +23,7 @@ const TransactionHistory = () => {
 
   return (
     <TransactionHistoryFilterFormWrapper>
-      <div className="container space-y-10">
+      <div className="container space-y-8">
         <TransactionHistoryFilter handleSearchChange={handleSearchChange} />
 
         <TransactionHistoryTable
