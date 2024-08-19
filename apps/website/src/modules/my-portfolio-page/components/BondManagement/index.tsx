@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSearchParams } from 'next/navigation';
 
 import TransitionLayout from '@/components/TransitionLayout';
 
@@ -13,6 +14,17 @@ interface Props {
 
 const BondManagement: React.FC<Props> = ({ setTab: setTabContainer }) => {
   const [tab, setTab] = React.useState(BOND_MANAGEMENT_TAB_VALUE.BOND_REQUESTS);
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect');
+
+  React.useEffect(() => {
+    if (redirect === BOND_MANAGEMENT_TAB_VALUE.BOND_HOLDINGS) {
+      setTab(BOND_MANAGEMENT_TAB_VALUE.BOND_HOLDINGS);
+      return;
+    }
+
+    setTab(BOND_MANAGEMENT_TAB_VALUE.BOND_REQUESTS);
+  }, [redirect]);
 
   return (
     <div className="space-y-8">

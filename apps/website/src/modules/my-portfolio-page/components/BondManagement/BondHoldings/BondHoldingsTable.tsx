@@ -1,9 +1,12 @@
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
+import Link from 'next/link';
 import { IGetBondHoldingsData } from '@/api/portfolio/type';
 import { HederaWalletsContext } from '@/context/HederaContext';
 import { useBondClaimStore } from '@/modules/my-portfolio-page/store/useBondClaimStore';
 import { useBondHoldingsStore } from '@/modules/my-portfolio-page/store/useBondHoldingsStore';
+import { ROUTE } from '@/types';
 import { cn, currentNo, prettyNumber, roundNumber } from '@/utils/common';
 import { IPagination, IPaging } from '@/utils/common.type';
 import { CONTRACT_ID, DATE_FORMAT, env, TOKEN_UNIT } from '@/utils/constants';
@@ -157,7 +160,20 @@ const BondHoldingsTable: React.FC<Props> = ({
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody isLoading={isLoading} loadingContent={<Spinner />} items={bonds} emptyContent="No data to display.">
+        <TableBody
+          isLoading={isLoading}
+          loadingContent={<Spinner />}
+          items={bonds}
+          emptyContent={
+            <span>
+              You don't have any bond holdings at the moment. Explore and purchase bonds to see them listed{' '}
+              <Link href={ROUTE.HOME} className="underline text-blue-500 hover:opacity-50">
+                here
+              </Link>
+              .
+            </span>
+          }
+        >
           {bonds?.map((item, index) => (
             <TableRow key={`${item?.bondInfo?.bondId}-${index}`}>
               {(columnKey) => (
