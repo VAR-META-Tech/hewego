@@ -9,10 +9,10 @@ The ```Hewego``` project is an application designed for issuing bonds on the Hed
 - API, Indexer: ``NestJS``
 - SmartContract: ``Solidity``
 ## Prerequisite
-- You must install Node version 18 or newer. To run stable application, we recommend using node version ``18 -> 22``.
+- You must install Node version 18 or newer. To run stable application, we recommend using node version ``18``.
 
 ## Env
-Before starting the app you would need to setup env variables. To do so first go to the root ``apps`` dir of monorepo and copy all .env.example in each sub folder to ``.env`` file equivalently.
+Before starting the app you would need to setup env variables. To do so first go to the root ``apps`` dir of monorepo and copy all ``.env.example`` in each sub folder to ``.env`` file equivalently.
 ## Installation
 ```bash
 $ npm install -g pnpm
@@ -38,10 +38,7 @@ $ yarn install
 
 # Run job task
 $ npx hardhat run ./scripts/jobs.ts --network testnet
-
-# Deploy contract
-$ npx hardhat run ./scripts/ez_implement.ts --network testnet
 ```
 
-## Stay in touch
-- Website - [https://www.var-meta.com/](https://www.var-meta.com/)
+## Demo
+- Website - [https://hewego.var-meta.com/](https://hewego.var-meta.com/)

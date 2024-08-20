@@ -5,13 +5,13 @@
 ```bash
 cp .env.example .env
 
-yarn install
+pnpm install
 ```
 
 
 ### Development
 ```bash
-yarn run dev
+pnpm run dev
 ```
 
 ### Build
@@ -19,7 +19,7 @@ yarn run dev
 To build the App, run
 
 ```bash
-yarn run build
+pnpm run build
 ```
 
 And you will see the generated file in `dist` that ready to be served.
@@ -27,6 +27,6 @@ And you will see the generated file in `dist` that ready to be served.
 ### Production 
 To run on production environment
 ```bash
-yarn run start:prod
+pnpm run start:prod
 ```
 
