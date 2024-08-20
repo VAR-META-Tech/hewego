@@ -21,16 +21,17 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - postgres
-  postgres:
+      - postgres_db
+  postgres_db:
     image: postgres:15
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=dev-hedera
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - ${DB_PORT}:5432
     networks:
       - postgres-db-network
   pgadmin:
