@@ -68,13 +68,8 @@ export const LOOK_UP = [
 export const NUMBER_PREVENT_KEYS = ['e', 'E', '+', '-'];
 export const AMOUNT_PREVENT_KEYS = [...NUMBER_PREVENT_KEYS, '.'];
 
-export const TOKEN_UNIT = process.env.NEXT_PUBLIC_TOKEN_UNIT || '8';
+export const TOKEN_UNIT = process.env.NEXT_PUBLIC_TOKEN_UNIT || '';
 
-export const PLATFORM_FEE = process.env.NEXT_PUBLIC_PLATFORM_FEE || '5';
+export const CONTRACT_ID = process.env.NEXT_PUBLIC_CONTRACT_ID || '';
 
-export const CONTRACT_ID = process.env.NEXT_PUBLIC_CONTRACT_ID || '0.0.4673119';
-export const COLLATERAL_CONTRACT_ID = process.env.NEXT_PUBLIC_COLLATERAL_CONTRACT_ID || '0.0.4673010';
-export const LOAN_CONTRACT_ID = process.env.NEXT_PUBLIC_LOAN_CONTRACT_ID || '0.0.4673011';
-
-export const CONTRACT_ADDRESS =
-  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0xCCCdc46d7930c89517817e14B6c79262f8984202';
+export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '';
