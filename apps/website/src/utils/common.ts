@@ -13,7 +13,15 @@ import { extendTailwindMerge } from 'tailwind-merge';
 import { parseUnits as ethersParseUnits, formatUnits } from 'viem';
 
 import { getMutateError } from '../lib/getMutateError';
-import { AMOUNT_PREVENT_KEYS, DATETIME_FORMAT, env, LOOK_UP, NUMBER_PREVENT_KEYS, TOKEN_UNIT } from './constants';
+import {
+  AMOUNT_PREVENT_KEYS,
+  DATETIME_FORMAT,
+  env,
+  infinity_number,
+  LOOK_UP,
+  NUMBER_PREVENT_KEYS,
+  TOKEN_UNIT,
+} from './constants';
 import * as util from './util';
 
 const twMerge = extendTailwindMerge({});
@@ -157,7 +165,7 @@ export const formatTime = (date: string | Date, formatString?: string): string =
 
 export const getTokensAssociated = async (accountId: string) => {
   try {
-    const response = await axios.get(`${env.HEDERA_URL}/api/v1/accounts/${accountId}/tokens`);
+    const response = await axios.get(`${env.HEDERA_URL}/api/v1/accounts/${accountId}/tokens?limit=${infinity_number}`);
 
     return response?.data?.tokens;
   } catch (error) {

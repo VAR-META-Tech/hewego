@@ -35,6 +35,8 @@ export const TOKEN_TYPE = {
   COLLATERAL: 'COLLATERAL',
 };
 
+export const infinity_number = 99999999999999;
+
 export const DATETIME_FORMAT = {
   FULL_DATE_TIME: "yyyy-M-dd'T'HH:mm:ss.SSSX",
   DATETIME_SECONDS: 'dd/MM/yyyy HH:mm:ss',
