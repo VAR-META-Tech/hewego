@@ -1,5 +1,5 @@
 {
-  "name": "shop",
+  "name": "hedera-hackathon",
   "private": true,
   "version": "1.0.0",
   "description": "",
@@ -16,7 +16,7 @@
     "dev": "turbo run dev --parallel",
     "dev:api": "turbo run dev --filter=server... --parallel",
     "dev:indexer": "turbo run dev --filter=indexer... --parallel",
-    "dev:website": "turbo run dev --filter=@shop/website... --parallel",
+    "dev:website": "turbo run dev --filter=website... --parallel",
     "deploy": "turbo run deploy",
     "deploy:affected": "turbo run deploy --filter=${BASE_COMMIT:-...[origin/main]}",
     "deps:check": "npx npm-check-updates --deep",
