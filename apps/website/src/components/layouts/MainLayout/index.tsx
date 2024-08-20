@@ -1,10 +1,8 @@
 import React from 'react';
-import dynamic from 'next/dynamic';
 import { FCC } from '@/types';
 
 import Footer from './components/Footer';
-
-const Header = dynamic(() => import('./components/Header'));
+import Header from './components/Header';
 
 interface Props {}
 

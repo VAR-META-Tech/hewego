@@ -1,6 +1,5 @@
 import Head from 'next/head';
 
-import '@shop/design-system/style.css';
 import '../styles/globals.css';
 
 import { Session } from 'inspector';
