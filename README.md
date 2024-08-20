@@ -32,7 +32,7 @@ $ pnpm run dev
 ```
 ## Smart Contract
 ```bash
-$ cd packages/smart-contract/scripts
+$ cd packages/smart-contract
 $ cp .env.example .env
 $ yarn install 
 
