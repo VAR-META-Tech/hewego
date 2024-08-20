@@ -128,7 +128,7 @@ const ActiveBondTable: React.FC<Props> = ({ bonds, isLoading, refetch }) => {
 
   return (
     <div className="col-span-8 xl:col-span-6 space-y-10">
-      <Table className="w-full text-base" removeWrapper>
+      <Table className="w-full text-base overflow-auto" removeWrapper>
         <TableHeader columns={HEADER_ACTIVE_BONDS_COLUMNS}>
           {(column) => (
             <TableColumn
