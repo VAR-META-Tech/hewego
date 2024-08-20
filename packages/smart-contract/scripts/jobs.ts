@@ -24,7 +24,7 @@ const pairTokens = [
 ];
 
 const abiBondIssuance = [
-    "function getBond(uint256 bondId) view returns ((string name, address loanToken, uint256 loanAmount, uint256 volumeBond, uint256 bondDuration, uint256 borrowerInterestRate, uint256 lenderInterestRate, address collateralToken, uint256 collateralAmount, uint256 issuanceDate, uint256 maturityDate, address borrower, (address lender, uint256 amountLend, uint256 amountBond)[] lenders, uint256 totalLend, uint256 totalBond, uint256 liquidationLoanTokenAmount, bool isActive, bool readyToRepay, bool isBorrowerClaimed))",
+    "function getBond(uint256 bondId) view returns ((string name, address loanToken, uint256 loanAmount, uint256 volumeBond, uint256 bondDuration, uint256 borrowerInterestRate, uint256 lenderInterestRate, uint256 platformFeePercent, address collateralToken, uint256 collateralAmount, uint256 issuanceDate, uint256 maturityDate, address borrower, (address lender, uint256 amountLend, uint256 amountBond)[] lenders, uint256 totalLend, uint256 totalBond, uint256 liquidationLoanTokenAmount, bool isActive, bool readyToRepay, bool isBorrowerClaimed))",
     "function isBondLiquidatable(uint256 bondId) view returns (uint256, bool)",
 ];
 const abiSwap = [
