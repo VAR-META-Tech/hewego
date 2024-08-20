@@ -59,7 +59,7 @@ const ActiveBondTable: React.FC<Props> = ({ bonds, isLoading, refetch }) => {
         case HEADER_ACTIVE_BONDS_KEYS.LOAN_TERM:
           return (
             <>
-              {item?.loanTerm && (
+              {!!item?.loanTerm && (
                 <HStack noWrap spacing={8} className="py-1 px-2 rounded-lg bg-primary-50 w-fit">
                   <Icons.calendar color="#9B7AF2" size={16} />
 
