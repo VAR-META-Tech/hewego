@@ -60,7 +60,7 @@ export class HederaWorkerService {
    */
   async crawlData() {
     return await this.dataSource.transaction(async (manager) => {
-      const toBlock = new Date().getTime() / 1000 - 30;
+      const toBlock = new Date().getTime() / 1000 - 5;
       this.logger.debug({ toBlock });
       let crawlName = `crawl_${this.chainId}_${this.contractId}`;
       let latestBlockInDb = await manager
