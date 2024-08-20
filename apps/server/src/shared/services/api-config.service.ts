@@ -128,7 +128,6 @@ export class ApiConfigService {
       jwtRefreshTokenExpirationTime: this.getNumber(
         'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
       ),
-      signatureMessage: this.getString('SIGNATURE_MESSAGE'),
     };
   }
 
