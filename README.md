@@ -40,5 +40,9 @@ $ yarn install
 $ npx hardhat run ./scripts/jobs.ts --network testnet
 ```
 
+##  How to test the application
+- You need to have a Hedera testnet account. You can create one [here](https://portal.hedera.com/register).
+- You need to have Loan token (LTK) & Collateral token (CTK) in your account. You can get them by swaping HBAR to [LTK](https://testnet.saucerswap.finance/swap/HBAR/0.0.4673011) or [CTK](https://testnet.saucerswap.finance/swap/HBAR/0.0.4673010).
+
 ## Demo
 - Website - [https://hewego.var-meta.com/](https://hewego.var-meta.com/)

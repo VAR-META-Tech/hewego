@@ -1,11 +1,12 @@
-FROM node:18.12.1-buster-slim AS builder
+FROM node:18.12.1-alpine AS builder
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+ENV PNPM_HOME="/pnpm" \
+    PATH="$PNPM_HOME:$PATH" \
+    UV_THREADPOOL_SIZE=64 \
+    NODE_ENV=production \
+    PORT=3000
+
 RUN corepack enable
-
-ENV UV_THREADPOOL_SIZE 64
-ENV NODE_ENV=production
 
 WORKDIR /app
 
@@ -21,8 +22,6 @@ COPY . .
 USER node
 
 EXPOSE 3000
-
-ENV PORT=3000
 
 WORKDIR apps/website
 

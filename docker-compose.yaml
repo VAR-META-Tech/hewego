@@ -20,6 +20,8 @@ services:
     env_file: ./apps/server/.env
     ports:
       - "3001:3001"
+    depends_on:
+      - postgres
   postgres:
     image: postgres:15
     environment:
