@@ -1,0 +1,36 @@
+include:
+  - project: foundation/templates/ci-template
+    file: update-manifest.yml
+
+stages:
+  - dockerize
+  - deploy
+
+##### Dockerize template
+.dockerize_template: &dockerize
+  stage: dockerize
+  image: $KANIKO_RUNNER_IMAGE
+  script:
+    - sh ./scripts/dockerize.sh
+  tags:
+    - vm-docker
+  allow_failure: false
+  when: on_success
+
+dockerize:dev:
+  <<: *dockerize
+  variables:
+    REGISTRY: $REGISTRY_BE
+    DOCKERFILE_DIR: apps/server
+  only: # update this for staging
+    - dev
+
+deploy-vm:
+  stage: deploy
+  tags:
+    - vm
+  script: 
+    - sh ./scripts/deploy.sh
+  only:
+    - dev
+  when: on_success

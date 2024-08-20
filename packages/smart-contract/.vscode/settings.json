@@ -1,0 +1,7 @@
+{
+    "slither.solcPath": "",
+    "slither.hiddenDetectors": [],
+    "cSpell.enableFiletypes": [
+        "solidity"
+    ]
+}
