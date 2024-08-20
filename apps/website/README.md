@@ -41,3 +41,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 pnpm build
 ```
 Copy all content in `.next` for deployment
+
+### or Run Docker
+
+```bash
+1. Move to root folder
+2. Run chmod +x build-and-run.sh
+3. Run ./build-and-run0-fe.sh
+```
