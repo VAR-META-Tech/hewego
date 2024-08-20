@@ -5,7 +5,7 @@
  cd packages/smart-contract
  ```
  
-## To deploy
+## To deploy (Skip it if you use our contracts)
 ```script
 ./flattens.sh
 npx hardhat run ./scripts/ez_implement.ts --network testnet
