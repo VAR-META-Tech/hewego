@@ -10,12 +10,13 @@ ENV NODE_ENV=production
 WORKDIR /app
 
 # copy all required package.json files for installation
-COPY ./json .
+COPY package.json .
+COPY pnpm-lock.yaml .
 
 RUN pnpm install --prod --frozen-lockfile
 
 # copy all built files required to run the app
-COPY ./full .
+COPY . .
 
 USER node
 
