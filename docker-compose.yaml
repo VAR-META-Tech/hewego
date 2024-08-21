@@ -1,7 +1,7 @@
 version: '3'
 services:
   website:
-    container_name: website
+    container_name: hewego_website
     build:
       context: .
       dockerfile: ./apps/website/Dockerfile
@@ -12,48 +12,40 @@ services:
     depends_on:
       - api
   api:
-    container_name: server
+    container_name: hewego_server
     build:
-      context: .
-      dockerfile: ./apps/server/Dockerfile
+      context: ./apps/server
+      dockerfile: ./Dockerfile
     restart: always
     env_file: ./apps/server/.env
     ports:
       - "3001:3001"
     depends_on:
       - postgres_db
+  indexer:
+    container_name: hewego_indexer
+    build:
+      context: ./apps/indexer
+      dockerfile: ./Dockerfile
+    restart: always
+    env_file: ./apps/indexer/.env
+    ports:
+      - "3002:3002"
+    depends_on:
+      - postgres_db
   postgres_db:
-    image: postgres:15
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=dev-hedera
-    volumes:
-      - postgres-db-volume:/var/lib/postgresql/data
+      - POSTGRES_DB=dev_hedera
     ports:
-      - ${DB_PORT}:5432
-    networks:
-      - postgres-db-network
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: 'admin@admin.com'
-      PGADMIN_DEFAULT_PASSWORD: 'password'
-    ports:
-      - "16543:80"
+      - "54325:5432"
     volumes:
-      - ./servers.json:/pgadmin4/servers.json
-    networks:
-      - postgres-db-network
+      - postgres-db-volume:/data/postgres
 
 volumes:
   postgres-db-volume:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./data
-networks:
-  postgres-db-network:
-    driver: bridge
 

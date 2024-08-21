@@ -1,29 +1,42 @@
-FROM node:18.12.1-alpine AS builder
-
-ENV PNPM_HOME="/pnpm" \
-    PATH="$PNPM_HOME:$PATH" \
-    UV_THREADPOOL_SIZE=64 \
-    NODE_ENV=production \
-    PORT=3000
-
+FROM node:18-alpine AS base
 RUN corepack enable
 
+FROM base AS builder
+WORKDIR /app
+COPY . .
+RUN npm install -g turbo
+RUN turbo prune website --docker
+
+FROM base AS installer
 WORKDIR /app
 
-# copy all required package.json files for installation
-COPY package.json .
-COPY pnpm-lock.yaml .
+COPY .gitignore .gitignore
+COPY --from=builder /app/out/json/ .
+COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 
-RUN pnpm install --prod --frozen-lockfile
+RUN npm install -g pnpm -f
+RUN pnpm install
+COPY --from=builder /app/out/full/ .
+COPY turbo.json turbo.json
 
-# copy all built files required to run the app
-COPY . .
+RUN pnpm turbo build --filter=web...
 
-USER node
+FROM base AS runner
+WORKDIR /app
 
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+USER nextjs
+
+COPY --from=installer --chown=nextjs:nodejs /app/apps/website/package.json /app/apps/website/package.json
+COPY --from=installer --chown=nextjs:nodejs /app/apps/website/next.config.js /app/apps/website/next.config.js
+COPY --from=installer --chown=nextjs:nodejs /app/apps/website/.next /app/apps/website/.next
+COPY --from=installer --chown=nextjs:nodejs /app/apps/website/node_modules /app/apps/website/node_modules
+COPY --from=installer --chown=nextjs:nodejs /app/apps/website/public /app/apps/website/public
+COPY --from=installer --chown=nextjs:nodejs /app/node_modules /app/node_modules
+
+WORKDIR /app/apps/website
 EXPOSE 3000
 
-WORKDIR apps/website
-
 CMD ["pnpm", "start"]
-

@@ -8,6 +8,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
+    "build:prod": "tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "dev": "nest start --watch",
@@ -49,6 +50,7 @@
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
     "deep-parse-json": "^1.0.2",
+    "dotenv": "^16.3.1",
     "ethers": "^5.7.2",
     "handlebars": "^4.7.7",
     "lodash": "^4.17.21",
