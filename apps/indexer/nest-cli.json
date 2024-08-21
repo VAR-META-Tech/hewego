@@ -3,7 +3,14 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "assets": ["modules/mail/templates/**/*"],
-    "watchAssets": true
+    "plugins": [
+      "@nestjs/swagger/plugin"
+    ],
+    "assets": [
+      {
+        "include": "i18n/**/*",
+        "watchAssets": true
+      }
+    ]
   }
 }

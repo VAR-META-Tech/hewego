@@ -19,7 +19,7 @@ RUN pnpm install
 COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
 
-RUN pnpm turbo build --filter=web...
+RUN pnpm turbo build --filter=website...
 
 FROM base AS runner
 WORKDIR /app

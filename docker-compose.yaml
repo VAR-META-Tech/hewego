@@ -22,17 +22,6 @@ services:
       - "3001:3001"
     depends_on:
       - postgres_db
-  indexer:
-    container_name: hewego_indexer
-    build:
-      context: ./apps/indexer
-      dockerfile: ./Dockerfile
-    restart: always
-    env_file: ./apps/indexer/.env
-    ports:
-      - "3002:3002"
-    depends_on:
-      - postgres_db
   postgres_db:
     image: postgres:16-alpine
     container_name: postgres
