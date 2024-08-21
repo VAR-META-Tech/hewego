@@ -584,7 +584,7 @@ export class BondService {
       })
       .andWhere((qb) => {
         qb.where(
-          'bonds.maturity_date < :currentTimestamp AND bonds.repaid_at IS NULL AND bonds.liquidated_at IS NULL',
+          'bonds.maturity_date < :currentTimestamp AND bonds.repaid_at IS NULL AND bonds.liquidated_at IS NULL AND bonds.canceled_at IS NULL',
           {
             currentTimestamp,
           },
