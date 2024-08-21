@@ -582,13 +582,14 @@ export class BondService {
       .where('LOWER(bonds.contract_address) = LOWER(:contractAddress)', {
         contractAddress: activeBondIssuanceContractAddress,
       })
-      .andWhere('bonds.repaid_at IS NULL')
-      .andWhere(
-        'bonds.issuanceDate <= :currentTimestamp AND bonds.maturityDate > :currentTimestamp',
-        {
-          currentTimestamp,
-        },
-      )
+      .andWhere((qb) => {
+        qb.where(
+          'bonds.maturity_date < :currentTimestamp AND bonds.repaid_at IS NULL AND bonds.liquidated_at IS NULL',
+          {
+            currentTimestamp,
+          },
+        );
+      })
       .getMany();
   }
 }
